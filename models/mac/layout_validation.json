@@ -1,0 +1,64 @@
+{
+  "ok": true,
+  "errors": [],
+  "warnings": [],
+  "details": {
+    "templates": {
+      "A_SCH": {
+        "location_count": 6,
+        "distinct_location_coordinates": 6,
+        "label_count": 32
+      },
+      "A_Q": {
+        "location_count": 4,
+        "distinct_location_coordinates": 4,
+        "label_count": 12
+      },
+      "A_BUF": {
+        "location_count": 3,
+        "distinct_location_coordinates": 3,
+        "label_count": 11
+      },
+      "A_RSRC": {
+        "location_count": 4,
+        "distinct_location_coordinates": 4,
+        "label_count": 11
+      },
+      "A_MAC_AGG": {
+        "location_count": 4,
+        "distinct_location_coordinates": 4,
+        "label_count": 11
+      },
+      "A_ENV_MAC": {
+        "location_count": 1,
+        "distinct_location_coordinates": 1,
+        "label_count": 18
+      },
+      "ObsPhyAck": {
+        "location_count": 3,
+        "distinct_location_coordinates": 3,
+        "label_count": 4
+      },
+      "ObsQueueCritical": {
+        "location_count": 3,
+        "distinct_location_coordinates": 3,
+        "label_count": 4
+      },
+      "ObsSensingCritical": {
+        "location_count": 3,
+        "distinct_location_coordinates": 3,
+        "label_count": 4
+      },
+      "ObsBufferOverflow": {
+        "location_count": 3,
+        "distinct_location_coordinates": 3,
+        "label_count": 4
+      },
+      "ObsMacReportFreshness": {
+        "location_count": 3,
+        "distinct_location_coordinates": 3,
+        "label_count": 4
+      }
+    }
+  }
+}

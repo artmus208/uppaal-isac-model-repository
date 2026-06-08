@@ -1,0 +1,2683 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC "-//Uppaal Team//DTD Flat System 1.6//EN" "http://www.it.uu.se/research/group/darts/uppaal/flat-1_6.dtd">
+<nta>
+  <declaration>// Generated from PHY contract IR. Continuous PHY metrics stay outside timed automata.
+// Generation mode: with_observers.
+// Layout mode: readable.
+// Negative scenarios disabled for this generated model.
+const int D_meas = 5;
+const int D_sig = 5;
+const int D_sense = 5;
+const int D_report = 5;
+const int D_BM = 5;
+const int D_child = 5;
+const int D_net = 5;
+const int T_meas = 5;
+const int J_meas = 1;
+const int T_report = 5;
+const int J_SSB = 1;
+const int tau_SSB = 4;
+
+const int SCENARIO_NORMAL = 0;
+const int SCENARIO_COMM_DEGRADED = 1;
+const int SCENARIO_SENSING_DEGRADED = 2;
+const int SCENARIO_JOINT_DEGRADED = 3;
+int[0,3] env_scenario = SCENARIO_NORMAL;
+
+clock c_meas, c_sig, c_sense, c_report, c_rec, c_ssb;
+clock aos_bs, aos_ctrl, c_env, c_net;
+clock c_obs_sense, c_obs_fresh, c_obs_beam;
+clock c_obs_channel, c_obs_signal, c_obs_sensing, c_obs_phy;
+
+typedef int[0,4] WaveformT;
+const int W_OFDM = 0;
+const int W_OTFS = 1;
+const int W_AFDM = 2;
+const int W_SC = 3;
+const int W_OTHER = 4;
+WaveformT W = W_OFDM;
+
+chan beam_cmd, controller_report_delivered, extra_ssb_cmd, handover_assist_cmd, mac_report_delivered, measure_tick, new_beam_confirmed, payload_sensing_config, pilot_config, power_cmd, prs_config, recovery_cmd, sensing_mode_cmd, ssb_burst_config, waveform_config;
+broadcast chan aos_ctrl_expired, beam_failure, beam_locked, beam_misaligned, beam_report, beam_restored, blockage_detected, channel_degraded, channel_report, contract_violation_bm, contract_violation_ch, contract_violation_ph, contract_violation_sig, contract_violation_sq, degradation_event, handover_hint, mobility_alert, multipath_alert, phy_failure, phy_kpi_report, phy_outage, recovery_event, recovery_start, sensing_degraded, sensing_failure, sensing_report, sensing_success, signal_degraded, signal_report, target_detected;
+
+// === A_CH: Channel classifier ===
+// === A_SIG: Signal classifier ===
+// === A_BM: Beam management ===
+// === A_SQ: Sensing QoS classifier ===
+// === A_PH: Aggregate PHY state ===
+// === ENV_*: Closed-system environment stimulus loops ===
+// === Obs*: Bounded response observers ===
+
+typedef int[0,3] SINRClassT;
+const int SINRCLASS_OUTAGE = 0;
+const int SINRCLASS_LOW = 1;
+const int SINRCLASS_OK = 2;
+const int SINRCLASS_HIGH = 3;
+SINRClassT SINRClass = SINRCLASS_OK;
+
+typedef int[0,2] BLERClassT;
+const int BLERCLASS_OK = 0;
+const int BLERCLASS_HIGH = 1;
+const int BLERCLASS_CRITICAL = 2;
+BLERClassT BLERClass = BLERCLASS_OK;
+
+typedef int[0,2] CQIClassT;
+const int CQICLASS_GOOD = 0;
+const int CQICLASS_LIMITED = 1;
+const int CQICLASS_BAD = 2;
+CQIClassT CQIClass = CQICLASS_GOOD;
+
+typedef int[0,2] IClassT;
+const int ICLASS_OK = 0;
+const int ICLASS_HIGH = 1;
+const int ICLASS_CRITICAL = 2;
+IClassT IClass = ICLASS_OK;
+
+typedef int[0,1] DopplerClassT;
+const int DOPPLERCLASS_OK = 0;
+const int DOPPLERCLASS_HIGH = 1;
+DopplerClassT DopplerClass = DOPPLERCLASS_OK;
+
+typedef int[0,1] DelaySpreadClassT;
+const int DELAYSPREADCLASS_OK = 0;
+const int DELAYSPREADCLASS_HIGH = 1;
+DelaySpreadClassT DelaySpreadClass = DELAYSPREADCLASS_OK;
+
+typedef int[0,2] PowerClassT;
+const int POWERCLASS_OK = 0;
+const int POWERCLASS_LOW = 1;
+const int POWERCLASS_ABSENT = 2;
+PowerClassT PowerClass = POWERCLASS_OK;
+
+typedef int[0,1] DRTClassT;
+const int DRTCLASS_OK = 0;
+const int DRTCLASS_BAD = 1;
+DRTClassT DRTClass = DRTCLASS_OK;
+
+typedef int[0,2] PilotDensityClassT;
+const int PILOTDENSITYCLASS_OK = 0;
+const int PILOTDENSITYCLASS_LOW = 1;
+const int PILOTDENSITYCLASS_FAILED = 2;
+PilotDensityClassT PilotDensityClass = PILOTDENSITYCLASS_OK;
+
+typedef int[0,2] PayloadSenseClassT;
+const int PAYLOADSENSECLASS_OK = 0;
+const int PAYLOADSENSECLASS_LIMITED = 1;
+const int PAYLOADSENSECLASS_FAILED = 2;
+PayloadSenseClassT PayloadSenseClass = PAYLOADSENSECLASS_OK;
+
+typedef int[0,2] PRSClassT;
+const int PRSCLASS_OK = 0;
+const int PRSCLASS_LIMITED = 1;
+const int PRSCLASS_FAILED = 2;
+PRSClassT PRSClass = PRSCLASS_OK;
+
+typedef int[0,2] BeamErrorClassT;
+const int BEAMERRORCLASS_LOCKABLE = 0;
+const int BEAMERRORCLASS_UNSTABLE = 1;
+const int BEAMERRORCLASS_CRITICAL = 2;
+BeamErrorClassT BeamErrorClass = BEAMERRORCLASS_LOCKABLE;
+
+typedef int[0,2] BlockageClassT;
+const int BLOCKAGECLASS_NONE = 0;
+const int BLOCKAGECLASS_SUSPECTED = 1;
+const int BLOCKAGECLASS_CONFIRMED = 2;
+BlockageClassT BlockageClass = BLOCKAGECLASS_NONE;
+
+typedef int[0,2] PdClassT;
+const int PDCLASS_OK = 0;
+const int PDCLASS_LOW = 1;
+const int PDCLASS_FAILED = 2;
+PdClassT PdClass = PDCLASS_OK;
+
+typedef int[0,2] RfaClassT;
+const int RFACLASS_OK = 0;
+const int RFACLASS_HIGH = 1;
+const int RFACLASS_CRITICAL = 2;
+RfaClassT RfaClass = RFACLASS_OK;
+
+typedef int[0,2] AccClassT;
+const int ACCCLASS_OK = 0;
+const int ACCCLASS_LIMITED = 1;
+const int ACCCLASS_FAILED = 2;
+AccClassT AccClass = ACCCLASS_OK;
+
+typedef int[0,2] CRBClassT;
+const int CRBCLASS_OK = 0;
+const int CRBCLASS_LOOSE = 1;
+const int CRBCLASS_UNUSABLE = 2;
+CRBClassT CRBClass = CRBCLASS_OK;
+
+typedef int[0,2] AoSClassT;
+const int AOSCLASS_FRESH = 0;
+const int AOSCLASS_STALE = 1;
+const int AOSCLASS_EXPIRED = 2;
+AoSClassT AoSClass = AOSCLASS_FRESH;
+
+typedef int[0,2] CapClassT;
+const int CAPCLASS_OK = 0;
+const int CAPCLASS_LIMITED = 1;
+const int CAPCLASS_FAILED = 2;
+CapClassT CapClass = CAPCLASS_OK;
+
+typedef int[0,2] CoverageClassT;
+const int COVERAGECLASS_OK = 0;
+const int COVERAGECLASS_LIMITED = 1;
+const int COVERAGECLASS_FAILED = 2;
+CoverageClassT CoverageClass = COVERAGECLASS_OK;
+
+typedef int[0,2] ResourceShareClassT;
+const int RESOURCESHARECLASS_OK = 0;
+const int RESOURCESHARECLASS_LIMITED = 1;
+const int RESOURCESHARECLASS_STARVED = 2;
+ResourceShareClassT ResourceShareClass = RESOURCESHARECLASS_OK;
+
+typedef int[0,2] MisClassT;
+const int MISCLASS_OK = 0;
+const int MISCLASS_WARN = 1;
+const int MISCLASS_CRITICAL = 2;
+MisClassT MisClass = MISCLASS_OK;
+
+typedef int[0,2] BMOverheadClassT;
+const int BMOVERHEADCLASS_OK = 0;
+const int BMOVERHEADCLASS_HIGH = 1;
+const int BMOVERHEADCLASS_EXCESSIVE = 2;
+BMOverheadClassT BMOverheadClass = BMOVERHEADCLASS_OK;
+
+typedef int[0,5] ChannelClassT;
+const int CHANNELCLASS_NOMINAL = 0;
+const int CHANNELCLASS_INTERFERENCE_LIMITED = 1;
+const int CHANNELCLASS_MOBILITY_LIMITED = 2;
+const int CHANNELCLASS_MULTIPATH_LIMITED = 3;
+const int CHANNELCLASS_BLOCKAGE = 4;
+const int CHANNELCLASS_OUTAGE = 5;
+ChannelClassT ChannelClass = CHANNELCLASS_NOMINAL;
+
+typedef int[0,4] SignalClassT;
+const int SIGNALCLASS_NOMINAL = 0;
+const int SIGNALCLASS_PILOT_BASED = 1;
+const int SIGNALCLASS_PAYLOAD_ASSISTED = 2;
+const int SIGNALCLASS_RECONFIGURING = 3;
+const int SIGNALCLASS_LIMITED = 4;
+SignalClassT SignalClass = SIGNALCLASS_NOMINAL;
+
+typedef int[0,7] BeamClassT;
+const int BEAMCLASS_SEARCH = 0;
+const int BEAMCLASS_TRACK = 1;
+const int BEAMCLASS_LOCKED = 2;
+const int BEAMCLASS_PREDICT = 3;
+const int BEAMCLASS_MISALIGNED = 4;
+const int BEAMCLASS_RECOVERING = 5;
+const int BEAMCLASS_HO_ASSIST = 6;
+const int BEAMCLASS_FAILED = 7;
+BeamClassT BeamClass = BEAMCLASS_SEARCH;
+
+typedef int[0,7] SensingStateT;
+const int SENSINGSTATE_SENSINGQOSOK = 0;
+const int SENSINGSTATE_PROBABILITYLIMITED = 1;
+const int SENSINGSTATE_FALSEALARMLIMITED = 2;
+const int SENSINGSTATE_ACCURACYLIMITED = 3;
+const int SENSINGSTATE_FRESHNESSLIMITED = 4;
+const int SENSINGSTATE_COVERAGELIMITED = 5;
+const int SENSINGSTATE_CAPACITYLIMITED = 6;
+const int SENSINGSTATE_SENSINGFAILURE = 7;
+SensingStateT SensingState = SENSINGSTATE_SENSINGQOSOK;
+
+typedef int[0,5] PHYStateT;
+const int PHYSTATE_PHYNORMAL = 0;
+const int PHYSTATE_PHYCOMMUNICATIONDEGRADED = 1;
+const int PHYSTATE_PHYSENSINGDEGRADED = 2;
+const int PHYSTATE_PHYJOINTDEGRADED = 3;
+const int PHYSTATE_PHYRECOVERY = 4;
+const int PHYSTATE_PHYFAILURE = 5;
+PHYStateT PHYState = PHYSTATE_PHYNORMAL;
+
+int highest_priority_CH() {
+  if (SINRClass == SINRCLASS_OUTAGE) return CHANNELCLASS_OUTAGE;
+  if (PowerClass == POWERCLASS_LOW || PowerClass == POWERCLASS_ABSENT) return CHANNELCLASS_BLOCKAGE;
+  if (IClass == ICLASS_HIGH || IClass == ICLASS_CRITICAL) return CHANNELCLASS_INTERFERENCE_LIMITED;
+  if (DopplerClass == DOPPLERCLASS_HIGH) return CHANNELCLASS_MOBILITY_LIMITED;
+  if (DelaySpreadClass == DELAYSPREADCLASS_HIGH) return CHANNELCLASS_MULTIPATH_LIMITED;
+  return CHANNELCLASS_NOMINAL;
+}
+
+int highest_priority_SQ() {
+  if (ChannelClass == CHANNELCLASS_OUTAGE || SignalClass == SIGNALCLASS_LIMITED || BeamClass == BEAMCLASS_FAILED || PdClass == PDCLASS_FAILED || RfaClass == RFACLASS_CRITICAL || AccClass == ACCCLASS_FAILED || CRBClass == CRBCLASS_UNUSABLE || AoSClass == AOSCLASS_EXPIRED || CapClass == CAPCLASS_FAILED || CoverageClass == COVERAGECLASS_FAILED) return SENSINGSTATE_SENSINGFAILURE;
+  if (ChannelClass == CHANNELCLASS_BLOCKAGE || SignalClass == SIGNALCLASS_RECONFIGURING || BeamClass == BEAMCLASS_MISALIGNED) return SENSINGSTATE_FRESHNESSLIMITED;
+  if (AoSClass == AOSCLASS_STALE) return SENSINGSTATE_FRESHNESSLIMITED;
+  if (AccClass == ACCCLASS_LIMITED || CRBClass == CRBCLASS_LOOSE) return SENSINGSTATE_ACCURACYLIMITED;
+  if (PdClass == PDCLASS_LOW) return SENSINGSTATE_PROBABILITYLIMITED;
+  if (RfaClass == RFACLASS_HIGH) return SENSINGSTATE_FALSEALARMLIMITED;
+  if (CapClass == CAPCLASS_LIMITED) return SENSINGSTATE_CAPACITYLIMITED;
+  if (CoverageClass == COVERAGECLASS_LIMITED) return SENSINGSTATE_COVERAGELIMITED;
+  return SENSINGSTATE_SENSINGQOSOK;
+}
+
+bool channel_degraded_flag = false;
+bool signal_degraded_flag = false;
+bool beam_degraded_flag = false;
+bool sensing_degraded_flag = false;
+bool sensing_failure_flag = false;
+bool degradation_flag = false;
+bool child_update = false;
+bool input_changed = false;
+bool target_seen = false;
+bool channel_report_pending = false;
+bool signal_report_pending = false;
+bool sensing_report_pending = false;
+bool phy_kpi_report_pending = false;
+bool comm_ok = true;
+bool sensing_qos_ok = true;
+bool TimingOk = true;
+bool ConfigAdmissible = true;
+bool BeamCmdAdmissible = true;
+bool NetDeliveryOk = true;
+bool classes_in_range_ch = true;
+bool classes_in_range_sig = true;
+bool classes_in_range_bm = true;
+bool fresh_child_reports = true;
+int[0,1] ch_enabled_count = 1;
+int[0,1] sq_enabled_count = 1;
+
+bool ass_ch() { return TimingOk &amp;&amp; classes_in_range_ch; }
+bool gar_ch() { return classes_in_range_ch; }
+bool ass_sig() { return ConfigAdmissible &amp;&amp; classes_in_range_sig; }
+bool gar_sig() { return classes_in_range_sig; }
+bool ass_bm() { return BeamCmdAdmissible &amp;&amp; classes_in_range_bm; }
+bool gar_bm() { return classes_in_range_bm; }
+bool ass_sq() { return fresh_child_reports &amp;&amp; gar_ch() &amp;&amp; gar_sig() &amp;&amp; gar_bm(); }
+bool gar_sq() { return true; }
+bool ass_ph() { return gar_ch() &amp;&amp; gar_sig() &amp;&amp; gar_bm() &amp;&amp; gar_sq(); }
+bool gar_ph() { return true; }
+bool ass_env() { return TimingOk &amp;&amp; ConfigAdmissible &amp;&amp; BeamCmdAdmissible &amp;&amp; NetDeliveryOk; }</declaration>
+  <template>
+    <name>Template_A_CH</name>
+    <location id="Template_A_CH_0" x="0" y="0">
+      <name x="-58" y="-38">ChannelNominal</name>
+    </location>
+    <location id="Template_A_CH_1" x="300" y="180">
+      <name x="242" y="142">MeasurePending</name>
+      <label kind="invariant" x="236" y="214">c_meas &lt;= T_meas + J_meas</label>
+    </location>
+    <location id="Template_A_CH_2" x="660" y="-260">
+      <name x="602" y="-298">InterferenceLimited</name>
+    </location>
+    <location id="Template_A_CH_3" x="660" y="-80">
+      <name x="602" y="-118">MobilityLimited</name>
+    </location>
+    <location id="Template_A_CH_4" x="660" y="100">
+      <name x="602" y="62">MultipathLimited</name>
+    </location>
+    <location id="Template_A_CH_5" x="960" y="-440">
+      <name x="902" y="-478">Blockage</name>
+    </location>
+    <location id="Template_A_CH_6" x="960" y="-640">
+      <name x="902" y="-678">Outage</name>
+    </location>
+    <location id="Template_A_CH_7" x="1280" y="0">
+      <name x="1222" y="-38">ContractViolation_CH</name>
+    </location>
+    <init ref="Template_A_CH_0" />
+    <transition>
+      <source ref="Template_A_CH_0" />
+      <target ref="Template_A_CH_1" />
+      <label kind="synchronisation" x="150" y="66">measure_tick?</label>
+      <label kind="assignment" x="150" y="108">c_meas = 0, channel_report_pending = true</label>
+    </transition>
+    <transition>
+      <source ref="Template_A_CH_0" />
+      <target ref="Template_A_CH_0" />
+      <label kind="synchronisation" x="118" y="-142">power_cmd?</label>
+      <nail x="-95" y="-110" />
+      <nail x="95" y="-110" />
+    </transition>
+    <transition>
+      <source ref="Template_A_CH_1" />
+      <target ref="Template_A_CH_1" />
+      <label kind="synchronisation" x="418" y="274">power_cmd?</label>
+      <nail x="205" y="290" />
+      <nail x="395" y="290" />
+    </transition>
+    <transition>
+      <source ref="Template_A_CH_2" />
+      <target ref="Template_A_CH_1" />
+      <label kind="synchronisation" x="480" y="322">measure_tick?</label>
+      <label kind="assignment" x="480" y="364">c_meas = 0, channel_report_pending = true</label>
+      <nail x="580" y="400" />
+      <nail x="380" y="400" />
+    </transition>
+    <transition>
+      <source ref="Template_A_CH_2" />
+      <target ref="Template_A_CH_2" />
+      <label kind="synchronisation" x="778" y="-402">power_cmd?</label>
+      <nail x="565" y="-370" />
+      <nail x="755" y="-370" />
+    </transition>
+    <transition>
+      <source ref="Template_A_CH_3" />
+      <target ref="Template_A_CH_1" />
+      <label kind="synchronisation" x="480" y="322">measure_tick?</label>
+      <label kind="assignment" x="480" y="364">c_meas = 0, channel_report_pending = true</label>
+      <nail x="580" y="400" />
+      <nail x="380" y="400" />
+    </transition>
+    <transition>
+      <source ref="Template_A_CH_3" />
+      <target ref="Template_A_CH_3" />
+      <label kind="synchronisation" x="778" y="-222">power_cmd?</label>
+      <nail x="565" y="-190" />
+      <nail x="755" y="-190" />
+    </transition>
+    <transition>
+      <source ref="Template_A_CH_4" />
+      <target ref="Template_A_CH_1" />
+      <label kind="synchronisation" x="480" y="322">measure_tick?</label>
+      <label kind="assignment" x="480" y="364">c_meas = 0, channel_report_pending = true</label>
+      <nail x="580" y="400" />
+      <nail x="380" y="400" />
+    </transition>
+    <transition>
+      <source ref="Template_A_CH_4" />
+      <target ref="Template_A_CH_4" />
+      <label kind="synchronisation" x="778" y="194">power_cmd?</label>
+      <nail x="565" y="210" />
+      <nail x="755" y="210" />
+    </transition>
+    <transition>
+      <source ref="Template_A_CH_5" />
+      <target ref="Template_A_CH_1" />
+      <label kind="synchronisation" x="630" y="322">measure_tick?</label>
+      <label kind="assignment" x="630" y="364">c_meas = 0, channel_report_pending = true</label>
+      <nail x="880" y="400" />
+      <nail x="380" y="400" />
+    </transition>
+    <transition>
+      <source ref="Template_A_CH_5" />
+      <target ref="Template_A_CH_5" />
+      <label kind="synchronisation" x="1078" y="-582">power_cmd?</label>
+      <nail x="865" y="-550" />
+      <nail x="1055" y="-550" />
+    </transition>
+    <transition>
+      <source ref="Template_A_CH_6" />
+      <target ref="Template_A_CH_1" />
+      <label kind="synchronisation" x="630" y="322">measure_tick?</label>
+      <label kind="assignment" x="630" y="364">c_meas = 0, channel_report_pending = true</label>
+      <nail x="880" y="400" />
+      <nail x="380" y="400" />
+    </transition>
+    <transition>
+      <source ref="Template_A_CH_6" />
+      <target ref="Template_A_CH_6" />
+      <label kind="synchronisation" x="1078" y="-782">power_cmd?</label>
+      <nail x="865" y="-750" />
+      <nail x="1055" y="-750" />
+    </transition>
+    <transition>
+      <source ref="Template_A_CH_7" />
+      <target ref="Template_A_CH_1" />
+      <label kind="synchronisation" x="790" y="322">measure_tick?</label>
+      <label kind="assignment" x="790" y="364">c_meas = 0, channel_report_pending = true</label>
+      <nail x="1200" y="400" />
+      <nail x="380" y="400" />
+    </transition>
+    <transition>
+      <source ref="Template_A_CH_7" />
+      <target ref="Template_A_CH_7" />
+      <label kind="synchronisation" x="1398" y="-142">power_cmd?</label>
+      <label kind="comments" x="1398" y="-56">deadline or contract failure branch</label>
+      <nail x="1185" y="-110" />
+      <nail x="1375" y="-110" />
+    </transition>
+    <transition>
+      <source ref="Template_A_CH_1" />
+      <target ref="Template_A_CH_0" />
+      <label kind="guard" x="150" y="288">env_scenario == SCENARIO_NORMAL &amp;&amp; c_meas &lt;= D_meas</label>
+      <label kind="synchronisation" x="150" y="322">channel_report!</label>
+      <label kind="assignment" x="150" y="364">ChannelClass = highest_priority_CH(), channel_degraded_flag = false,
+ch_enabled_count = 1, channel_report_pending = false, c_meas = 0</label>
+      <label kind="comments" x="150" y="408">publish report and update finite state</label>
+      <nail x="220" y="400" />
+      <nail x="80" y="400" />
+    </transition>
+    <transition>
+      <source ref="Template_A_CH_1" />
+      <target ref="Template_A_CH_2" />
+      <label kind="guard" x="480" y="-98">env_scenario == SCENARIO_COMM_DEGRADED &amp;&amp; c_meas &lt;= D_meas</label>
+      <label kind="synchronisation" x="480" y="-64">channel_report!</label>
+      <label kind="assignment" x="480" y="-22">ChannelClass = highest_priority_CH(), channel_degraded_flag = true,
+ch_enabled_count = 1, channel_report_pending = false, c_meas = 0</label>
+      <label kind="comments" x="480" y="22">publish report and update finite state</label>
+    </transition>
+    <transition>
+      <source ref="Template_A_CH_1" />
+      <target ref="Template_A_CH_3" />
+      <label kind="guard" x="480" y="-8">env_scenario == SCENARIO_SENSING_DEGRADED &amp;&amp; c_meas &lt;= D_meas</label>
+      <label kind="synchronisation" x="480" y="26">channel_report!</label>
+      <label kind="assignment" x="480" y="68">ChannelClass = highest_priority_CH(), channel_degraded_flag = true,
+ch_enabled_count = 1, channel_report_pending = false, c_meas = 0</label>
+      <label kind="comments" x="480" y="112">publish report and update finite state</label>
+    </transition>
+    <transition>
+      <source ref="Template_A_CH_1" />
+      <target ref="Template_A_CH_6" />
+      <label kind="guard" x="630" y="-288">env_scenario == SCENARIO_JOINT_DEGRADED &amp;&amp; c_meas &lt;= D_meas</label>
+      <label kind="synchronisation" x="630" y="-254">channel_report!</label>
+      <label kind="assignment" x="630" y="-212">ChannelClass = highest_priority_CH(), channel_degraded_flag = true,
+ch_enabled_count = 1, channel_report_pending = false, c_meas = 0</label>
+      <label kind="comments" x="630" y="-168">publish report and update finite state</label>
+    </transition>
+    <transition>
+      <source ref="Template_A_CH_2" />
+      <target ref="Template_A_CH_2" />
+      <label kind="synchronisation" x="778" y="-448">channel_degraded!</label>
+      <nail x="565" y="-416" />
+      <nail x="755" y="-416" />
+    </transition>
+    <transition>
+      <source ref="Template_A_CH_3" />
+      <target ref="Template_A_CH_3" />
+      <label kind="synchronisation" x="778" y="-268">mobility_alert!</label>
+      <nail x="565" y="-236" />
+      <nail x="755" y="-236" />
+    </transition>
+    <transition>
+      <source ref="Template_A_CH_4" />
+      <target ref="Template_A_CH_4" />
+      <label kind="synchronisation" x="778" y="240">multipath_alert!</label>
+      <nail x="565" y="256" />
+      <nail x="755" y="256" />
+    </transition>
+    <transition>
+      <source ref="Template_A_CH_5" />
+      <target ref="Template_A_CH_5" />
+      <label kind="synchronisation" x="1078" y="-628">blockage_detected!</label>
+      <nail x="865" y="-596" />
+      <nail x="1055" y="-596" />
+    </transition>
+    <transition>
+      <source ref="Template_A_CH_6" />
+      <target ref="Template_A_CH_6" />
+      <label kind="synchronisation" x="1078" y="-828">phy_outage!</label>
+      <nail x="865" y="-796" />
+      <nail x="1055" y="-796" />
+    </transition>
+    <transition>
+      <source ref="Template_A_CH_0" />
+      <target ref="Template_A_CH_7" />
+      <label kind="guard" x="1000" y="-116">!ass_ch()</label>
+      <label kind="synchronisation" x="1000" y="-82">contract_violation_ch!</label>
+      <label kind="comments" x="1000" y="4">deadline or contract failure branch</label>
+      <nail x="1120" y="-58" />
+      <nail x="1120" y="-58" />
+    </transition>
+    <transition>
+      <source ref="Template_A_CH_1" />
+      <target ref="Template_A_CH_7" />
+      <label kind="guard" x="1000" y="90">!ass_ch()</label>
+      <label kind="synchronisation" x="1000" y="124">contract_violation_ch!</label>
+      <label kind="comments" x="1000" y="210">deadline or contract failure branch</label>
+      <nail x="1120" y="238" />
+      <nail x="1120" y="58" />
+    </transition>
+    <transition>
+      <source ref="Template_A_CH_2" />
+      <target ref="Template_A_CH_7" />
+      <label kind="guard" x="1000" y="-304">!ass_ch()</label>
+      <label kind="synchronisation" x="1000" y="-270">contract_violation_ch!</label>
+      <label kind="comments" x="1000" y="-184">deadline or contract failure branch</label>
+      <nail x="1120" y="-376" />
+      <nail x="1120" y="-116" />
+    </transition>
+    <transition>
+      <source ref="Template_A_CH_3" />
+      <target ref="Template_A_CH_7" />
+      <label kind="guard" x="1000" y="18">!ass_ch()</label>
+      <label kind="synchronisation" x="1000" y="52">contract_violation_ch!</label>
+      <label kind="comments" x="1000" y="138">deadline or contract failure branch</label>
+      <nail x="1120" y="36" />
+      <nail x="1120" y="116" />
+    </transition>
+    <transition>
+      <source ref="Template_A_CH_4" />
+      <target ref="Template_A_CH_7" />
+      <label kind="guard" x="1000" y="-182">!ass_ch()</label>
+      <label kind="synchronisation" x="1000" y="-148">contract_violation_ch!</label>
+      <label kind="comments" x="1000" y="-62">deadline or contract failure branch</label>
+      <nail x="1120" y="-74" />
+      <nail x="1120" y="-174" />
+    </transition>
+    <transition>
+      <source ref="Template_A_CH_5" />
+      <target ref="Template_A_CH_7" />
+      <label kind="guard" x="1000" y="-104">!ass_ch()</label>
+      <label kind="synchronisation" x="1000" y="-70">contract_violation_ch!</label>
+      <label kind="comments" x="1000" y="16">deadline or contract failure branch</label>
+      <nail x="1120" y="-266" />
+      <nail x="1120" y="174" />
+    </transition>
+    <transition>
+      <source ref="Template_A_CH_6" />
+      <target ref="Template_A_CH_7" />
+      <label kind="guard" x="1000" y="-610">!ass_ch()</label>
+      <label kind="synchronisation" x="1000" y="-576">contract_violation_ch!</label>
+      <label kind="comments" x="1000" y="-490">deadline or contract failure branch</label>
+      <nail x="1120" y="-872" />
+      <nail x="1120" y="-232" />
+    </transition>
+  </template>
+  <template>
+    <name>Template_A_SIG</name>
+    <location id="Template_A_SIG_0" x="0" y="0">
+      <name x="-58" y="-38">SignalNominal</name>
+    </location>
+    <location id="Template_A_SIG_1" x="620" y="0">
+      <name x="562" y="-38">PilotBasedSensing</name>
+    </location>
+    <location id="Template_A_SIG_2" x="900" y="0">
+      <name x="842" y="-38">PayloadAssistedSensing</name>
+    </location>
+    <location id="Template_A_SIG_3" x="300" y="200">
+      <name x="242" y="162">SignalReconfiguring</name>
+      <label kind="invariant" x="236" y="234">c_sig &lt;= D_sig</label>
+    </location>
+    <location id="Template_A_SIG_4" x="1180" y="-220">
+      <name x="1122" y="-258">SignalLimited</name>
+    </location>
+    <location id="Template_A_SIG_5" x="1480" y="0">
+      <name x="1422" y="-38">ContractViolation_SIG</name>
+    </location>
+    <init ref="Template_A_SIG_0" />
+    <transition>
+      <source ref="Template_A_SIG_0" />
+      <target ref="Template_A_SIG_3" />
+      <label kind="synchronisation" x="150" y="76">waveform_config?</label>
+      <label kind="assignment" x="150" y="118">c_sig = 0, signal_report_pending = true</label>
+    </transition>
+    <transition>
+      <source ref="Template_A_SIG_0" />
+      <target ref="Template_A_SIG_3" />
+      <label kind="synchronisation" x="150" y="18">pilot_config?</label>
+      <label kind="assignment" x="150" y="60">c_sig = 0, signal_report_pending = true</label>
+      <nail x="100" y="42" />
+      <nail x="200" y="42" />
+    </transition>
+    <transition>
+      <source ref="Template_A_SIG_0" />
+      <target ref="Template_A_SIG_3" />
+      <label kind="synchronisation" x="150" y="134">prs_config?</label>
+      <label kind="assignment" x="150" y="176">c_sig = 0, signal_report_pending = true</label>
+      <nail x="100" y="158" />
+      <nail x="200" y="158" />
+    </transition>
+    <transition>
+      <source ref="Template_A_SIG_0" />
+      <target ref="Template_A_SIG_3" />
+      <label kind="synchronisation" x="150" y="-40">payload_sensing_config?</label>
+      <label kind="assignment" x="150" y="2">c_sig = 0, signal_report_pending = true</label>
+      <nail x="100" y="-16" />
+      <nail x="200" y="-16" />
+    </transition>
+    <transition>
+      <source ref="Template_A_SIG_0" />
+      <target ref="Template_A_SIG_3" />
+      <label kind="synchronisation" x="150" y="192">sensing_mode_cmd?</label>
+      <label kind="assignment" x="150" y="234">c_sig = 0, signal_report_pending = true</label>
+      <nail x="100" y="216" />
+      <nail x="200" y="216" />
+    </transition>
+    <transition>
+      <source ref="Template_A_SIG_1" />
+      <target ref="Template_A_SIG_3" />
+      <label kind="synchronisation" x="460" y="342">waveform_config?</label>
+      <label kind="assignment" x="460" y="384">c_sig = 0, signal_report_pending = true</label>
+      <nail x="540" y="420" />
+      <nail x="380" y="420" />
+    </transition>
+    <transition>
+      <source ref="Template_A_SIG_1" />
+      <target ref="Template_A_SIG_3" />
+      <label kind="synchronisation" x="460" y="400">pilot_config?</label>
+      <label kind="assignment" x="460" y="442">c_sig = 0, signal_report_pending = true</label>
+      <nail x="540" y="478" />
+      <nail x="380" y="478" />
+    </transition>
+    <transition>
+      <source ref="Template_A_SIG_1" />
+      <target ref="Template_A_SIG_3" />
+      <label kind="synchronisation" x="460" y="458">prs_config?</label>
+      <label kind="assignment" x="460" y="500">c_sig = 0, signal_report_pending = true</label>
+      <nail x="540" y="536" />
+      <nail x="380" y="536" />
+    </transition>
+    <transition>
+      <source ref="Template_A_SIG_1" />
+      <target ref="Template_A_SIG_3" />
+      <label kind="synchronisation" x="460" y="516">payload_sensing_config?</label>
+      <label kind="assignment" x="460" y="558">c_sig = 0, signal_report_pending = true</label>
+      <nail x="540" y="594" />
+      <nail x="380" y="594" />
+    </transition>
+    <transition>
+      <source ref="Template_A_SIG_1" />
+      <target ref="Template_A_SIG_3" />
+      <label kind="synchronisation" x="460" y="574">sensing_mode_cmd?</label>
+      <label kind="assignment" x="460" y="616">c_sig = 0, signal_report_pending = true</label>
+      <nail x="540" y="652" />
+      <nail x="380" y="652" />
+    </transition>
+    <transition>
+      <source ref="Template_A_SIG_2" />
+      <target ref="Template_A_SIG_3" />
+      <label kind="synchronisation" x="600" y="342">waveform_config?</label>
+      <label kind="assignment" x="600" y="384">c_sig = 0, signal_report_pending = true</label>
+      <nail x="820" y="420" />
+      <nail x="380" y="420" />
+    </transition>
+    <transition>
+      <source ref="Template_A_SIG_2" />
+      <target ref="Template_A_SIG_3" />
+      <label kind="synchronisation" x="600" y="400">pilot_config?</label>
+      <label kind="assignment" x="600" y="442">c_sig = 0, signal_report_pending = true</label>
+      <nail x="820" y="478" />
+      <nail x="380" y="478" />
+    </transition>
+    <transition>
+      <source ref="Template_A_SIG_2" />
+      <target ref="Template_A_SIG_3" />
+      <label kind="synchronisation" x="600" y="458">prs_config?</label>
+      <label kind="assignment" x="600" y="500">c_sig = 0, signal_report_pending = true</label>
+      <nail x="820" y="536" />
+      <nail x="380" y="536" />
+    </transition>
+    <transition>
+      <source ref="Template_A_SIG_2" />
+      <target ref="Template_A_SIG_3" />
+      <label kind="synchronisation" x="600" y="516">payload_sensing_config?</label>
+      <label kind="assignment" x="600" y="558">c_sig = 0, signal_report_pending = true</label>
+      <nail x="820" y="594" />
+      <nail x="380" y="594" />
+    </transition>
+    <transition>
+      <source ref="Template_A_SIG_2" />
+      <target ref="Template_A_SIG_3" />
+      <label kind="synchronisation" x="600" y="574">sensing_mode_cmd?</label>
+      <label kind="assignment" x="600" y="616">c_sig = 0, signal_report_pending = true</label>
+      <nail x="820" y="652" />
+      <nail x="380" y="652" />
+    </transition>
+    <transition>
+      <source ref="Template_A_SIG_3" />
+      <target ref="Template_A_SIG_3" />
+      <label kind="synchronisation" x="418" y="294">waveform_config?</label>
+      <label kind="assignment" x="418" y="336">c_sig = 0, signal_report_pending = true</label>
+      <nail x="205" y="310" />
+      <nail x="395" y="310" />
+    </transition>
+    <transition>
+      <source ref="Template_A_SIG_3" />
+      <target ref="Template_A_SIG_3" />
+      <label kind="synchronisation" x="418" y="340">pilot_config?</label>
+      <label kind="assignment" x="418" y="382">c_sig = 0, signal_report_pending = true</label>
+      <nail x="205" y="356" />
+      <nail x="395" y="356" />
+    </transition>
+    <transition>
+      <source ref="Template_A_SIG_3" />
+      <target ref="Template_A_SIG_3" />
+      <label kind="synchronisation" x="418" y="386">prs_config?</label>
+      <label kind="assignment" x="418" y="428">c_sig = 0, signal_report_pending = true</label>
+      <nail x="205" y="402" />
+      <nail x="395" y="402" />
+    </transition>
+    <transition>
+      <source ref="Template_A_SIG_3" />
+      <target ref="Template_A_SIG_3" />
+      <label kind="synchronisation" x="418" y="432">payload_sensing_config?</label>
+      <label kind="assignment" x="418" y="474">c_sig = 0, signal_report_pending = true</label>
+      <nail x="205" y="448" />
+      <nail x="395" y="448" />
+    </transition>
+    <transition>
+      <source ref="Template_A_SIG_3" />
+      <target ref="Template_A_SIG_3" />
+      <label kind="synchronisation" x="418" y="478">sensing_mode_cmd?</label>
+      <label kind="assignment" x="418" y="520">c_sig = 0, signal_report_pending = true</label>
+      <nail x="205" y="494" />
+      <nail x="395" y="494" />
+    </transition>
+    <transition>
+      <source ref="Template_A_SIG_4" />
+      <target ref="Template_A_SIG_3" />
+      <label kind="synchronisation" x="740" y="342">waveform_config?</label>
+      <label kind="assignment" x="740" y="384">c_sig = 0, signal_report_pending = true</label>
+      <nail x="1100" y="420" />
+      <nail x="380" y="420" />
+    </transition>
+    <transition>
+      <source ref="Template_A_SIG_4" />
+      <target ref="Template_A_SIG_3" />
+      <label kind="synchronisation" x="740" y="400">pilot_config?</label>
+      <label kind="assignment" x="740" y="442">c_sig = 0, signal_report_pending = true</label>
+      <nail x="1100" y="478" />
+      <nail x="380" y="478" />
+    </transition>
+    <transition>
+      <source ref="Template_A_SIG_4" />
+      <target ref="Template_A_SIG_3" />
+      <label kind="synchronisation" x="740" y="458">prs_config?</label>
+      <label kind="assignment" x="740" y="500">c_sig = 0, signal_report_pending = true</label>
+      <nail x="1100" y="536" />
+      <nail x="380" y="536" />
+    </transition>
+    <transition>
+      <source ref="Template_A_SIG_4" />
+      <target ref="Template_A_SIG_3" />
+      <label kind="synchronisation" x="740" y="516">payload_sensing_config?</label>
+      <label kind="assignment" x="740" y="558">c_sig = 0, signal_report_pending = true</label>
+      <nail x="1100" y="594" />
+      <nail x="380" y="594" />
+    </transition>
+    <transition>
+      <source ref="Template_A_SIG_4" />
+      <target ref="Template_A_SIG_3" />
+      <label kind="synchronisation" x="740" y="574">sensing_mode_cmd?</label>
+      <label kind="assignment" x="740" y="616">c_sig = 0, signal_report_pending = true</label>
+      <nail x="1100" y="652" />
+      <nail x="380" y="652" />
+    </transition>
+    <transition>
+      <source ref="Template_A_SIG_5" />
+      <target ref="Template_A_SIG_3" />
+      <label kind="synchronisation" x="890" y="342">waveform_config?</label>
+      <label kind="assignment" x="890" y="384">c_sig = 0, signal_report_pending = true</label>
+      <nail x="1400" y="420" />
+      <nail x="380" y="420" />
+    </transition>
+    <transition>
+      <source ref="Template_A_SIG_5" />
+      <target ref="Template_A_SIG_3" />
+      <label kind="synchronisation" x="890" y="400">pilot_config?</label>
+      <label kind="assignment" x="890" y="442">c_sig = 0, signal_report_pending = true</label>
+      <nail x="1400" y="478" />
+      <nail x="380" y="478" />
+    </transition>
+    <transition>
+      <source ref="Template_A_SIG_5" />
+      <target ref="Template_A_SIG_3" />
+      <label kind="synchronisation" x="890" y="458">prs_config?</label>
+      <label kind="assignment" x="890" y="500">c_sig = 0, signal_report_pending = true</label>
+      <nail x="1400" y="536" />
+      <nail x="380" y="536" />
+    </transition>
+    <transition>
+      <source ref="Template_A_SIG_5" />
+      <target ref="Template_A_SIG_3" />
+      <label kind="synchronisation" x="890" y="516">payload_sensing_config?</label>
+      <label kind="assignment" x="890" y="558">c_sig = 0, signal_report_pending = true</label>
+      <nail x="1400" y="594" />
+      <nail x="380" y="594" />
+    </transition>
+    <transition>
+      <source ref="Template_A_SIG_5" />
+      <target ref="Template_A_SIG_3" />
+      <label kind="synchronisation" x="890" y="574">sensing_mode_cmd?</label>
+      <label kind="assignment" x="890" y="616">c_sig = 0, signal_report_pending = true</label>
+      <nail x="1400" y="652" />
+      <nail x="380" y="652" />
+    </transition>
+    <transition>
+      <source ref="Template_A_SIG_3" />
+      <target ref="Template_A_SIG_0" />
+      <label kind="guard" x="150" y="308">c_sig &lt;= D_sig</label>
+      <label kind="synchronisation" x="150" y="342">signal_report!</label>
+      <label kind="assignment" x="150" y="384">SignalClass = SIGNALCLASS_RECONFIGURING, signal_report_pending = false,
+c_sig = 0</label>
+      <label kind="comments" x="150" y="428">publish report and update finite state</label>
+      <nail x="220" y="420" />
+      <nail x="80" y="420" />
+    </transition>
+    <transition>
+      <source ref="Template_A_SIG_0" />
+      <target ref="Template_A_SIG_1" />
+      <label kind="guard" x="310" y="-58">PilotDensityClass == PILOTDENSITYCLASS_OK &amp;&amp; BLERClass == BLERCLASS_OK &amp;&amp; DRTClass == DRTCLASS_OK</label>
+      <label kind="synchronisation" x="310" y="-24">signal_report!</label>
+      <label kind="assignment" x="310" y="18">SignalClass = SIGNALCLASS_PILOT_BASED, signal_report_pending = false,
+c_sig = 0</label>
+      <label kind="comments" x="310" y="62">publish report and update finite state</label>
+    </transition>
+    <transition>
+      <source ref="Template_A_SIG_1" />
+      <target ref="Template_A_SIG_2" />
+      <label kind="guard" x="760" y="-58">PilotDensityClass == PILOTDENSITYCLASS_LOW &amp;&amp; PayloadSenseClass != PAYLOADSENSECLASS_FAILED</label>
+      <label kind="synchronisation" x="760" y="-24">signal_report!</label>
+      <label kind="assignment" x="760" y="18">SignalClass = SIGNALCLASS_PAYLOAD_ASSISTED, signal_report_pending = false,
+c_sig = 0</label>
+      <label kind="comments" x="760" y="62">publish report and update finite state</label>
+    </transition>
+    <transition>
+      <source ref="Template_A_SIG_2" />
+      <target ref="Template_A_SIG_4" />
+      <label kind="guard" x="1040" y="-168">BLERClass != BLERCLASS_OK || DRTClass == DRTCLASS_BAD || PayloadSenseClass == PAYLOADSENSECLASS_FAILED</label>
+      <label kind="synchronisation" x="1040" y="-134">signal_report!</label>
+      <label kind="assignment" x="1040" y="-92">SignalClass = SIGNALCLASS_LIMITED, signal_report_pending = false,
+signal_degraded_flag = true, c_sig = 0</label>
+      <label kind="comments" x="1040" y="-48">publish report and update finite state</label>
+    </transition>
+    <transition>
+      <source ref="Template_A_SIG_4" />
+      <target ref="Template_A_SIG_4" />
+      <label kind="synchronisation" x="1298" y="-362">signal_degraded!</label>
+      <nail x="1085" y="-330" />
+      <nail x="1275" y="-330" />
+    </transition>
+    <transition>
+      <source ref="Template_A_SIG_4" />
+      <target ref="Template_A_SIG_3" />
+      <label kind="synchronisation" x="740" y="632">waveform_config?</label>
+      <label kind="assignment" x="740" y="674">c_sig = 0</label>
+      <nail x="1100" y="710" />
+      <nail x="380" y="710" />
+    </transition>
+    <transition>
+      <source ref="Template_A_SIG_0" />
+      <target ref="Template_A_SIG_5" />
+      <label kind="guard" x="1200" y="-58">!ass_sig()</label>
+      <label kind="synchronisation" x="1200" y="-24">contract_violation_sig!</label>
+      <label kind="comments" x="1200" y="62">deadline or contract failure branch</label>
+      <nail x="1320" y="0" />
+      <nail x="1320" y="0" />
+    </transition>
+    <transition>
+      <source ref="Template_A_SIG_1" />
+      <target ref="Template_A_SIG_5" />
+      <label kind="guard" x="1200" y="-116">!ass_sig()</label>
+      <label kind="synchronisation" x="1200" y="-82">contract_violation_sig!</label>
+      <label kind="comments" x="1200" y="4">deadline or contract failure branch</label>
+      <nail x="1320" y="-58" />
+      <nail x="1320" y="-58" />
+    </transition>
+    <transition>
+      <source ref="Template_A_SIG_2" />
+      <target ref="Template_A_SIG_5" />
+      <label kind="guard" x="1200" y="0">!ass_sig()</label>
+      <label kind="synchronisation" x="1200" y="34">contract_violation_sig!</label>
+      <label kind="comments" x="1200" y="120">deadline or contract failure branch</label>
+      <nail x="1320" y="58" />
+      <nail x="1320" y="58" />
+    </transition>
+    <transition>
+      <source ref="Template_A_SIG_3" />
+      <target ref="Template_A_SIG_5" />
+      <label kind="guard" x="1200" y="-74">!ass_sig()</label>
+      <label kind="synchronisation" x="1200" y="-40">contract_violation_sig!</label>
+      <label kind="comments" x="1200" y="46">deadline or contract failure branch</label>
+      <nail x="1320" y="84" />
+      <nail x="1320" y="-116" />
+    </transition>
+    <transition>
+      <source ref="Template_A_SIG_4" />
+      <target ref="Template_A_SIG_5" />
+      <label kind="guard" x="1200" y="-52">!ass_sig()</label>
+      <label kind="synchronisation" x="1200" y="-18">contract_violation_sig!</label>
+      <label kind="comments" x="1200" y="68">deadline or contract failure branch</label>
+      <nail x="1320" y="-104" />
+      <nail x="1320" y="116" />
+    </transition>
+  </template>
+  <template>
+    <name>Template_A_BM</name>
+    <location id="Template_A_BM_0" x="0" y="0">
+      <name x="-58" y="-38">BeamSearch</name>
+    </location>
+    <location id="Template_A_BM_1" x="280" y="0">
+      <name x="222" y="-38">BeamSearchSeen</name>
+    </location>
+    <location id="Template_A_BM_2" x="560" y="0">
+      <name x="502" y="-38">BeamTrack</name>
+    </location>
+    <location id="Template_A_BM_3" x="840" y="0">
+      <name x="782" y="-38">BeamLock</name>
+    </location>
+    <location id="Template_A_BM_4" x="840" y="-220">
+      <name x="782" y="-258">BeamPredict</name>
+    </location>
+    <location id="Template_A_BM_5" x="560" y="-260">
+      <name x="502" y="-298">BeamMisalign</name>
+    </location>
+    <location id="Template_A_BM_6" x="1120" y="220">
+      <name x="1062" y="182">BeamRecoveryStart</name>
+    </location>
+    <location id="Template_A_BM_7" x="1400" y="220">
+      <name x="1342" y="182">BeamRecover</name>
+      <label kind="invariant" x="1336" y="254">c_rec &lt;= D_BM</label>
+    </location>
+    <location id="Template_A_BM_8" x="1680" y="200">
+      <name x="1622" y="162">BeamHOAssist</name>
+    </location>
+    <location id="Template_A_BM_9" x="1680" y="-260">
+      <name x="1622" y="-298">BeamFailed</name>
+    </location>
+    <location id="Template_A_BM_10" x="1980" y="0">
+      <name x="1922" y="-38">ContractViolation_BM</name>
+    </location>
+    <init ref="Template_A_BM_0" />
+    <transition>
+      <source ref="Template_A_BM_0" />
+      <target ref="Template_A_BM_0" />
+      <label kind="synchronisation" x="118" y="-142">beam_cmd?</label>
+      <label kind="assignment" x="118" y="-100">BeamClass = BEAMCLASS_SEARCH, c_ssb = 0</label>
+      <nail x="-95" y="-110" />
+      <nail x="95" y="-110" />
+    </transition>
+    <transition>
+      <source ref="Template_A_BM_0" />
+      <target ref="Template_A_BM_0" />
+      <label kind="synchronisation" x="118" y="-188">ssb_burst_config?</label>
+      <label kind="assignment" x="118" y="-146">BeamClass = BEAMCLASS_SEARCH, c_ssb = 0</label>
+      <nail x="-95" y="-156" />
+      <nail x="95" y="-156" />
+    </transition>
+    <transition>
+      <source ref="Template_A_BM_0" />
+      <target ref="Template_A_BM_7" />
+      <label kind="synchronisation" x="700" y="86">recovery_cmd?</label>
+      <label kind="assignment" x="700" y="128">BeamClass = BEAMCLASS_RECOVERING, c_rec = 0</label>
+    </transition>
+    <transition>
+      <source ref="Template_A_BM_0" />
+      <target ref="Template_A_BM_8" />
+      <label kind="synchronisation" x="840" y="76">handover_assist_cmd?</label>
+      <label kind="assignment" x="840" y="118">BeamClass = BEAMCLASS_HO_ASSIST</label>
+    </transition>
+    <transition>
+      <source ref="Template_A_BM_1" />
+      <target ref="Template_A_BM_0" />
+      <label kind="synchronisation" x="140" y="142">beam_cmd?</label>
+      <label kind="assignment" x="140" y="184">BeamClass = BEAMCLASS_SEARCH, c_ssb = 0</label>
+      <nail x="200" y="220" />
+      <nail x="80" y="220" />
+    </transition>
+    <transition>
+      <source ref="Template_A_BM_1" />
+      <target ref="Template_A_BM_0" />
+      <label kind="synchronisation" x="140" y="200">ssb_burst_config?</label>
+      <label kind="assignment" x="140" y="242">BeamClass = BEAMCLASS_SEARCH, c_ssb = 0</label>
+      <nail x="200" y="278" />
+      <nail x="80" y="278" />
+    </transition>
+    <transition>
+      <source ref="Template_A_BM_1" />
+      <target ref="Template_A_BM_7" />
+      <label kind="synchronisation" x="840" y="86">recovery_cmd?</label>
+      <label kind="assignment" x="840" y="128">BeamClass = BEAMCLASS_RECOVERING, c_rec = 0</label>
+    </transition>
+    <transition>
+      <source ref="Template_A_BM_1" />
+      <target ref="Template_A_BM_8" />
+      <label kind="synchronisation" x="980" y="76">handover_assist_cmd?</label>
+      <label kind="assignment" x="980" y="118">BeamClass = BEAMCLASS_HO_ASSIST</label>
+    </transition>
+    <transition>
+      <source ref="Template_A_BM_2" />
+      <target ref="Template_A_BM_0" />
+      <label kind="synchronisation" x="280" y="142">beam_cmd?</label>
+      <label kind="assignment" x="280" y="184">BeamClass = BEAMCLASS_SEARCH, c_ssb = 0</label>
+      <nail x="480" y="220" />
+      <nail x="80" y="220" />
+    </transition>
+    <transition>
+      <source ref="Template_A_BM_2" />
+      <target ref="Template_A_BM_0" />
+      <label kind="synchronisation" x="280" y="200">ssb_burst_config?</label>
+      <label kind="assignment" x="280" y="242">BeamClass = BEAMCLASS_SEARCH, c_ssb = 0</label>
+      <nail x="480" y="278" />
+      <nail x="80" y="278" />
+    </transition>
+    <transition>
+      <source ref="Template_A_BM_2" />
+      <target ref="Template_A_BM_7" />
+      <label kind="synchronisation" x="980" y="86">recovery_cmd?</label>
+      <label kind="assignment" x="980" y="128">BeamClass = BEAMCLASS_RECOVERING, c_rec = 0</label>
+    </transition>
+    <transition>
+      <source ref="Template_A_BM_2" />
+      <target ref="Template_A_BM_8" />
+      <label kind="synchronisation" x="1120" y="76">handover_assist_cmd?</label>
+      <label kind="assignment" x="1120" y="118">BeamClass = BEAMCLASS_HO_ASSIST</label>
+    </transition>
+    <transition>
+      <source ref="Template_A_BM_3" />
+      <target ref="Template_A_BM_0" />
+      <label kind="synchronisation" x="420" y="142">beam_cmd?</label>
+      <label kind="assignment" x="420" y="184">BeamClass = BEAMCLASS_SEARCH, c_ssb = 0</label>
+      <nail x="760" y="220" />
+      <nail x="80" y="220" />
+    </transition>
+    <transition>
+      <source ref="Template_A_BM_3" />
+      <target ref="Template_A_BM_0" />
+      <label kind="synchronisation" x="420" y="200">ssb_burst_config?</label>
+      <label kind="assignment" x="420" y="242">BeamClass = BEAMCLASS_SEARCH, c_ssb = 0</label>
+      <nail x="760" y="278" />
+      <nail x="80" y="278" />
+    </transition>
+    <transition>
+      <source ref="Template_A_BM_3" />
+      <target ref="Template_A_BM_7" />
+      <label kind="synchronisation" x="1120" y="86">recovery_cmd?</label>
+      <label kind="assignment" x="1120" y="128">BeamClass = BEAMCLASS_RECOVERING, c_rec = 0</label>
+    </transition>
+    <transition>
+      <source ref="Template_A_BM_3" />
+      <target ref="Template_A_BM_8" />
+      <label kind="synchronisation" x="1260" y="76">handover_assist_cmd?</label>
+      <label kind="assignment" x="1260" y="118">BeamClass = BEAMCLASS_HO_ASSIST</label>
+    </transition>
+    <transition>
+      <source ref="Template_A_BM_4" />
+      <target ref="Template_A_BM_0" />
+      <label kind="synchronisation" x="420" y="142">beam_cmd?</label>
+      <label kind="assignment" x="420" y="184">BeamClass = BEAMCLASS_SEARCH, c_ssb = 0</label>
+      <nail x="760" y="220" />
+      <nail x="80" y="220" />
+    </transition>
+    <transition>
+      <source ref="Template_A_BM_4" />
+      <target ref="Template_A_BM_0" />
+      <label kind="synchronisation" x="420" y="200">ssb_burst_config?</label>
+      <label kind="assignment" x="420" y="242">BeamClass = BEAMCLASS_SEARCH, c_ssb = 0</label>
+      <nail x="760" y="278" />
+      <nail x="80" y="278" />
+    </transition>
+    <transition>
+      <source ref="Template_A_BM_4" />
+      <target ref="Template_A_BM_7" />
+      <label kind="synchronisation" x="1120" y="-24">recovery_cmd?</label>
+      <label kind="assignment" x="1120" y="18">BeamClass = BEAMCLASS_RECOVERING, c_rec = 0</label>
+    </transition>
+    <transition>
+      <source ref="Template_A_BM_4" />
+      <target ref="Template_A_BM_8" />
+      <label kind="synchronisation" x="1260" y="-34">handover_assist_cmd?</label>
+      <label kind="assignment" x="1260" y="8">BeamClass = BEAMCLASS_HO_ASSIST</label>
+    </transition>
+    <transition>
+      <source ref="Template_A_BM_5" />
+      <target ref="Template_A_BM_0" />
+      <label kind="synchronisation" x="280" y="142">beam_cmd?</label>
+      <label kind="assignment" x="280" y="184">BeamClass = BEAMCLASS_SEARCH, c_ssb = 0</label>
+      <nail x="480" y="220" />
+      <nail x="80" y="220" />
+    </transition>
+    <transition>
+      <source ref="Template_A_BM_5" />
+      <target ref="Template_A_BM_0" />
+      <label kind="synchronisation" x="280" y="200">ssb_burst_config?</label>
+      <label kind="assignment" x="280" y="242">BeamClass = BEAMCLASS_SEARCH, c_ssb = 0</label>
+      <nail x="480" y="278" />
+      <nail x="80" y="278" />
+    </transition>
+    <transition>
+      <source ref="Template_A_BM_5" />
+      <target ref="Template_A_BM_7" />
+      <label kind="synchronisation" x="980" y="-44">recovery_cmd?</label>
+      <label kind="assignment" x="980" y="-2">BeamClass = BEAMCLASS_RECOVERING, c_rec = 0</label>
+    </transition>
+    <transition>
+      <source ref="Template_A_BM_5" />
+      <target ref="Template_A_BM_8" />
+      <label kind="synchronisation" x="1120" y="-54">handover_assist_cmd?</label>
+      <label kind="assignment" x="1120" y="-12">BeamClass = BEAMCLASS_HO_ASSIST</label>
+    </transition>
+    <transition>
+      <source ref="Template_A_BM_6" />
+      <target ref="Template_A_BM_0" />
+      <label kind="synchronisation" x="560" y="362">beam_cmd?</label>
+      <label kind="assignment" x="560" y="404">BeamClass = BEAMCLASS_SEARCH, c_ssb = 0</label>
+      <nail x="1040" y="440" />
+      <nail x="80" y="440" />
+    </transition>
+    <transition>
+      <source ref="Template_A_BM_6" />
+      <target ref="Template_A_BM_0" />
+      <label kind="synchronisation" x="560" y="420">ssb_burst_config?</label>
+      <label kind="assignment" x="560" y="462">BeamClass = BEAMCLASS_SEARCH, c_ssb = 0</label>
+      <nail x="1040" y="498" />
+      <nail x="80" y="498" />
+    </transition>
+    <transition>
+      <source ref="Template_A_BM_6" />
+      <target ref="Template_A_BM_7" />
+      <label kind="synchronisation" x="1260" y="196">recovery_cmd?</label>
+      <label kind="assignment" x="1260" y="238">BeamClass = BEAMCLASS_RECOVERING, c_rec = 0</label>
+    </transition>
+    <transition>
+      <source ref="Template_A_BM_6" />
+      <target ref="Template_A_BM_8" />
+      <label kind="synchronisation" x="1400" y="186">handover_assist_cmd?</label>
+      <label kind="assignment" x="1400" y="228">BeamClass = BEAMCLASS_HO_ASSIST</label>
+    </transition>
+    <transition>
+      <source ref="Template_A_BM_7" />
+      <target ref="Template_A_BM_0" />
+      <label kind="synchronisation" x="700" y="362">beam_cmd?</label>
+      <label kind="assignment" x="700" y="404">BeamClass = BEAMCLASS_SEARCH, c_ssb = 0</label>
+      <nail x="1320" y="440" />
+      <nail x="80" y="440" />
+    </transition>
+    <transition>
+      <source ref="Template_A_BM_7" />
+      <target ref="Template_A_BM_0" />
+      <label kind="synchronisation" x="700" y="420">ssb_burst_config?</label>
+      <label kind="assignment" x="700" y="462">BeamClass = BEAMCLASS_SEARCH, c_ssb = 0</label>
+      <nail x="1320" y="498" />
+      <nail x="80" y="498" />
+    </transition>
+    <transition>
+      <source ref="Template_A_BM_7" />
+      <target ref="Template_A_BM_7" />
+      <label kind="synchronisation" x="1518" y="314">recovery_cmd?</label>
+      <label kind="assignment" x="1518" y="356">BeamClass = BEAMCLASS_RECOVERING, c_rec = 0</label>
+      <nail x="1305" y="330" />
+      <nail x="1495" y="330" />
+    </transition>
+    <transition>
+      <source ref="Template_A_BM_7" />
+      <target ref="Template_A_BM_8" />
+      <label kind="synchronisation" x="1540" y="186">handover_assist_cmd?</label>
+      <label kind="assignment" x="1540" y="228">BeamClass = BEAMCLASS_HO_ASSIST</label>
+    </transition>
+    <transition>
+      <source ref="Template_A_BM_8" />
+      <target ref="Template_A_BM_0" />
+      <label kind="synchronisation" x="840" y="342">beam_cmd?</label>
+      <label kind="assignment" x="840" y="384">BeamClass = BEAMCLASS_SEARCH, c_ssb = 0</label>
+      <nail x="1600" y="420" />
+      <nail x="80" y="420" />
+    </transition>
+    <transition>
+      <source ref="Template_A_BM_8" />
+      <target ref="Template_A_BM_0" />
+      <label kind="synchronisation" x="840" y="400">ssb_burst_config?</label>
+      <label kind="assignment" x="840" y="442">BeamClass = BEAMCLASS_SEARCH, c_ssb = 0</label>
+      <nail x="1600" y="478" />
+      <nail x="80" y="478" />
+    </transition>
+    <transition>
+      <source ref="Template_A_BM_8" />
+      <target ref="Template_A_BM_7" />
+      <label kind="synchronisation" x="1540" y="362">recovery_cmd?</label>
+      <label kind="assignment" x="1540" y="404">BeamClass = BEAMCLASS_RECOVERING, c_rec = 0</label>
+      <nail x="1600" y="440" />
+      <nail x="1480" y="440" />
+    </transition>
+    <transition>
+      <source ref="Template_A_BM_8" />
+      <target ref="Template_A_BM_8" />
+      <label kind="synchronisation" x="1798" y="294">handover_assist_cmd?</label>
+      <label kind="assignment" x="1798" y="336">BeamClass = BEAMCLASS_HO_ASSIST</label>
+      <nail x="1585" y="310" />
+      <nail x="1775" y="310" />
+    </transition>
+    <transition>
+      <source ref="Template_A_BM_9" />
+      <target ref="Template_A_BM_0" />
+      <label kind="synchronisation" x="840" y="142">beam_cmd?</label>
+      <label kind="assignment" x="840" y="184">BeamClass = BEAMCLASS_SEARCH, c_ssb = 0</label>
+      <nail x="1600" y="220" />
+      <nail x="80" y="220" />
+    </transition>
+    <transition>
+      <source ref="Template_A_BM_9" />
+      <target ref="Template_A_BM_0" />
+      <label kind="synchronisation" x="840" y="200">ssb_burst_config?</label>
+      <label kind="assignment" x="840" y="242">BeamClass = BEAMCLASS_SEARCH, c_ssb = 0</label>
+      <nail x="1600" y="278" />
+      <nail x="80" y="278" />
+    </transition>
+    <transition>
+      <source ref="Template_A_BM_9" />
+      <target ref="Template_A_BM_7" />
+      <label kind="synchronisation" x="1540" y="362">recovery_cmd?</label>
+      <label kind="assignment" x="1540" y="404">BeamClass = BEAMCLASS_RECOVERING, c_rec = 0</label>
+      <nail x="1600" y="440" />
+      <nail x="1480" y="440" />
+    </transition>
+    <transition>
+      <source ref="Template_A_BM_9" />
+      <target ref="Template_A_BM_8" />
+      <label kind="synchronisation" x="1680" y="-54">handover_assist_cmd?</label>
+      <label kind="assignment" x="1680" y="-12">BeamClass = BEAMCLASS_HO_ASSIST</label>
+    </transition>
+    <transition>
+      <source ref="Template_A_BM_10" />
+      <target ref="Template_A_BM_0" />
+      <label kind="synchronisation" x="990" y="142">beam_cmd?</label>
+      <label kind="assignment" x="990" y="184">BeamClass = BEAMCLASS_SEARCH, c_ssb = 0</label>
+      <nail x="1900" y="220" />
+      <nail x="80" y="220" />
+    </transition>
+    <transition>
+      <source ref="Template_A_BM_10" />
+      <target ref="Template_A_BM_0" />
+      <label kind="synchronisation" x="990" y="200">ssb_burst_config?</label>
+      <label kind="assignment" x="990" y="242">BeamClass = BEAMCLASS_SEARCH, c_ssb = 0</label>
+      <nail x="1900" y="278" />
+      <nail x="80" y="278" />
+    </transition>
+    <transition>
+      <source ref="Template_A_BM_10" />
+      <target ref="Template_A_BM_7" />
+      <label kind="synchronisation" x="1690" y="362">recovery_cmd?</label>
+      <label kind="assignment" x="1690" y="404">BeamClass = BEAMCLASS_RECOVERING, c_rec = 0</label>
+      <nail x="1900" y="440" />
+      <nail x="1480" y="440" />
+    </transition>
+    <transition>
+      <source ref="Template_A_BM_10" />
+      <target ref="Template_A_BM_8" />
+      <label kind="synchronisation" x="1830" y="342">handover_assist_cmd?</label>
+      <label kind="assignment" x="1830" y="384">BeamClass = BEAMCLASS_HO_ASSIST</label>
+      <nail x="1900" y="420" />
+      <nail x="1760" y="420" />
+    </transition>
+    <transition>
+      <source ref="Template_A_BM_0" />
+      <target ref="Template_A_BM_1" />
+      <label kind="synchronisation" x="140" y="-24">target_detected?</label>
+      <label kind="assignment" x="140" y="18">target_seen = true</label>
+    </transition>
+    <transition>
+      <source ref="Template_A_BM_1" />
+      <target ref="Template_A_BM_2" />
+      <label kind="guard" x="420" y="-58">PRSClass != PRSCLASS_FAILED</label>
+      <label kind="synchronisation" x="420" y="-24">beam_report!</label>
+      <label kind="assignment" x="420" y="18">BeamClass = BEAMCLASS_TRACK</label>
+      <label kind="comments" x="420" y="62">publish report and update finite state</label>
+    </transition>
+    <transition>
+      <source ref="Template_A_BM_2" />
+      <target ref="Template_A_BM_3" />
+      <label kind="guard" x="700" y="-58">BeamErrorClass == BEAMERRORCLASS_LOCKABLE</label>
+      <label kind="synchronisation" x="700" y="-24">beam_report!</label>
+      <label kind="assignment" x="700" y="18">BeamClass = BEAMCLASS_LOCKED</label>
+      <label kind="comments" x="700" y="62">publish report and update finite state</label>
+    </transition>
+    <transition>
+      <source ref="Template_A_BM_2" />
+      <target ref="Template_A_BM_5" />
+      <label kind="guard" x="560" y="-188">AccClass == ACCCLASS_FAILED || BeamErrorClass == BEAMERRORCLASS_CRITICAL</label>
+      <label kind="synchronisation" x="560" y="-154">beam_report!</label>
+      <label kind="assignment" x="560" y="-112">BeamClass = BEAMCLASS_MISALIGNED, beam_degraded_flag = true</label>
+      <label kind="comments" x="560" y="-68">publish report and update finite state</label>
+    </transition>
+    <transition>
+      <source ref="Template_A_BM_3" />
+      <target ref="Template_A_BM_3" />
+      <label kind="guard" x="958" y="-176">MisClass == MISCLASS_OK</label>
+      <label kind="synchronisation" x="958" y="-142">beam_report!</label>
+      <label kind="assignment" x="958" y="-100">BeamClass = BEAMCLASS_LOCKED</label>
+      <label kind="comments" x="958" y="-56">publish report and update finite state</label>
+      <nail x="745" y="-110" />
+      <nail x="935" y="-110" />
+    </transition>
+    <transition>
+      <source ref="Template_A_BM_3" />
+      <target ref="Template_A_BM_4" />
+      <label kind="guard" x="840" y="-168">MisClass == MISCLASS_WARN || BlockageClass == BLOCKAGECLASS_SUSPECTED</label>
+      <label kind="synchronisation" x="840" y="-134">beam_report!</label>
+      <label kind="assignment" x="840" y="-92">BeamClass = BEAMCLASS_PREDICT</label>
+      <label kind="comments" x="840" y="-48">publish report and update finite state</label>
+    </transition>
+    <transition>
+      <source ref="Template_A_BM_4" />
+      <target ref="Template_A_BM_6" />
+      <label kind="synchronisation" x="980" y="-24">extra_ssb_cmd?</label>
+      <label kind="assignment" x="980" y="18">c_rec = 0</label>
+    </transition>
+    <transition>
+      <source ref="Template_A_BM_6" />
+      <target ref="Template_A_BM_7" />
+      <label kind="synchronisation" x="1260" y="138">recovery_start!</label>
+      <label kind="assignment" x="1260" y="180">BeamClass = BEAMCLASS_RECOVERING</label>
+      <nail x="1213" y="162" />
+      <nail x="1307" y="162" />
+    </transition>
+    <transition>
+      <source ref="Template_A_BM_5" />
+      <target ref="Template_A_BM_6" />
+      <label kind="synchronisation" x="840" y="-44">beam_misaligned!</label>
+      <label kind="assignment" x="840" y="-2">c_rec = 0</label>
+    </transition>
+    <transition>
+      <source ref="Template_A_BM_7" />
+      <target ref="Template_A_BM_3" />
+      <label kind="guard" x="1120" y="328">BeamErrorClass == BEAMERRORCLASS_LOCKABLE &amp;&amp; c_rec &lt;= D_BM</label>
+      <label kind="synchronisation" x="1120" y="362">beam_restored!</label>
+      <label kind="assignment" x="1120" y="404">BeamClass = BEAMCLASS_LOCKED</label>
+      <label kind="comments" x="1120" y="448">beam recovery outcome</label>
+      <nail x="1320" y="440" />
+      <nail x="920" y="440" />
+    </transition>
+    <transition>
+      <source ref="Template_A_BM_7" />
+      <target ref="Template_A_BM_8" />
+      <label kind="guard" x="1540" y="94">BlockageClass == BLOCKAGECLASS_CONFIRMED &amp;&amp; c_rec &lt;= D_BM</label>
+      <label kind="synchronisation" x="1540" y="128">handover_hint!</label>
+      <label kind="assignment" x="1540" y="170">BeamClass = BEAMCLASS_HO_ASSIST</label>
+      <label kind="comments" x="1540" y="214">beam recovery outcome</label>
+      <nail x="1493" y="152" />
+      <nail x="1587" y="152" />
+    </transition>
+    <transition>
+      <source ref="Template_A_BM_7" />
+      <target ref="Template_A_BM_9" />
+      <label kind="guard" x="1540" y="-78">c_rec == D_BM &amp;&amp; BeamErrorClass != BEAMERRORCLASS_LOCKABLE &amp;&amp; BlockageClass != BLOCKAGECLASS_CONFIRMED</label>
+      <label kind="synchronisation" x="1540" y="-44">beam_failure!</label>
+      <label kind="assignment" x="1540" y="-2">BeamClass = BEAMCLASS_FAILED</label>
+      <label kind="comments" x="1540" y="42">beam recovery outcome</label>
+    </transition>
+    <transition>
+      <source ref="Template_A_BM_8" />
+      <target ref="Template_A_BM_2" />
+      <label kind="synchronisation" x="1120" y="342">new_beam_confirmed?</label>
+      <label kind="assignment" x="1120" y="384">BeamClass = BEAMCLASS_TRACK</label>
+      <nail x="1600" y="420" />
+      <nail x="640" y="420" />
+    </transition>
+    <transition>
+      <source ref="Template_A_BM_0" />
+      <target ref="Template_A_BM_10" />
+      <label kind="guard" x="1700" y="-58">!ass_bm()</label>
+      <label kind="synchronisation" x="1700" y="-24">contract_violation_bm!</label>
+      <label kind="comments" x="1700" y="62">deadline or contract failure branch</label>
+      <nail x="1820" y="0" />
+      <nail x="1820" y="0" />
+    </transition>
+    <transition>
+      <source ref="Template_A_BM_1" />
+      <target ref="Template_A_BM_10" />
+      <label kind="guard" x="1700" y="-116">!ass_bm()</label>
+      <label kind="synchronisation" x="1700" y="-82">contract_violation_bm!</label>
+      <label kind="comments" x="1700" y="4">deadline or contract failure branch</label>
+      <nail x="1820" y="-58" />
+      <nail x="1820" y="-58" />
+    </transition>
+    <transition>
+      <source ref="Template_A_BM_2" />
+      <target ref="Template_A_BM_10" />
+      <label kind="guard" x="1700" y="0">!ass_bm()</label>
+      <label kind="synchronisation" x="1700" y="34">contract_violation_bm!</label>
+      <label kind="comments" x="1700" y="120">deadline or contract failure branch</label>
+      <nail x="1820" y="58" />
+      <nail x="1820" y="58" />
+    </transition>
+    <transition>
+      <source ref="Template_A_BM_3" />
+      <target ref="Template_A_BM_10" />
+      <label kind="guard" x="1700" y="-174">!ass_bm()</label>
+      <label kind="synchronisation" x="1700" y="-140">contract_violation_bm!</label>
+      <label kind="comments" x="1700" y="-54">deadline or contract failure branch</label>
+      <nail x="1820" y="-116" />
+      <nail x="1820" y="-116" />
+    </transition>
+    <transition>
+      <source ref="Template_A_BM_4" />
+      <target ref="Template_A_BM_10" />
+      <label kind="guard" x="1700" y="-52">!ass_bm()</label>
+      <label kind="synchronisation" x="1700" y="-18">contract_violation_bm!</label>
+      <label kind="comments" x="1700" y="68">deadline or contract failure branch</label>
+      <nail x="1820" y="-104" />
+      <nail x="1820" y="116" />
+    </transition>
+    <transition>
+      <source ref="Template_A_BM_5" />
+      <target ref="Template_A_BM_10" />
+      <label kind="guard" x="1700" y="-362">!ass_bm()</label>
+      <label kind="synchronisation" x="1700" y="-328">contract_violation_bm!</label>
+      <label kind="comments" x="1700" y="-242">deadline or contract failure branch</label>
+      <nail x="1820" y="-434" />
+      <nail x="1820" y="-174" />
+    </transition>
+    <transition>
+      <source ref="Template_A_BM_6" />
+      <target ref="Template_A_BM_10" />
+      <label kind="guard" x="1700" y="226">!ass_bm()</label>
+      <label kind="synchronisation" x="1700" y="260">contract_violation_bm!</label>
+      <label kind="comments" x="1700" y="346">deadline or contract failure branch</label>
+      <nail x="1820" y="394" />
+      <nail x="1820" y="174" />
+    </transition>
+    <transition>
+      <source ref="Template_A_BM_7" />
+      <target ref="Template_A_BM_10" />
+      <label kind="guard" x="1700" y="-180">!ass_bm()</label>
+      <label kind="synchronisation" x="1700" y="-146">contract_violation_bm!</label>
+      <label kind="comments" x="1700" y="-60">deadline or contract failure branch</label>
+      <nail x="1820" y="-12" />
+      <nail x="1820" y="-232" />
+    </transition>
+    <transition>
+      <source ref="Template_A_BM_8" />
+      <target ref="Template_A_BM_10" />
+      <label kind="guard" x="1700" y="274">!ass_bm()</label>
+      <label kind="synchronisation" x="1700" y="308">contract_violation_bm!</label>
+      <label kind="comments" x="1700" y="394">deadline or contract failure branch</label>
+      <nail x="1820" y="432" />
+      <nail x="1820" y="232" />
+    </transition>
+    <transition>
+      <source ref="Template_A_BM_9" />
+      <target ref="Template_A_BM_10" />
+      <label kind="guard" x="1700" y="-478">!ass_bm()</label>
+      <label kind="synchronisation" x="1700" y="-444">contract_violation_bm!</label>
+      <label kind="comments" x="1700" y="-358">deadline or contract failure branch</label>
+      <nail x="1820" y="-550" />
+      <nail x="1820" y="-290" />
+    </transition>
+  </template>
+  <template>
+    <name>Template_A_SQ</name>
+    <location id="Template_A_SQ_0" x="0" y="0">
+      <name x="-58" y="-38">Idle</name>
+    </location>
+    <location id="Template_A_SQ_1" x="300" y="180">
+      <name x="242" y="142">SensingEvaluating</name>
+      <label kind="invariant" x="236" y="214">c_sense &lt;= D_sense</label>
+    </location>
+    <location id="Template_A_SQ_2" x="620" y="0">
+      <name x="562" y="-38">SensingQoSOk</name>
+    </location>
+    <location id="Template_A_SQ_3" x="620" y="-240">
+      <name x="562" y="-278">ProbabilityLimited</name>
+    </location>
+    <location id="Template_A_SQ_4" x="900" y="-240">
+      <name x="842" y="-278">FalseAlarmLimited</name>
+    </location>
+    <location id="Template_A_SQ_5" x="1180" y="-240">
+      <name x="1122" y="-278">AccuracyLimited</name>
+    </location>
+    <location id="Template_A_SQ_6" x="900" y="-480">
+      <name x="842" y="-518">FreshnessLimited</name>
+    </location>
+    <location id="Template_A_SQ_7" x="1180" y="-480">
+      <name x="1122" y="-518">CoverageLimited</name>
+    </location>
+    <location id="Template_A_SQ_8" x="1460" y="-240">
+      <name x="1402" y="-278">CapacityLimited</name>
+    </location>
+    <location id="Template_A_SQ_9" x="1460" y="-480">
+      <name x="1402" y="-518">SensingFailure</name>
+    </location>
+    <location id="Template_A_SQ_10" x="1780" y="0">
+      <name x="1722" y="-38">ContractViolation_SQ</name>
+    </location>
+    <init ref="Template_A_SQ_0" />
+    <transition>
+      <source ref="Template_A_SQ_0" />
+      <target ref="Template_A_SQ_1" />
+      <label kind="synchronisation" x="150" y="66">channel_report?</label>
+      <label kind="assignment" x="150" y="108">input_changed = true, sensing_report_pending = true, c_sense = 0</label>
+    </transition>
+    <transition>
+      <source ref="Template_A_SQ_0" />
+      <target ref="Template_A_SQ_1" />
+      <label kind="synchronisation" x="150" y="8">signal_report?</label>
+      <label kind="assignment" x="150" y="50">input_changed = true, sensing_report_pending = true, c_sense = 0</label>
+      <nail x="100" y="32" />
+      <nail x="200" y="32" />
+    </transition>
+    <transition>
+      <source ref="Template_A_SQ_0" />
+      <target ref="Template_A_SQ_1" />
+      <label kind="synchronisation" x="150" y="124">beam_report?</label>
+      <label kind="assignment" x="150" y="166">input_changed = true, sensing_report_pending = true, c_sense = 0</label>
+      <nail x="100" y="148" />
+      <nail x="200" y="148" />
+    </transition>
+    <transition>
+      <source ref="Template_A_SQ_1" />
+      <target ref="Template_A_SQ_2" />
+      <label kind="guard" x="460" y="32">env_scenario == SCENARIO_NORMAL &amp;&amp; c_sense &lt;= D_sense</label>
+      <label kind="synchronisation" x="460" y="66">sensing_report!</label>
+      <label kind="assignment" x="460" y="108">SensingState = highest_priority_SQ(), sensing_report_pending = false,
+sensing_degraded_flag = false, sensing_qos_ok = true, sq_enabled_count = 1,
+c_sense = 0</label>
+      <label kind="comments" x="460" y="152">publish report and update finite state</label>
+    </transition>
+    <transition>
+      <source ref="Template_A_SQ_1" />
+      <target ref="Template_A_SQ_2" />
+      <label kind="guard" x="460" y="-26">env_scenario == SCENARIO_COMM_DEGRADED &amp;&amp; c_sense &lt;= D_sense</label>
+      <label kind="synchronisation" x="460" y="8">sensing_report!</label>
+      <label kind="assignment" x="460" y="50">SensingState = highest_priority_SQ(), sensing_report_pending = false,
+sensing_degraded_flag = false, sensing_qos_ok = true, sq_enabled_count = 1,
+c_sense = 0</label>
+      <label kind="comments" x="460" y="94">publish report and update finite state</label>
+      <nail x="406" y="32" />
+      <nail x="514" y="32" />
+    </transition>
+    <transition>
+      <source ref="Template_A_SQ_1" />
+      <target ref="Template_A_SQ_6" />
+      <label kind="guard" x="600" y="-208">env_scenario == SCENARIO_SENSING_DEGRADED &amp;&amp; c_sense &lt;= D_sense</label>
+      <label kind="synchronisation" x="600" y="-174">sensing_report!</label>
+      <label kind="assignment" x="600" y="-132">SensingState = highest_priority_SQ(), sensing_report_pending = false,
+sensing_degraded_flag = true, sensing_qos_ok = false, sq_enabled_count = 1,
+c_sense = 0</label>
+      <label kind="comments" x="600" y="-88">publish report and update finite state</label>
+    </transition>
+    <transition>
+      <source ref="Template_A_SQ_1" />
+      <target ref="Template_A_SQ_9" />
+      <label kind="guard" x="880" y="-208">env_scenario == SCENARIO_JOINT_DEGRADED &amp;&amp; c_sense &lt;= D_sense</label>
+      <label kind="synchronisation" x="880" y="-174">sensing_report!</label>
+      <label kind="assignment" x="880" y="-132">SensingState = highest_priority_SQ(), sensing_report_pending = false,
+sensing_failure_flag = true, sensing_qos_ok = false, sq_enabled_count = 1,
+c_sense = 0</label>
+      <label kind="comments" x="880" y="-88">publish report and update finite state</label>
+    </transition>
+    <transition>
+      <source ref="Template_A_SQ_3" />
+      <target ref="Template_A_SQ_3" />
+      <label kind="synchronisation" x="738" y="-382">sensing_degraded!</label>
+      <nail x="525" y="-350" />
+      <nail x="715" y="-350" />
+    </transition>
+    <transition>
+      <source ref="Template_A_SQ_4" />
+      <target ref="Template_A_SQ_4" />
+      <label kind="synchronisation" x="1018" y="-382">sensing_degraded!</label>
+      <nail x="805" y="-350" />
+      <nail x="995" y="-350" />
+    </transition>
+    <transition>
+      <source ref="Template_A_SQ_5" />
+      <target ref="Template_A_SQ_5" />
+      <label kind="synchronisation" x="1298" y="-382">sensing_degraded!</label>
+      <nail x="1085" y="-350" />
+      <nail x="1275" y="-350" />
+    </transition>
+    <transition>
+      <source ref="Template_A_SQ_6" />
+      <target ref="Template_A_SQ_6" />
+      <label kind="synchronisation" x="1018" y="-622">sensing_degraded!</label>
+      <nail x="805" y="-590" />
+      <nail x="995" y="-590" />
+    </transition>
+    <transition>
+      <source ref="Template_A_SQ_7" />
+      <target ref="Template_A_SQ_7" />
+      <label kind="synchronisation" x="1298" y="-622">sensing_degraded!</label>
+      <nail x="1085" y="-590" />
+      <nail x="1275" y="-590" />
+    </transition>
+    <transition>
+      <source ref="Template_A_SQ_8" />
+      <target ref="Template_A_SQ_8" />
+      <label kind="synchronisation" x="1578" y="-382">sensing_degraded!</label>
+      <nail x="1365" y="-350" />
+      <nail x="1555" y="-350" />
+    </transition>
+    <transition>
+      <source ref="Template_A_SQ_9" />
+      <target ref="Template_A_SQ_9" />
+      <label kind="synchronisation" x="1578" y="-622">sensing_failure!</label>
+      <label kind="comments" x="1578" y="-536">degradation or failure branch</label>
+      <nail x="1365" y="-590" />
+      <nail x="1555" y="-590" />
+    </transition>
+    <transition>
+      <source ref="Template_A_SQ_0" />
+      <target ref="Template_A_SQ_10" />
+      <label kind="guard" x="1500" y="-58">!ass_sq()</label>
+      <label kind="synchronisation" x="1500" y="-24">contract_violation_sq!</label>
+      <label kind="comments" x="1500" y="62">deadline or contract failure branch</label>
+      <nail x="1620" y="0" />
+      <nail x="1620" y="0" />
+    </transition>
+    <transition>
+      <source ref="Template_A_SQ_1" />
+      <target ref="Template_A_SQ_10" />
+      <label kind="guard" x="1500" y="-26">!ass_sq()</label>
+      <label kind="synchronisation" x="1500" y="8">contract_violation_sq!</label>
+      <label kind="comments" x="1500" y="94">deadline or contract failure branch</label>
+      <nail x="1620" y="122" />
+      <nail x="1620" y="-58" />
+    </transition>
+    <transition>
+      <source ref="Template_A_SQ_2" />
+      <target ref="Template_A_SQ_10" />
+      <label kind="guard" x="1500" y="0">!ass_sq()</label>
+      <label kind="synchronisation" x="1500" y="34">contract_violation_sq!</label>
+      <label kind="comments" x="1500" y="120">deadline or contract failure branch</label>
+      <nail x="1620" y="58" />
+      <nail x="1620" y="58" />
+    </transition>
+    <transition>
+      <source ref="Template_A_SQ_3" />
+      <target ref="Template_A_SQ_10" />
+      <label kind="guard" x="1500" y="-294">!ass_sq()</label>
+      <label kind="synchronisation" x="1500" y="-260">contract_violation_sq!</label>
+      <label kind="comments" x="1500" y="-174">deadline or contract failure branch</label>
+      <nail x="1620" y="-356" />
+      <nail x="1620" y="-116" />
+    </transition>
+    <transition>
+      <source ref="Template_A_SQ_4" />
+      <target ref="Template_A_SQ_10" />
+      <label kind="guard" x="1500" y="-62">!ass_sq()</label>
+      <label kind="synchronisation" x="1500" y="-28">contract_violation_sq!</label>
+      <label kind="comments" x="1500" y="58">deadline or contract failure branch</label>
+      <nail x="1620" y="-124" />
+      <nail x="1620" y="116" />
+    </transition>
+    <transition>
+      <source ref="Template_A_SQ_5" />
+      <target ref="Template_A_SQ_10" />
+      <label kind="guard" x="1500" y="-352">!ass_sq()</label>
+      <label kind="synchronisation" x="1500" y="-318">contract_violation_sq!</label>
+      <label kind="comments" x="1500" y="-232">deadline or contract failure branch</label>
+      <nail x="1620" y="-414" />
+      <nail x="1620" y="-174" />
+    </transition>
+    <transition>
+      <source ref="Template_A_SQ_6" />
+      <target ref="Template_A_SQ_10" />
+      <label kind="guard" x="1500" y="-124">!ass_sq()</label>
+      <label kind="synchronisation" x="1500" y="-90">contract_violation_sq!</label>
+      <label kind="comments" x="1500" y="-4">deadline or contract failure branch</label>
+      <nail x="1620" y="-306" />
+      <nail x="1620" y="174" />
+    </transition>
+    <transition>
+      <source ref="Template_A_SQ_7" />
+      <target ref="Template_A_SQ_10" />
+      <label kind="guard" x="1500" y="-530">!ass_sq()</label>
+      <label kind="synchronisation" x="1500" y="-496">contract_violation_sq!</label>
+      <label kind="comments" x="1500" y="-410">deadline or contract failure branch</label>
+      <nail x="1620" y="-712" />
+      <nail x="1620" y="-232" />
+    </transition>
+    <transition>
+      <source ref="Template_A_SQ_8" />
+      <target ref="Template_A_SQ_10" />
+      <label kind="guard" x="1500" y="54">!ass_sq()</label>
+      <label kind="synchronisation" x="1500" y="88">contract_violation_sq!</label>
+      <label kind="comments" x="1500" y="174">deadline or contract failure branch</label>
+      <nail x="1620" y="-8" />
+      <nail x="1620" y="232" />
+    </transition>
+    <transition>
+      <source ref="Template_A_SQ_9" />
+      <target ref="Template_A_SQ_10" />
+      <label kind="guard" x="1500" y="-588">!ass_sq()</label>
+      <label kind="synchronisation" x="1500" y="-554">contract_violation_sq!</label>
+      <label kind="comments" x="1500" y="-468">deadline or contract failure branch</label>
+      <nail x="1620" y="-770" />
+      <nail x="1620" y="-290" />
+    </transition>
+  </template>
+  <template>
+    <name>Template_A_PH</name>
+    <location id="Template_A_PH_0" x="0" y="0">
+      <name x="-58" y="-38">PHYNormal</name>
+    </location>
+    <location id="Template_A_PH_1" x="660" y="-240">
+      <name x="602" y="-278">PHYCommunicationDegraded</name>
+    </location>
+    <location id="Template_A_PH_2" x="660" y="-40">
+      <name x="602" y="-78">PHYSensingDegraded</name>
+    </location>
+    <location id="Template_A_PH_3" x="940" y="-420">
+      <name x="882" y="-458">PHYJointDegraded</name>
+    </location>
+    <location id="Template_A_PH_4" x="320" y="200">
+      <name x="262" y="162">PHYKpiReporting</name>
+      <label kind="invariant" x="256" y="234">c_report &lt;= D_report</label>
+    </location>
+    <location id="Template_A_PH_5" x="660" y="260">
+      <name x="602" y="222">PHYRecovery</name>
+    </location>
+    <location id="Template_A_PH_6" x="1220" y="-300">
+      <name x="1162" y="-338">PHYFailure</name>
+    </location>
+    <location id="Template_A_PH_7" x="1520" y="0">
+      <name x="1462" y="-38">ContractViolation_PH</name>
+    </location>
+    <init ref="Template_A_PH_0" />
+    <transition>
+      <source ref="Template_A_PH_0" />
+      <target ref="Template_A_PH_4" />
+      <label kind="synchronisation" x="160" y="76">channel_report?</label>
+      <label kind="assignment" x="160" y="118">child_update = true, phy_kpi_report_pending = true, c_report = 0</label>
+    </transition>
+    <transition>
+      <source ref="Template_A_PH_0" />
+      <target ref="Template_A_PH_4" />
+      <label kind="synchronisation" x="160" y="18">signal_report?</label>
+      <label kind="assignment" x="160" y="60">child_update = true, phy_kpi_report_pending = true, c_report = 0</label>
+      <nail x="106" y="42" />
+      <nail x="214" y="42" />
+    </transition>
+    <transition>
+      <source ref="Template_A_PH_0" />
+      <target ref="Template_A_PH_4" />
+      <label kind="synchronisation" x="160" y="134">beam_report?</label>
+      <label kind="assignment" x="160" y="176">child_update = true, phy_kpi_report_pending = true, c_report = 0</label>
+      <nail x="106" y="158" />
+      <nail x="214" y="158" />
+    </transition>
+    <transition>
+      <source ref="Template_A_PH_0" />
+      <target ref="Template_A_PH_4" />
+      <label kind="synchronisation" x="160" y="-40">sensing_report?</label>
+      <label kind="assignment" x="160" y="2">child_update = true, phy_kpi_report_pending = true, c_report = 0</label>
+      <nail x="106" y="-16" />
+      <nail x="214" y="-16" />
+    </transition>
+    <transition>
+      <source ref="Template_A_PH_0" />
+      <target ref="Template_A_PH_0" />
+      <label kind="synchronisation" x="118" y="-142">mac_report_delivered?</label>
+      <nail x="-95" y="-110" />
+      <nail x="95" y="-110" />
+    </transition>
+    <transition>
+      <source ref="Template_A_PH_0" />
+      <target ref="Template_A_PH_0" />
+      <label kind="synchronisation" x="118" y="-188">controller_report_delivered?</label>
+      <nail x="-95" y="-156" />
+      <nail x="95" y="-156" />
+    </transition>
+    <transition>
+      <source ref="Template_A_PH_0" />
+      <target ref="Template_A_PH_5" />
+      <label kind="synchronisation" x="330" y="106">recovery_cmd?</label>
+      <label kind="assignment" x="330" y="148">PHYState = PHYSTATE_PHYRECOVERY</label>
+    </transition>
+    <transition>
+      <source ref="Template_A_PH_1" />
+      <target ref="Template_A_PH_4" />
+      <label kind="synchronisation" x="490" y="342">channel_report?</label>
+      <label kind="assignment" x="490" y="384">child_update = true, phy_kpi_report_pending = true, c_report = 0</label>
+      <nail x="580" y="420" />
+      <nail x="400" y="420" />
+    </transition>
+    <transition>
+      <source ref="Template_A_PH_1" />
+      <target ref="Template_A_PH_4" />
+      <label kind="synchronisation" x="490" y="400">signal_report?</label>
+      <label kind="assignment" x="490" y="442">child_update = true, phy_kpi_report_pending = true, c_report = 0</label>
+      <nail x="580" y="478" />
+      <nail x="400" y="478" />
+    </transition>
+    <transition>
+      <source ref="Template_A_PH_1" />
+      <target ref="Template_A_PH_4" />
+      <label kind="synchronisation" x="490" y="458">beam_report?</label>
+      <label kind="assignment" x="490" y="500">child_update = true, phy_kpi_report_pending = true, c_report = 0</label>
+      <nail x="580" y="536" />
+      <nail x="400" y="536" />
+    </transition>
+    <transition>
+      <source ref="Template_A_PH_1" />
+      <target ref="Template_A_PH_4" />
+      <label kind="synchronisation" x="490" y="516">sensing_report?</label>
+      <label kind="assignment" x="490" y="558">child_update = true, phy_kpi_report_pending = true, c_report = 0</label>
+      <nail x="580" y="594" />
+      <nail x="400" y="594" />
+    </transition>
+    <transition>
+      <source ref="Template_A_PH_1" />
+      <target ref="Template_A_PH_1" />
+      <label kind="synchronisation" x="778" y="-382">mac_report_delivered?</label>
+      <label kind="comments" x="778" y="-296">degradation or failure branch</label>
+      <nail x="565" y="-350" />
+      <nail x="755" y="-350" />
+    </transition>
+    <transition>
+      <source ref="Template_A_PH_1" />
+      <target ref="Template_A_PH_1" />
+      <label kind="synchronisation" x="778" y="-428">controller_report_delivered?</label>
+      <label kind="comments" x="778" y="-342">degradation or failure branch</label>
+      <nail x="565" y="-396" />
+      <nail x="755" y="-396" />
+    </transition>
+    <transition>
+      <source ref="Template_A_PH_1" />
+      <target ref="Template_A_PH_5" />
+      <label kind="synchronisation" x="660" y="-14">recovery_cmd?</label>
+      <label kind="assignment" x="660" y="28">PHYState = PHYSTATE_PHYRECOVERY</label>
+    </transition>
+    <transition>
+      <source ref="Template_A_PH_2" />
+      <target ref="Template_A_PH_4" />
+      <label kind="synchronisation" x="490" y="342">channel_report?</label>
+      <label kind="assignment" x="490" y="384">child_update = true, phy_kpi_report_pending = true, c_report = 0</label>
+      <nail x="580" y="420" />
+      <nail x="400" y="420" />
+    </transition>
+    <transition>
+      <source ref="Template_A_PH_2" />
+      <target ref="Template_A_PH_4" />
+      <label kind="synchronisation" x="490" y="400">signal_report?</label>
+      <label kind="assignment" x="490" y="442">child_update = true, phy_kpi_report_pending = true, c_report = 0</label>
+      <nail x="580" y="478" />
+      <nail x="400" y="478" />
+    </transition>
+    <transition>
+      <source ref="Template_A_PH_2" />
+      <target ref="Template_A_PH_4" />
+      <label kind="synchronisation" x="490" y="458">beam_report?</label>
+      <label kind="assignment" x="490" y="500">child_update = true, phy_kpi_report_pending = true, c_report = 0</label>
+      <nail x="580" y="536" />
+      <nail x="400" y="536" />
+    </transition>
+    <transition>
+      <source ref="Template_A_PH_2" />
+      <target ref="Template_A_PH_4" />
+      <label kind="synchronisation" x="490" y="516">sensing_report?</label>
+      <label kind="assignment" x="490" y="558">child_update = true, phy_kpi_report_pending = true, c_report = 0</label>
+      <nail x="580" y="594" />
+      <nail x="400" y="594" />
+    </transition>
+    <transition>
+      <source ref="Template_A_PH_2" />
+      <target ref="Template_A_PH_2" />
+      <label kind="synchronisation" x="778" y="-182">mac_report_delivered?</label>
+      <label kind="comments" x="778" y="-96">degradation or failure branch</label>
+      <nail x="565" y="-150" />
+      <nail x="755" y="-150" />
+    </transition>
+    <transition>
+      <source ref="Template_A_PH_2" />
+      <target ref="Template_A_PH_2" />
+      <label kind="synchronisation" x="778" y="-228">controller_report_delivered?</label>
+      <label kind="comments" x="778" y="-142">degradation or failure branch</label>
+      <nail x="565" y="-196" />
+      <nail x="755" y="-196" />
+    </transition>
+    <transition>
+      <source ref="Template_A_PH_2" />
+      <target ref="Template_A_PH_5" />
+      <label kind="synchronisation" x="660" y="86">recovery_cmd?</label>
+      <label kind="assignment" x="660" y="128">PHYState = PHYSTATE_PHYRECOVERY</label>
+    </transition>
+    <transition>
+      <source ref="Template_A_PH_3" />
+      <target ref="Template_A_PH_4" />
+      <label kind="synchronisation" x="630" y="342">channel_report?</label>
+      <label kind="assignment" x="630" y="384">child_update = true, phy_kpi_report_pending = true, c_report = 0</label>
+      <nail x="860" y="420" />
+      <nail x="400" y="420" />
+    </transition>
+    <transition>
+      <source ref="Template_A_PH_3" />
+      <target ref="Template_A_PH_4" />
+      <label kind="synchronisation" x="630" y="400">signal_report?</label>
+      <label kind="assignment" x="630" y="442">child_update = true, phy_kpi_report_pending = true, c_report = 0</label>
+      <nail x="860" y="478" />
+      <nail x="400" y="478" />
+    </transition>
+    <transition>
+      <source ref="Template_A_PH_3" />
+      <target ref="Template_A_PH_4" />
+      <label kind="synchronisation" x="630" y="458">beam_report?</label>
+      <label kind="assignment" x="630" y="500">child_update = true, phy_kpi_report_pending = true, c_report = 0</label>
+      <nail x="860" y="536" />
+      <nail x="400" y="536" />
+    </transition>
+    <transition>
+      <source ref="Template_A_PH_3" />
+      <target ref="Template_A_PH_4" />
+      <label kind="synchronisation" x="630" y="516">sensing_report?</label>
+      <label kind="assignment" x="630" y="558">child_update = true, phy_kpi_report_pending = true, c_report = 0</label>
+      <nail x="860" y="594" />
+      <nail x="400" y="594" />
+    </transition>
+    <transition>
+      <source ref="Template_A_PH_3" />
+      <target ref="Template_A_PH_3" />
+      <label kind="synchronisation" x="1058" y="-562">mac_report_delivered?</label>
+      <label kind="comments" x="1058" y="-476">degradation or failure branch</label>
+      <nail x="845" y="-530" />
+      <nail x="1035" y="-530" />
+    </transition>
+    <transition>
+      <source ref="Template_A_PH_3" />
+      <target ref="Template_A_PH_3" />
+      <label kind="synchronisation" x="1058" y="-608">controller_report_delivered?</label>
+      <label kind="comments" x="1058" y="-522">degradation or failure branch</label>
+      <nail x="845" y="-576" />
+      <nail x="1035" y="-576" />
+    </transition>
+    <transition>
+      <source ref="Template_A_PH_3" />
+      <target ref="Template_A_PH_5" />
+      <label kind="synchronisation" x="800" y="402">recovery_cmd?</label>
+      <label kind="assignment" x="800" y="444">PHYState = PHYSTATE_PHYRECOVERY</label>
+      <nail x="860" y="480" />
+      <nail x="740" y="480" />
+    </transition>
+    <transition>
+      <source ref="Template_A_PH_4" />
+      <target ref="Template_A_PH_4" />
+      <label kind="synchronisation" x="438" y="294">channel_report?</label>
+      <label kind="assignment" x="438" y="336">child_update = true, phy_kpi_report_pending = true, c_report = 0</label>
+      <nail x="225" y="310" />
+      <nail x="415" y="310" />
+    </transition>
+    <transition>
+      <source ref="Template_A_PH_4" />
+      <target ref="Template_A_PH_4" />
+      <label kind="synchronisation" x="438" y="340">signal_report?</label>
+      <label kind="assignment" x="438" y="382">child_update = true, phy_kpi_report_pending = true, c_report = 0</label>
+      <nail x="225" y="356" />
+      <nail x="415" y="356" />
+    </transition>
+    <transition>
+      <source ref="Template_A_PH_4" />
+      <target ref="Template_A_PH_4" />
+      <label kind="synchronisation" x="438" y="386">beam_report?</label>
+      <label kind="assignment" x="438" y="428">child_update = true, phy_kpi_report_pending = true, c_report = 0</label>
+      <nail x="225" y="402" />
+      <nail x="415" y="402" />
+    </transition>
+    <transition>
+      <source ref="Template_A_PH_4" />
+      <target ref="Template_A_PH_4" />
+      <label kind="synchronisation" x="438" y="432">sensing_report?</label>
+      <label kind="assignment" x="438" y="474">child_update = true, phy_kpi_report_pending = true, c_report = 0</label>
+      <nail x="225" y="448" />
+      <nail x="415" y="448" />
+    </transition>
+    <transition>
+      <source ref="Template_A_PH_4" />
+      <target ref="Template_A_PH_4" />
+      <label kind="synchronisation" x="438" y="478">mac_report_delivered?</label>
+      <nail x="225" y="494" />
+      <nail x="415" y="494" />
+    </transition>
+    <transition>
+      <source ref="Template_A_PH_4" />
+      <target ref="Template_A_PH_4" />
+      <label kind="synchronisation" x="438" y="524">controller_report_delivered?</label>
+      <nail x="225" y="540" />
+      <nail x="415" y="540" />
+    </transition>
+    <transition>
+      <source ref="Template_A_PH_4" />
+      <target ref="Template_A_PH_5" />
+      <label kind="synchronisation" x="490" y="206">recovery_cmd?</label>
+      <label kind="assignment" x="490" y="248">PHYState = PHYSTATE_PHYRECOVERY</label>
+    </transition>
+    <transition>
+      <source ref="Template_A_PH_5" />
+      <target ref="Template_A_PH_4" />
+      <label kind="synchronisation" x="490" y="402">channel_report?</label>
+      <label kind="assignment" x="490" y="444">child_update = true, phy_kpi_report_pending = true, c_report = 0</label>
+      <nail x="580" y="480" />
+      <nail x="400" y="480" />
+    </transition>
+    <transition>
+      <source ref="Template_A_PH_5" />
+      <target ref="Template_A_PH_4" />
+      <label kind="synchronisation" x="490" y="460">signal_report?</label>
+      <label kind="assignment" x="490" y="502">child_update = true, phy_kpi_report_pending = true, c_report = 0</label>
+      <nail x="580" y="538" />
+      <nail x="400" y="538" />
+    </transition>
+    <transition>
+      <source ref="Template_A_PH_5" />
+      <target ref="Template_A_PH_4" />
+      <label kind="synchronisation" x="490" y="518">beam_report?</label>
+      <label kind="assignment" x="490" y="560">child_update = true, phy_kpi_report_pending = true, c_report = 0</label>
+      <nail x="580" y="596" />
+      <nail x="400" y="596" />
+    </transition>
+    <transition>
+      <source ref="Template_A_PH_5" />
+      <target ref="Template_A_PH_4" />
+      <label kind="synchronisation" x="490" y="576">sensing_report?</label>
+      <label kind="assignment" x="490" y="618">child_update = true, phy_kpi_report_pending = true, c_report = 0</label>
+      <nail x="580" y="654" />
+      <nail x="400" y="654" />
+    </transition>
+    <transition>
+      <source ref="Template_A_PH_5" />
+      <target ref="Template_A_PH_5" />
+      <label kind="synchronisation" x="778" y="354">mac_report_delivered?</label>
+      <nail x="565" y="370" />
+      <nail x="755" y="370" />
+    </transition>
+    <transition>
+      <source ref="Template_A_PH_5" />
+      <target ref="Template_A_PH_5" />
+      <label kind="synchronisation" x="778" y="400">controller_report_delivered?</label>
+      <nail x="565" y="416" />
+      <nail x="755" y="416" />
+    </transition>
+    <transition>
+      <source ref="Template_A_PH_5" />
+      <target ref="Template_A_PH_5" />
+      <label kind="synchronisation" x="778" y="446">recovery_cmd?</label>
+      <label kind="assignment" x="778" y="488">PHYState = PHYSTATE_PHYRECOVERY</label>
+      <nail x="565" y="462" />
+      <nail x="755" y="462" />
+    </transition>
+    <transition>
+      <source ref="Template_A_PH_6" />
+      <target ref="Template_A_PH_4" />
+      <label kind="synchronisation" x="770" y="342">channel_report?</label>
+      <label kind="assignment" x="770" y="384">child_update = true, phy_kpi_report_pending = true, c_report = 0</label>
+      <nail x="1140" y="420" />
+      <nail x="400" y="420" />
+    </transition>
+    <transition>
+      <source ref="Template_A_PH_6" />
+      <target ref="Template_A_PH_4" />
+      <label kind="synchronisation" x="770" y="400">signal_report?</label>
+      <label kind="assignment" x="770" y="442">child_update = true, phy_kpi_report_pending = true, c_report = 0</label>
+      <nail x="1140" y="478" />
+      <nail x="400" y="478" />
+    </transition>
+    <transition>
+      <source ref="Template_A_PH_6" />
+      <target ref="Template_A_PH_4" />
+      <label kind="synchronisation" x="770" y="458">beam_report?</label>
+      <label kind="assignment" x="770" y="500">child_update = true, phy_kpi_report_pending = true, c_report = 0</label>
+      <nail x="1140" y="536" />
+      <nail x="400" y="536" />
+    </transition>
+    <transition>
+      <source ref="Template_A_PH_6" />
+      <target ref="Template_A_PH_4" />
+      <label kind="synchronisation" x="770" y="516">sensing_report?</label>
+      <label kind="assignment" x="770" y="558">child_update = true, phy_kpi_report_pending = true, c_report = 0</label>
+      <nail x="1140" y="594" />
+      <nail x="400" y="594" />
+    </transition>
+    <transition>
+      <source ref="Template_A_PH_6" />
+      <target ref="Template_A_PH_6" />
+      <label kind="synchronisation" x="1338" y="-442">mac_report_delivered?</label>
+      <label kind="comments" x="1338" y="-356">degradation or failure branch</label>
+      <nail x="1125" y="-410" />
+      <nail x="1315" y="-410" />
+    </transition>
+    <transition>
+      <source ref="Template_A_PH_6" />
+      <target ref="Template_A_PH_6" />
+      <label kind="synchronisation" x="1338" y="-488">controller_report_delivered?</label>
+      <label kind="comments" x="1338" y="-402">degradation or failure branch</label>
+      <nail x="1125" y="-456" />
+      <nail x="1315" y="-456" />
+    </transition>
+    <transition>
+      <source ref="Template_A_PH_6" />
+      <target ref="Template_A_PH_5" />
+      <label kind="synchronisation" x="940" y="402">recovery_cmd?</label>
+      <label kind="assignment" x="940" y="444">PHYState = PHYSTATE_PHYRECOVERY</label>
+      <nail x="1140" y="480" />
+      <nail x="740" y="480" />
+    </transition>
+    <transition>
+      <source ref="Template_A_PH_7" />
+      <target ref="Template_A_PH_4" />
+      <label kind="synchronisation" x="920" y="342">channel_report?</label>
+      <label kind="assignment" x="920" y="384">child_update = true, phy_kpi_report_pending = true, c_report = 0</label>
+      <nail x="1440" y="420" />
+      <nail x="400" y="420" />
+    </transition>
+    <transition>
+      <source ref="Template_A_PH_7" />
+      <target ref="Template_A_PH_4" />
+      <label kind="synchronisation" x="920" y="400">signal_report?</label>
+      <label kind="assignment" x="920" y="442">child_update = true, phy_kpi_report_pending = true, c_report = 0</label>
+      <nail x="1440" y="478" />
+      <nail x="400" y="478" />
+    </transition>
+    <transition>
+      <source ref="Template_A_PH_7" />
+      <target ref="Template_A_PH_4" />
+      <label kind="synchronisation" x="920" y="458">beam_report?</label>
+      <label kind="assignment" x="920" y="500">child_update = true, phy_kpi_report_pending = true, c_report = 0</label>
+      <nail x="1440" y="536" />
+      <nail x="400" y="536" />
+    </transition>
+    <transition>
+      <source ref="Template_A_PH_7" />
+      <target ref="Template_A_PH_4" />
+      <label kind="synchronisation" x="920" y="516">sensing_report?</label>
+      <label kind="assignment" x="920" y="558">child_update = true, phy_kpi_report_pending = true, c_report = 0</label>
+      <nail x="1440" y="594" />
+      <nail x="400" y="594" />
+    </transition>
+    <transition>
+      <source ref="Template_A_PH_7" />
+      <target ref="Template_A_PH_7" />
+      <label kind="synchronisation" x="1638" y="-142">mac_report_delivered?</label>
+      <label kind="comments" x="1638" y="-56">deadline or contract failure branch</label>
+      <nail x="1425" y="-110" />
+      <nail x="1615" y="-110" />
+    </transition>
+    <transition>
+      <source ref="Template_A_PH_7" />
+      <target ref="Template_A_PH_7" />
+      <label kind="synchronisation" x="1638" y="-188">controller_report_delivered?</label>
+      <label kind="comments" x="1638" y="-102">deadline or contract failure branch</label>
+      <nail x="1425" y="-156" />
+      <nail x="1615" y="-156" />
+    </transition>
+    <transition>
+      <source ref="Template_A_PH_7" />
+      <target ref="Template_A_PH_5" />
+      <label kind="synchronisation" x="1090" y="402">recovery_cmd?</label>
+      <label kind="assignment" x="1090" y="444">PHYState = PHYSTATE_PHYRECOVERY</label>
+      <nail x="1440" y="480" />
+      <nail x="740" y="480" />
+    </transition>
+    <transition>
+      <source ref="Template_A_PH_4" />
+      <target ref="Template_A_PH_0" />
+      <label kind="guard" x="160" y="308">env_scenario == SCENARIO_NORMAL &amp;&amp; c_report &lt;= D_report</label>
+      <label kind="synchronisation" x="160" y="342">phy_kpi_report!</label>
+      <label kind="assignment" x="160" y="384">PHYState = PHYSTATE_PHYNORMAL, phy_kpi_report_pending = false,
+comm_ok = true, sensing_qos_ok = true, degradation_flag = false,
+c_report = 0</label>
+      <label kind="comments" x="160" y="428">publish report and update finite state</label>
+      <nail x="240" y="420" />
+      <nail x="80" y="420" />
+    </transition>
+    <transition>
+      <source ref="Template_A_PH_4" />
+      <target ref="Template_A_PH_1" />
+      <label kind="guard" x="490" y="-78">env_scenario == SCENARIO_COMM_DEGRADED &amp;&amp; c_report &lt;= D_report</label>
+      <label kind="synchronisation" x="490" y="-44">phy_kpi_report!</label>
+      <label kind="assignment" x="490" y="-2">PHYState = PHYSTATE_PHYCOMMUNICATIONDEGRADED,
+phy_kpi_report_pending = false, comm_ok = false, sensing_qos_ok = true,
+degradation_flag = true, c_report = 0</label>
+      <label kind="comments" x="490" y="42">publish report and update finite state</label>
+    </transition>
+    <transition>
+      <source ref="Template_A_PH_4" />
+      <target ref="Template_A_PH_2" />
+      <label kind="guard" x="490" y="22">env_scenario == SCENARIO_SENSING_DEGRADED &amp;&amp; c_report &lt;= D_report</label>
+      <label kind="synchronisation" x="490" y="56">phy_kpi_report!</label>
+      <label kind="assignment" x="490" y="98">PHYState = PHYSTATE_PHYSENSINGDEGRADED, phy_kpi_report_pending = false,
+comm_ok = true, sensing_qos_ok = false, degradation_flag = true,
+c_report = 0</label>
+      <label kind="comments" x="490" y="142">publish report and update finite state</label>
+    </transition>
+    <transition>
+      <source ref="Template_A_PH_4" />
+      <target ref="Template_A_PH_3" />
+      <label kind="guard" x="630" y="-168">env_scenario == SCENARIO_JOINT_DEGRADED &amp;&amp; c_report &lt;= D_report</label>
+      <label kind="synchronisation" x="630" y="-134">phy_kpi_report!</label>
+      <label kind="assignment" x="630" y="-92">PHYState = PHYSTATE_PHYJOINTDEGRADED, phy_kpi_report_pending = false,
+comm_ok = false, sensing_qos_ok = false, degradation_flag = true,
+c_report = 0</label>
+      <label kind="comments" x="630" y="-48">publish report and update finite state</label>
+    </transition>
+    <transition>
+      <source ref="Template_A_PH_4" />
+      <target ref="Template_A_PH_6" />
+      <label kind="guard" x="770" y="-108">ChannelClass == CHANNELCLASS_OUTAGE || BeamClass == BEAMCLASS_FAILED || SensingState == SENSINGSTATE_SENSINGFAILURE</label>
+      <label kind="synchronisation" x="770" y="-74">phy_failure!</label>
+      <label kind="assignment" x="770" y="-32">PHYState = PHYSTATE_PHYFAILURE</label>
+      <label kind="comments" x="770" y="12">degradation or failure branch</label>
+    </transition>
+    <transition>
+      <source ref="Template_A_PH_1" />
+      <target ref="Template_A_PH_1" />
+      <label kind="synchronisation" x="778" y="-474">degradation_event!</label>
+      <label kind="comments" x="778" y="-388">degradation or failure branch</label>
+      <nail x="565" y="-442" />
+      <nail x="755" y="-442" />
+    </transition>
+    <transition>
+      <source ref="Template_A_PH_2" />
+      <target ref="Template_A_PH_2" />
+      <label kind="synchronisation" x="778" y="-274">degradation_event!</label>
+      <label kind="comments" x="778" y="-188">degradation or failure branch</label>
+      <nail x="565" y="-242" />
+      <nail x="755" y="-242" />
+    </transition>
+    <transition>
+      <source ref="Template_A_PH_3" />
+      <target ref="Template_A_PH_3" />
+      <label kind="synchronisation" x="1058" y="-654">degradation_event!</label>
+      <label kind="comments" x="1058" y="-568">degradation or failure branch</label>
+      <nail x="845" y="-622" />
+      <nail x="1035" y="-622" />
+    </transition>
+    <transition>
+      <source ref="Template_A_PH_0" />
+      <target ref="Template_A_PH_7" />
+      <label kind="guard" x="1240" y="0">!ass_ph()</label>
+      <label kind="synchronisation" x="1240" y="34">contract_violation_ph!</label>
+      <label kind="comments" x="1240" y="120">deadline or contract failure branch</label>
+      <nail x="1360" y="58" />
+      <nail x="1360" y="58" />
+    </transition>
+    <transition>
+      <source ref="Template_A_PH_1" />
+      <target ref="Template_A_PH_7" />
+      <label kind="guard" x="1240" y="-294">!ass_ph()</label>
+      <label kind="synchronisation" x="1240" y="-260">contract_violation_ph!</label>
+      <label kind="comments" x="1240" y="-174">deadline or contract failure branch</label>
+      <nail x="1360" y="-356" />
+      <nail x="1360" y="-116" />
+    </transition>
+    <transition>
+      <source ref="Template_A_PH_2" />
+      <target ref="Template_A_PH_7" />
+      <label kind="guard" x="1240" y="38">!ass_ph()</label>
+      <label kind="synchronisation" x="1240" y="72">contract_violation_ph!</label>
+      <label kind="comments" x="1240" y="158">deadline or contract failure branch</label>
+      <nail x="1360" y="76" />
+      <nail x="1360" y="116" />
+    </transition>
+    <transition>
+      <source ref="Template_A_PH_3" />
+      <target ref="Template_A_PH_7" />
+      <label kind="guard" x="1240" y="-442">!ass_ph()</label>
+      <label kind="synchronisation" x="1240" y="-408">contract_violation_ph!</label>
+      <label kind="comments" x="1240" y="-322">deadline or contract failure branch</label>
+      <nail x="1360" y="-594" />
+      <nail x="1360" y="-174" />
+    </transition>
+    <transition>
+      <source ref="Template_A_PH_4" />
+      <target ref="Template_A_PH_7" />
+      <label kind="guard" x="1240" y="216">!ass_ph()</label>
+      <label kind="synchronisation" x="1240" y="250">contract_violation_ph!</label>
+      <label kind="comments" x="1240" y="336">deadline or contract failure branch</label>
+      <nail x="1360" y="374" />
+      <nail x="1360" y="174" />
+    </transition>
+    <transition>
+      <source ref="Template_A_PH_5" />
+      <target ref="Template_A_PH_7" />
+      <label kind="guard" x="1240" y="-160">!ass_ph()</label>
+      <label kind="synchronisation" x="1240" y="-126">contract_violation_ph!</label>
+      <label kind="comments" x="1240" y="-40">deadline or contract failure branch</label>
+      <nail x="1360" y="28" />
+      <nail x="1360" y="-232" />
+    </transition>
+    <transition>
+      <source ref="Template_A_PH_6" />
+      <target ref="Template_A_PH_7" />
+      <label kind="guard" x="1240" y="24">!ass_ph()</label>
+      <label kind="synchronisation" x="1240" y="58">contract_violation_ph!</label>
+      <label kind="comments" x="1240" y="144">deadline or contract failure branch</label>
+      <nail x="1360" y="-68" />
+      <nail x="1360" y="232" />
+    </transition>
+  </template>
+  <template>
+    <name>Template_ENV_CH</name>
+    <location id="Template_ENV_CH_0" x="0" y="0">
+      <name x="-58" y="-38">TickWait</name>
+    </location>
+    <init ref="Template_ENV_CH_0" />
+    <transition>
+      <source ref="Template_ENV_CH_0" />
+      <target ref="Template_ENV_CH_0" />
+      <label kind="synchronisation" x="118" y="-142">measure_tick!</label>
+      <label kind="assignment" x="118" y="-100">env_scenario = SCENARIO_NORMAL, TimingOk = true, SINRClass = SINRCLASS_OK,
+IClass = ICLASS_OK, PowerClass = POWERCLASS_OK, AoSClass = AOSCLASS_FRESH,
+PdClass = PDCLASS_OK, RfaClass = RFACLASS_OK, c_env = 0</label>
+      <nail x="-95" y="-110" />
+      <nail x="95" y="-110" />
+    </transition>
+    <transition>
+      <source ref="Template_ENV_CH_0" />
+      <target ref="Template_ENV_CH_0" />
+      <label kind="synchronisation" x="118" y="-188">measure_tick!</label>
+      <label kind="assignment" x="118" y="-146">env_scenario = SCENARIO_COMM_DEGRADED, TimingOk = true,
+SINRClass = SINRCLASS_OK, IClass = ICLASS_CRITICAL,
+PowerClass = POWERCLASS_OK, AoSClass = AOSCLASS_FRESH, PdClass = PDCLASS_OK,
+RfaClass = RFACLASS_OK, c_env = 0</label>
+      <nail x="-95" y="-156" />
+      <nail x="95" y="-156" />
+    </transition>
+    <transition>
+      <source ref="Template_ENV_CH_0" />
+      <target ref="Template_ENV_CH_0" />
+      <label kind="synchronisation" x="118" y="-234">measure_tick!</label>
+      <label kind="assignment" x="118" y="-192">env_scenario = SCENARIO_SENSING_DEGRADED, TimingOk = true,
+SINRClass = SINRCLASS_OK, IClass = ICLASS_OK, PowerClass = POWERCLASS_OK,
+AoSClass = AOSCLASS_STALE, PdClass = PDCLASS_OK, RfaClass = RFACLASS_OK,
+c_env = 0</label>
+      <nail x="-95" y="-202" />
+      <nail x="95" y="-202" />
+    </transition>
+    <transition>
+      <source ref="Template_ENV_CH_0" />
+      <target ref="Template_ENV_CH_0" />
+      <label kind="synchronisation" x="118" y="-280">measure_tick!</label>
+      <label kind="assignment" x="118" y="-238">env_scenario = SCENARIO_JOINT_DEGRADED, TimingOk = true,
+SINRClass = SINRCLASS_OUTAGE, IClass = ICLASS_CRITICAL,
+PowerClass = POWERCLASS_ABSENT, AoSClass = AOSCLASS_EXPIRED,
+PdClass = PDCLASS_FAILED, RfaClass = RFACLASS_CRITICAL, c_env = 0</label>
+      <nail x="-95" y="-248" />
+      <nail x="95" y="-248" />
+    </transition>
+    <transition>
+      <source ref="Template_ENV_CH_0" />
+      <target ref="Template_ENV_CH_0" />
+      <nail x="-95" y="-294" />
+      <nail x="95" y="-294" />
+    </transition>
+  </template>
+  <template>
+    <name>Template_ENV_TARGET</name>
+    <location id="Template_ENV_TARGET_0" x="0" y="0">
+      <name x="-58" y="-38">TargetWait</name>
+    </location>
+    <init ref="Template_ENV_TARGET_0" />
+    <transition>
+      <source ref="Template_ENV_TARGET_0" />
+      <target ref="Template_ENV_TARGET_0" />
+      <label kind="synchronisation" x="118" y="-142">target_detected!</label>
+      <label kind="assignment" x="118" y="-100">PRSClass = PRSCLASS_OK, BeamErrorClass = BEAMERRORCLASS_LOCKABLE,
+BlockageClass = BLOCKAGECLASS_NONE</label>
+      <nail x="-95" y="-110" />
+      <nail x="95" y="-110" />
+    </transition>
+    <transition>
+      <source ref="Template_ENV_TARGET_0" />
+      <target ref="Template_ENV_TARGET_0" />
+      <label kind="assignment" x="118" y="-146">BlockageClass = BLOCKAGECLASS_CONFIRMED</label>
+      <nail x="-95" y="-156" />
+      <nail x="95" y="-156" />
+    </transition>
+  </template>
+  <template>
+    <name>Template_ENV_MAC</name>
+    <location id="Template_ENV_MAC_0" x="0" y="0">
+      <name x="-58" y="-38">ConfigWait</name>
+    </location>
+    <init ref="Template_ENV_MAC_0" />
+    <transition>
+      <source ref="Template_ENV_MAC_0" />
+      <target ref="Template_ENV_MAC_0" />
+      <label kind="synchronisation" x="118" y="-142">pilot_config!</label>
+      <label kind="assignment" x="118" y="-100">ConfigAdmissible = true, BeamCmdAdmissible = true</label>
+      <nail x="-95" y="-110" />
+      <nail x="95" y="-110" />
+    </transition>
+    <transition>
+      <source ref="Template_ENV_MAC_0" />
+      <target ref="Template_ENV_MAC_0" />
+      <label kind="synchronisation" x="118" y="-188">prs_config!</label>
+      <label kind="assignment" x="118" y="-146">ConfigAdmissible = true, BeamCmdAdmissible = true</label>
+      <nail x="-95" y="-156" />
+      <nail x="95" y="-156" />
+    </transition>
+    <transition>
+      <source ref="Template_ENV_MAC_0" />
+      <target ref="Template_ENV_MAC_0" />
+      <label kind="synchronisation" x="118" y="-234">ssb_burst_config!</label>
+      <label kind="assignment" x="118" y="-192">ConfigAdmissible = true, BeamCmdAdmissible = true</label>
+      <nail x="-95" y="-202" />
+      <nail x="95" y="-202" />
+    </transition>
+    <transition>
+      <source ref="Template_ENV_MAC_0" />
+      <target ref="Template_ENV_MAC_0" />
+      <label kind="synchronisation" x="118" y="-280">waveform_config!</label>
+      <label kind="assignment" x="118" y="-238">ConfigAdmissible = true, BeamCmdAdmissible = true</label>
+      <nail x="-95" y="-248" />
+      <nail x="95" y="-248" />
+    </transition>
+    <transition>
+      <source ref="Template_ENV_MAC_0" />
+      <target ref="Template_ENV_MAC_0" />
+      <label kind="synchronisation" x="118" y="-326">payload_sensing_config!</label>
+      <label kind="assignment" x="118" y="-284">ConfigAdmissible = true, BeamCmdAdmissible = true</label>
+      <nail x="-95" y="-294" />
+      <nail x="95" y="-294" />
+    </transition>
+    <transition>
+      <source ref="Template_ENV_MAC_0" />
+      <target ref="Template_ENV_MAC_0" />
+      <label kind="synchronisation" x="118" y="-372">beam_cmd!</label>
+      <label kind="assignment" x="118" y="-330">ConfigAdmissible = true, BeamCmdAdmissible = true</label>
+      <nail x="-95" y="-340" />
+      <nail x="95" y="-340" />
+    </transition>
+    <transition>
+      <source ref="Template_ENV_MAC_0" />
+      <target ref="Template_ENV_MAC_0" />
+      <label kind="synchronisation" x="118" y="-418">extra_ssb_cmd!</label>
+      <label kind="assignment" x="118" y="-376">ConfigAdmissible = true, BeamCmdAdmissible = true</label>
+      <nail x="-95" y="-386" />
+      <nail x="95" y="-386" />
+    </transition>
+    <transition>
+      <source ref="Template_ENV_MAC_0" />
+      <target ref="Template_ENV_MAC_0" />
+      <label kind="synchronisation" x="118" y="-464">handover_assist_cmd!</label>
+      <label kind="assignment" x="118" y="-422">ConfigAdmissible = true, BeamCmdAdmissible = true</label>
+      <nail x="-95" y="-432" />
+      <nail x="95" y="-432" />
+    </transition>
+    <transition>
+      <source ref="Template_ENV_MAC_0" />
+      <target ref="Template_ENV_MAC_0" />
+      <label kind="synchronisation" x="118" y="-510">power_cmd!</label>
+      <label kind="assignment" x="118" y="-468">ConfigAdmissible = true, BeamCmdAdmissible = true</label>
+      <nail x="-95" y="-478" />
+      <nail x="95" y="-478" />
+    </transition>
+    <transition>
+      <source ref="Template_ENV_MAC_0" />
+      <target ref="Template_ENV_MAC_0" />
+      <label kind="synchronisation" x="118" y="-556">sensing_mode_cmd!</label>
+      <label kind="assignment" x="118" y="-514">ConfigAdmissible = true, BeamCmdAdmissible = true</label>
+      <nail x="-95" y="-524" />
+      <nail x="95" y="-524" />
+    </transition>
+    <transition>
+      <source ref="Template_ENV_MAC_0" />
+      <target ref="Template_ENV_MAC_0" />
+      <label kind="synchronisation" x="118" y="-602">new_beam_confirmed!</label>
+      <label kind="assignment" x="118" y="-560">ConfigAdmissible = true, BeamCmdAdmissible = true</label>
+      <nail x="-95" y="-570" />
+      <nail x="95" y="-570" />
+    </transition>
+    <transition>
+      <source ref="Template_ENV_MAC_0" />
+      <target ref="Template_ENV_MAC_0" />
+      <label kind="synchronisation" x="118" y="-648">recovery_cmd!</label>
+      <label kind="assignment" x="118" y="-606">ConfigAdmissible = true, BeamCmdAdmissible = true</label>
+      <nail x="-95" y="-616" />
+      <nail x="95" y="-616" />
+    </transition>
+    <transition>
+      <source ref="Template_ENV_MAC_0" />
+      <target ref="Template_ENV_MAC_0" />
+      <nail x="-95" y="-662" />
+      <nail x="95" y="-662" />
+    </transition>
+  </template>
+  <template>
+    <name>Template_ENV_NET</name>
+    <location id="Template_ENV_NET_0" x="0" y="0">
+      <name x="-58" y="-38">DeliveryWait</name>
+    </location>
+    <init ref="Template_ENV_NET_0" />
+    <transition>
+      <source ref="Template_ENV_NET_0" />
+      <target ref="Template_ENV_NET_0" />
+      <label kind="synchronisation" x="118" y="-142">mac_report_delivered!</label>
+      <label kind="assignment" x="118" y="-100">NetDeliveryOk = true, c_net = 0</label>
+      <nail x="-95" y="-110" />
+      <nail x="95" y="-110" />
+    </transition>
+    <transition>
+      <source ref="Template_ENV_NET_0" />
+      <target ref="Template_ENV_NET_0" />
+      <label kind="synchronisation" x="118" y="-188">controller_report_delivered!</label>
+      <label kind="assignment" x="118" y="-146">NetDeliveryOk = true, aos_ctrl = 0, c_net = 0</label>
+      <nail x="-95" y="-156" />
+      <nail x="95" y="-156" />
+    </transition>
+    <transition>
+      <source ref="Template_ENV_NET_0" />
+      <target ref="Template_ENV_NET_0" />
+      <label kind="synchronisation" x="118" y="-234">aos_ctrl_expired!</label>
+      <nail x="-95" y="-202" />
+      <nail x="95" y="-202" />
+    </transition>
+    <transition>
+      <source ref="Template_ENV_NET_0" />
+      <target ref="Template_ENV_NET_0" />
+      <nail x="-95" y="-248" />
+      <nail x="95" y="-248" />
+    </transition>
+  </template>
+  <template>
+    <name>Template_ObsSenseReport</name>
+    <location id="Template_ObsSenseReport_0" x="0" y="0">
+      <name x="-58" y="-38">Idle</name>
+    </location>
+    <location id="Template_ObsSenseReport_1" x="300" y="0">
+      <name x="242" y="-38">Wait</name>
+    </location>
+    <location id="Template_ObsSenseReport_2" x="620" y="-220">
+      <name x="562" y="-258">Violation</name>
+    </location>
+    <init ref="Template_ObsSenseReport_0" />
+    <transition>
+      <source ref="Template_ObsSenseReport_0" />
+      <target ref="Template_ObsSenseReport_1" />
+      <label kind="synchronisation" x="150" y="-24">sensing_degraded?</label>
+      <label kind="assignment" x="150" y="18">c_obs_sense = 0</label>
+    </transition>
+    <transition>
+      <source ref="Template_ObsSenseReport_1" />
+      <target ref="Template_ObsSenseReport_0" />
+      <label kind="guard" x="150" y="108">c_obs_sense &lt;= D_report</label>
+      <label kind="synchronisation" x="150" y="142">phy_kpi_report?</label>
+      <label kind="comments" x="150" y="228">bounded response satisfied</label>
+      <nail x="220" y="220" />
+      <nail x="80" y="220" />
+    </transition>
+    <transition>
+      <source ref="Template_ObsSenseReport_1" />
+      <target ref="Template_ObsSenseReport_2" />
+      <label kind="guard" x="340" y="-168">c_obs_sense &gt; D_report</label>
+      <label kind="comments" x="340" y="-48">deadline or contract failure branch</label>
+      <nail x="460" y="0" />
+      <nail x="460" y="-220" />
+    </transition>
+  </template>
+  <template>
+    <name>Template_ObsFreshness</name>
+    <location id="Template_ObsFreshness_0" x="0" y="0">
+      <name x="-58" y="-38">Idle</name>
+    </location>
+    <location id="Template_ObsFreshness_1" x="300" y="0">
+      <name x="242" y="-38">Wait</name>
+    </location>
+    <location id="Template_ObsFreshness_2" x="620" y="-220">
+      <name x="562" y="-258">Violation</name>
+    </location>
+    <init ref="Template_ObsFreshness_0" />
+    <transition>
+      <source ref="Template_ObsFreshness_0" />
+      <target ref="Template_ObsFreshness_1" />
+      <label kind="synchronisation" x="150" y="-24">aos_ctrl_expired?</label>
+      <label kind="assignment" x="150" y="18">c_obs_fresh = 0</label>
+    </transition>
+    <transition>
+      <source ref="Template_ObsFreshness_1" />
+      <target ref="Template_ObsFreshness_0" />
+      <label kind="guard" x="150" y="108">c_obs_fresh &lt;= D_sense &amp;&amp; SensingState == SENSINGSTATE_FRESHNESSLIMITED</label>
+      <label kind="synchronisation" x="150" y="142">sensing_report?</label>
+      <label kind="comments" x="150" y="228">bounded response satisfied</label>
+      <nail x="220" y="220" />
+      <nail x="80" y="220" />
+    </transition>
+    <transition>
+      <source ref="Template_ObsFreshness_1" />
+      <target ref="Template_ObsFreshness_2" />
+      <label kind="guard" x="340" y="-168">c_obs_fresh &gt; D_sense</label>
+      <label kind="comments" x="340" y="-48">deadline or contract failure branch</label>
+      <nail x="460" y="0" />
+      <nail x="460" y="-220" />
+    </transition>
+  </template>
+  <template>
+    <name>Template_ObsBeamRecovery</name>
+    <location id="Template_ObsBeamRecovery_0" x="0" y="0">
+      <name x="-58" y="-38">Idle</name>
+    </location>
+    <location id="Template_ObsBeamRecovery_1" x="300" y="0">
+      <name x="242" y="-38">Wait</name>
+    </location>
+    <location id="Template_ObsBeamRecovery_2" x="620" y="-220">
+      <name x="562" y="-258">Violation</name>
+    </location>
+    <init ref="Template_ObsBeamRecovery_0" />
+    <transition>
+      <source ref="Template_ObsBeamRecovery_0" />
+      <target ref="Template_ObsBeamRecovery_1" />
+      <label kind="synchronisation" x="150" y="-24">recovery_start?</label>
+      <label kind="assignment" x="150" y="18">c_obs_beam = 0</label>
+    </transition>
+    <transition>
+      <source ref="Template_ObsBeamRecovery_1" />
+      <target ref="Template_ObsBeamRecovery_0" />
+      <label kind="guard" x="150" y="108">c_obs_beam &lt;= D_BM</label>
+      <label kind="synchronisation" x="150" y="142">beam_restored?</label>
+      <label kind="comments" x="150" y="228">bounded response satisfied</label>
+      <nail x="220" y="220" />
+      <nail x="80" y="220" />
+    </transition>
+    <transition>
+      <source ref="Template_ObsBeamRecovery_1" />
+      <target ref="Template_ObsBeamRecovery_0" />
+      <label kind="guard" x="150" y="166">c_obs_beam &lt;= D_BM</label>
+      <label kind="synchronisation" x="150" y="200">handover_hint?</label>
+      <label kind="comments" x="150" y="286">bounded response satisfied</label>
+      <nail x="220" y="278" />
+      <nail x="80" y="278" />
+    </transition>
+    <transition>
+      <source ref="Template_ObsBeamRecovery_1" />
+      <target ref="Template_ObsBeamRecovery_0" />
+      <label kind="guard" x="150" y="224">c_obs_beam &lt;= D_BM</label>
+      <label kind="synchronisation" x="150" y="258">beam_failure?</label>
+      <label kind="comments" x="150" y="344">bounded response satisfied</label>
+      <nail x="220" y="336" />
+      <nail x="80" y="336" />
+    </transition>
+    <transition>
+      <source ref="Template_ObsBeamRecovery_1" />
+      <target ref="Template_ObsBeamRecovery_2" />
+      <label kind="guard" x="340" y="-168">c_obs_beam &gt; D_BM</label>
+      <label kind="comments" x="340" y="-48">deadline or contract failure branch</label>
+      <nail x="460" y="0" />
+      <nail x="460" y="-220" />
+    </transition>
+  </template>
+  <system>A_CH = Template_A_CH();
+A_SIG = Template_A_SIG();
+A_BM = Template_A_BM();
+A_SQ = Template_A_SQ();
+A_PH = Template_A_PH();
+ENV_CH = Template_ENV_CH();
+ENV_TARGET = Template_ENV_TARGET();
+ENV_MAC = Template_ENV_MAC();
+ENV_NET = Template_ENV_NET();
+ObsSenseReport = Template_ObsSenseReport();
+ObsFreshness = Template_ObsFreshness();
+ObsBeamRecovery = Template_ObsBeamRecovery();
+system A_CH, A_SIG, A_BM, A_SQ, A_PH, ENV_CH, ENV_TARGET, ENV_MAC, ENV_NET, ObsSenseReport, ObsFreshness, ObsBeamRecovery;</system>
+</nta>

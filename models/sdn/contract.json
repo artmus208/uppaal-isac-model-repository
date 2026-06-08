@@ -1,0 +1,1263 @@
+{
+  "source_name": "SDN_RIC_control_plane_formalization.tex",
+  "layer_id": "sdn",
+  "sdn_components": [
+    "A_MON",
+    "A_RISK",
+    "A_POLICY",
+    "A_RULE",
+    "A_REC",
+    "A_SDN_AGG"
+  ],
+  "env_components": [
+    "A_ENV_SDN"
+  ],
+  "classes": [
+    {
+      "name": "TelemetryClass",
+      "values": [
+        "TEL_FRESH",
+        "TEL_STALE",
+        "TEL_MISSING"
+      ],
+      "provenance": {
+        "source": "SDN_RIC_control_plane_formalization.tex",
+        "section": "Discrete abstraction",
+        "line": 117
+      }
+    },
+    {
+      "name": "RiskClass",
+      "values": [
+        "RISK_LOW",
+        "RISK_MED",
+        "RISK_HIGH",
+        "RISK_CRIT"
+      ],
+      "provenance": {
+        "source": "SDN_RIC_control_plane_formalization.tex",
+        "section": "Discrete abstraction",
+        "line": 118
+      }
+    },
+    {
+      "name": "PolicyClass",
+      "values": [
+        "POL_NORMAL",
+        "POL_SENS_BOOST",
+        "POL_COMM_PRIO",
+        "POL_CONSTRAINED",
+        "POL_REROUTE",
+        "POL_REJECT"
+      ],
+      "provenance": {
+        "source": "SDN_RIC_control_plane_formalization.tex",
+        "section": "Discrete abstraction",
+        "line": 119
+      }
+    },
+    {
+      "name": "RuleClass",
+      "values": [
+        "RULE_OK",
+        "RULE_MISS",
+        "RULE_PENDING",
+        "RULE_ACKED",
+        "RULE_TIMEOUT",
+        "RULE_DROP"
+      ],
+      "provenance": {
+        "source": "SDN_RIC_control_plane_formalization.tex",
+        "section": "Discrete abstraction",
+        "line": 120
+      }
+    },
+    {
+      "name": "RecoveryClass",
+      "values": [
+        "REC_STABLE",
+        "REC_STANDBY",
+        "REC_REEMBED",
+        "REC_ROLLBACK",
+        "REC_FAILED"
+      ],
+      "provenance": {
+        "source": "SDN_RIC_control_plane_formalization.tex",
+        "section": "Discrete abstraction",
+        "line": 121
+      }
+    },
+    {
+      "name": "SliceClass",
+      "values": [
+        "SLICE_OK",
+        "SLICE_WARN",
+        "SLICE_VIOLATED"
+      ],
+      "provenance": {
+        "source": "SDN_RIC_control_plane_formalization.tex",
+        "section": "Discrete abstraction",
+        "line": 122
+      }
+    },
+    {
+      "name": "ServiceImpact",
+      "values": [
+        "IMPACT_NONE",
+        "IMPACT_DEGRADED",
+        "IMPACT_REJECTED",
+        "IMPACT_FAILED"
+      ],
+      "provenance": {
+        "source": "SDN_RIC_control_plane_formalization.tex",
+        "section": "Declarations",
+        "line": 295
+      }
+    },
+    {
+      "name": "SdnReason",
+      "values": [
+        "SDN_NONE",
+        "SDN_STALE_TELEMETRY",
+        "SDN_RULE_TIMEOUT",
+        "SDN_RECOVERY_FAILED",
+        "SDN_RESOURCE_LIMITED",
+        "SDN_SENSING_FAILURE",
+        "SDN_POLICY_REJECT"
+      ],
+      "provenance": {
+        "source": "SDN_RIC_control_plane_formalization.tex",
+        "section": "Declarations",
+        "line": 299
+      }
+    }
+  ],
+  "clocks": [
+    {
+      "name": "c_mon",
+      "meaning": "Telemetry collection age.",
+      "reset": "reset on report collection",
+      "provenance": {
+        "source": "SDN_RIC_control_plane_formalization.tex",
+        "section": "Clocks and invariants",
+        "line": 174
+      }
+    },
+    {
+      "name": "c_dec",
+      "meaning": "Policy decision age.",
+      "reset": "reset on Evaluate",
+      "provenance": {
+        "source": "SDN_RIC_control_plane_formalization.tex",
+        "section": "Clocks and invariants",
+        "line": 175
+      }
+    },
+    {
+      "name": "c_rule",
+      "meaning": "Rule miss handling age.",
+      "reset": "reset on rule_miss",
+      "provenance": {
+        "source": "SDN_RIC_control_plane_formalization.tex",
+        "section": "Clocks and invariants",
+        "line": 176
+      }
+    },
+    {
+      "name": "c_ctrl_ack",
+      "meaning": "Lower-plane command acknowledgement age.",
+      "reset": "reset on command send",
+      "provenance": {
+        "source": "SDN_RIC_control_plane_formalization.tex",
+        "section": "Clocks and invariants",
+        "line": 177
+      }
+    },
+    {
+      "name": "c_rec",
+      "meaning": "Recovery age after link/node failure.",
+      "reset": "reset on failure detection",
+      "provenance": {
+        "source": "SDN_RIC_control_plane_formalization.tex",
+        "section": "Clocks and invariants",
+        "line": 178
+      }
+    },
+    {
+      "name": "c_rollback",
+      "meaning": "Rollback age.",
+      "reset": "reset on rollback",
+      "provenance": {
+        "source": "SDN_RIC_control_plane_formalization.tex",
+        "section": "Clocks and invariants",
+        "line": 179
+      }
+    },
+    {
+      "name": "c_admission",
+      "meaning": "Service admission response age.",
+      "reset": "reset on service_request",
+      "provenance": {
+        "source": "SDN_RIC_control_plane_formalization.tex",
+        "section": "Clocks and invariants",
+        "line": 180
+      }
+    },
+    {
+      "name": "c_sec_ack",
+      "meaning": "Optional security acknowledgement age.",
+      "reset": "optional A_SEC only",
+      "provenance": {
+        "source": "SDN_RIC_control_plane_formalization.tex",
+        "section": "Optional extension",
+        "line": 605
+      }
+    }
+  ],
+  "variables": [
+    {
+      "name": "telemetryClass",
+      "type_name": "TelemetryClass_t",
+      "initial": "TEL_FRESH",
+      "role": "alpha_SDN class",
+      "provenance": null
+    },
+    {
+      "name": "riskClass",
+      "type_name": "RiskClass_t",
+      "initial": "RISK_LOW",
+      "role": "risk classifier output",
+      "provenance": null
+    },
+    {
+      "name": "policyClass",
+      "type_name": "PolicyClass_t",
+      "initial": "POL_NORMAL",
+      "role": "SDN policy decision",
+      "provenance": null
+    },
+    {
+      "name": "ruleClass",
+      "type_name": "RuleClass_t",
+      "initial": "RULE_OK",
+      "role": "flow rule state",
+      "provenance": null
+    },
+    {
+      "name": "recoveryClass",
+      "type_name": "RecoveryClass_t",
+      "initial": "REC_STABLE",
+      "role": "recovery state",
+      "provenance": null
+    },
+    {
+      "name": "sliceClass",
+      "type_name": "SliceClass_t",
+      "initial": "SLICE_OK",
+      "role": "slice status",
+      "provenance": null
+    },
+    {
+      "name": "serviceImpact",
+      "type_name": "ServiceImpact_t",
+      "initial": "IMPACT_NONE",
+      "role": "service-layer response payload",
+      "provenance": null
+    },
+    {
+      "name": "sdnReason",
+      "type_name": "SdnReason_t",
+      "initial": "SDN_NONE",
+      "role": "explicit reason payload",
+      "provenance": null
+    },
+    {
+      "name": "rule_miss_pending",
+      "type_name": "bool",
+      "initial": "false",
+      "role": "observer trigger",
+      "provenance": null
+    },
+    {
+      "name": "link_failure_pending",
+      "type_name": "bool",
+      "initial": "false",
+      "role": "observer trigger",
+      "provenance": null
+    },
+    {
+      "name": "node_failure_pending",
+      "type_name": "bool",
+      "initial": "false",
+      "role": "observer trigger",
+      "provenance": null
+    },
+    {
+      "name": "sensing_degradation_pending",
+      "type_name": "bool",
+      "initial": "false",
+      "role": "policy input flag",
+      "provenance": null
+    },
+    {
+      "name": "service_request_pending",
+      "type_name": "bool",
+      "initial": "false",
+      "role": "admission observer trigger",
+      "provenance": null
+    },
+    {
+      "name": "command_pending",
+      "type_name": "bool",
+      "initial": "false",
+      "role": "command ack observer trigger",
+      "provenance": null
+    },
+    {
+      "name": "optimistic_reconfig",
+      "type_name": "bool",
+      "initial": "false",
+      "role": "safety flag",
+      "provenance": null
+    },
+    {
+      "name": "standby_available",
+      "type_name": "bool",
+      "initial": "false",
+      "role": "finite recovery option",
+      "provenance": null
+    },
+    {
+      "name": "alternative_config_exists",
+      "type_name": "bool",
+      "initial": "false",
+      "role": "finite recovery option",
+      "provenance": null
+    },
+    {
+      "name": "lower_ack_received",
+      "type_name": "bool",
+      "initial": "false",
+      "role": "ack payload replacement",
+      "provenance": null
+    },
+    {
+      "name": "failure_report_sent",
+      "type_name": "bool",
+      "initial": "false",
+      "role": "explicit recovery failure output",
+      "provenance": null
+    }
+  ],
+  "channels": [
+    {
+      "name": "mac_report",
+      "kind": "broadcast",
+      "role": "MAC-to-SDN finite report",
+      "provenance": {
+        "source": "SDN_RIC_control_plane_formalization.tex",
+        "section": "Channels",
+        "line": 197
+      }
+    },
+    {
+      "name": "phy_kpi_report",
+      "kind": "broadcast",
+      "role": "PHY-to-SDN finite KPI report",
+      "provenance": {
+        "source": "SDN_RIC_control_plane_formalization.tex",
+        "section": "Channels",
+        "line": 197
+      }
+    },
+    {
+      "name": "service_request",
+      "kind": "broadcast",
+      "role": "Service-to-SDN finite request",
+      "provenance": {
+        "source": "SDN_RIC_control_plane_formalization.tex",
+        "section": "Channels",
+        "line": 197
+      }
+    },
+    {
+      "name": "service_accept",
+      "kind": "broadcast",
+      "role": "SDN accepts service",
+      "provenance": {
+        "source": "SDN_RIC_control_plane_formalization.tex",
+        "section": "Channels",
+        "line": 204
+      }
+    },
+    {
+      "name": "service_degraded",
+      "kind": "broadcast",
+      "role": "SDN admits degraded service",
+      "provenance": {
+        "source": "SDN_RIC_control_plane_formalization.tex",
+        "section": "Channels",
+        "line": 204
+      }
+    },
+    {
+      "name": "service_reject",
+      "kind": "broadcast",
+      "role": "SDN rejects service with reason",
+      "provenance": {
+        "source": "SDN_RIC_control_plane_formalization.tex",
+        "section": "Channels",
+        "line": 204
+      }
+    },
+    {
+      "name": "rule_miss",
+      "kind": "handshake",
+      "role": "Data plane rule miss",
+      "provenance": {
+        "source": "SDN_RIC_control_plane_formalization.tex",
+        "section": "Channels",
+        "line": 197
+      }
+    },
+    {
+      "name": "link_failure",
+      "kind": "handshake",
+      "role": "Link failure event",
+      "provenance": {
+        "source": "SDN_RIC_control_plane_formalization.tex",
+        "section": "Channels",
+        "line": 197
+      }
+    },
+    {
+      "name": "node_failure",
+      "kind": "handshake",
+      "role": "Node failure event",
+      "provenance": {
+        "source": "SDN_RIC_control_plane_formalization.tex",
+        "section": "Channels",
+        "line": 197
+      }
+    },
+    {
+      "name": "ack",
+      "kind": "handshake",
+      "role": "Lower-plane acknowledgement",
+      "provenance": {
+        "source": "SDN_RIC_control_plane_formalization.tex",
+        "section": "Channels",
+        "line": 197
+      }
+    },
+    {
+      "name": "sdn_policy_cmd",
+      "kind": "handshake",
+      "role": "Policy command to MAC/lower plane",
+      "provenance": {
+        "source": "SDN_RIC_control_plane_formalization.tex",
+        "section": "Channels",
+        "line": 204
+      }
+    },
+    {
+      "name": "flow_mod",
+      "kind": "handshake",
+      "role": "Install flow rule",
+      "provenance": {
+        "source": "SDN_RIC_control_plane_formalization.tex",
+        "section": "Channels",
+        "line": 204
+      }
+    },
+    {
+      "name": "forward_cmd",
+      "kind": "handshake",
+      "role": "Forward command",
+      "provenance": {
+        "source": "SDN_RIC_control_plane_formalization.tex",
+        "section": "Channels",
+        "line": 204
+      }
+    },
+    {
+      "name": "drop_report",
+      "kind": "handshake",
+      "role": "Explicit drop report",
+      "provenance": {
+        "source": "SDN_RIC_control_plane_formalization.tex",
+        "section": "Channels",
+        "line": 204
+      }
+    },
+    {
+      "name": "failure_report",
+      "kind": "handshake",
+      "role": "Explicit recovery failure report",
+      "provenance": {
+        "source": "SDN_RIC_control_plane_formalization.tex",
+        "section": "Channels",
+        "line": 204
+      }
+    },
+    {
+      "name": "timeout_report",
+      "kind": "handshake",
+      "role": "Explicit timeout report",
+      "provenance": {
+        "source": "SDN_RIC_control_plane_formalization.tex",
+        "section": "Channels",
+        "line": 204
+      }
+    },
+    {
+      "name": "rollback_cmd",
+      "kind": "handshake",
+      "role": "Rollback command",
+      "provenance": {
+        "source": "SDN_RIC_control_plane_formalization.tex",
+        "section": "Channels",
+        "line": 204
+      }
+    }
+  ],
+  "automata": [
+    {
+      "name": "A_MON",
+      "initial": "MonitorIdle",
+      "locations": [
+        {
+          "name": "MonitorIdle",
+          "invariant": null,
+          "provenance": null
+        },
+        {
+          "name": "CollectReports",
+          "invariant": "c_mon <= D_mon",
+          "provenance": null
+        },
+        {
+          "name": "TelemetryFresh",
+          "invariant": null,
+          "provenance": null
+        },
+        {
+          "name": "TelemetryStale",
+          "invariant": null,
+          "provenance": null
+        },
+        {
+          "name": "TelemetryMissing",
+          "invariant": null,
+          "provenance": null
+        }
+      ],
+      "transitions": [],
+      "assumptions": [],
+      "guarantees": [
+        "MAC/PHY reports update TelemetryClass by D_mon"
+      ],
+      "provenance": {
+        "source": "SDN_RIC_control_plane_formalization.tex",
+        "section": "UPPAAL templates",
+        "line": 428
+      }
+    },
+    {
+      "name": "A_RISK",
+      "initial": "RiskLow",
+      "locations": [
+        {
+          "name": "RiskLow",
+          "invariant": null,
+          "provenance": null
+        },
+        {
+          "name": "RiskMedium",
+          "invariant": null,
+          "provenance": null
+        },
+        {
+          "name": "RiskHigh",
+          "invariant": null,
+          "provenance": null
+        },
+        {
+          "name": "RiskCritical",
+          "invariant": null,
+          "provenance": null
+        }
+      ],
+      "transitions": [],
+      "assumptions": [],
+      "guarantees": [
+        "riskClass follows telemetry/rule/recovery/slice classes"
+      ],
+      "provenance": {
+        "source": "SDN_RIC_control_plane_formalization.tex",
+        "section": "UPPAAL templates",
+        "line": 428
+      }
+    },
+    {
+      "name": "A_POLICY",
+      "initial": "PolicyIdle",
+      "locations": [
+        {
+          "name": "PolicyIdle",
+          "invariant": null,
+          "provenance": null
+        },
+        {
+          "name": "Evaluate",
+          "invariant": "c_dec <= D_decision",
+          "provenance": null
+        },
+        {
+          "name": "NormalMode",
+          "invariant": null,
+          "provenance": null
+        },
+        {
+          "name": "SensingBoostMode",
+          "invariant": null,
+          "provenance": null
+        },
+        {
+          "name": "CommPriorityMode",
+          "invariant": null,
+          "provenance": null
+        },
+        {
+          "name": "ConstrainedMode",
+          "invariant": null,
+          "provenance": null
+        },
+        {
+          "name": "RejectByPolicy",
+          "invariant": null,
+          "provenance": null
+        }
+      ],
+      "transitions": [],
+      "assumptions": [],
+      "guarantees": [
+        "policy decision is selected by D_decision",
+        "stale telemetry cannot trigger optimistic reconfiguration"
+      ],
+      "provenance": {
+        "source": "SDN_RIC_control_plane_formalization.tex",
+        "section": "UPPAAL templates",
+        "line": 428
+      }
+    },
+    {
+      "name": "A_RULE",
+      "initial": "RuleStable",
+      "locations": [
+        {
+          "name": "RuleStable",
+          "invariant": null,
+          "provenance": null
+        },
+        {
+          "name": "RuleMiss",
+          "invariant": null,
+          "provenance": null
+        },
+        {
+          "name": "RuleInstallPending",
+          "invariant": "c_rule <= D_rule_install",
+          "provenance": null
+        },
+        {
+          "name": "RuleInstalled",
+          "invariant": null,
+          "provenance": null
+        },
+        {
+          "name": "RuleAcked",
+          "invariant": null,
+          "provenance": null
+        },
+        {
+          "name": "RuleTimeout",
+          "invariant": null,
+          "provenance": null
+        },
+        {
+          "name": "RuleDropReason",
+          "invariant": null,
+          "provenance": null
+        }
+      ],
+      "transitions": [],
+      "assumptions": [],
+      "guarantees": [
+        "rule miss ends with install+ack, drop reason, or timeout report"
+      ],
+      "provenance": {
+        "source": "SDN_RIC_control_plane_formalization.tex",
+        "section": "UPPAAL templates",
+        "line": 428
+      }
+    },
+    {
+      "name": "A_REC",
+      "initial": "StableConfig",
+      "locations": [
+        {
+          "name": "StableConfig",
+          "invariant": null,
+          "provenance": null
+        },
+        {
+          "name": "FailureDetected",
+          "invariant": null,
+          "provenance": null
+        },
+        {
+          "name": "StandbySwitch",
+          "invariant": "c_rec <= D_recovery",
+          "provenance": null
+        },
+        {
+          "name": "ReactiveReembedding",
+          "invariant": "c_rec <= D_recovery",
+          "provenance": null
+        },
+        {
+          "name": "Rollback",
+          "invariant": "c_rollback <= D_rollback",
+          "provenance": null
+        },
+        {
+          "name": "RecoveryFailed",
+          "invariant": null,
+          "provenance": null
+        }
+      ],
+      "transitions": [],
+      "assumptions": [],
+      "guarantees": [
+        "link/node failure ends with stable config, rollback, or explicit failure"
+      ],
+      "provenance": {
+        "source": "SDN_RIC_control_plane_formalization.tex",
+        "section": "UPPAAL templates",
+        "line": 428
+      }
+    },
+    {
+      "name": "A_SDN_AGG",
+      "initial": "CommandBuild",
+      "locations": [
+        {
+          "name": "CommandBuild",
+          "invariant": null,
+          "provenance": null
+        },
+        {
+          "name": "CommandSent",
+          "invariant": null,
+          "provenance": null
+        },
+        {
+          "name": "AwaitAck",
+          "invariant": "c_ctrl_ack <= D_ctrl_ack",
+          "provenance": null
+        },
+        {
+          "name": "Acked",
+          "invariant": null,
+          "provenance": null
+        },
+        {
+          "name": "CommandTimeout",
+          "invariant": null,
+          "provenance": null
+        }
+      ],
+      "transitions": [],
+      "assumptions": [],
+      "guarantees": [
+        "lower-plane command is acknowledged or timed out by D_ctrl_ack"
+      ],
+      "provenance": {
+        "source": "SDN_RIC_control_plane_formalization.tex",
+        "section": "UPPAAL templates",
+        "line": 428
+      }
+    }
+  ],
+  "env": [
+    {
+      "name": "A_ENV_SDN",
+      "initial": "EnvIdle",
+      "locations": [
+        {
+          "name": "EnvIdle",
+          "invariant": null,
+          "provenance": null
+        }
+      ],
+      "transitions": [],
+      "assumptions": [
+        "reports and requests are finite-class payloads written before sync",
+        "rule/link/node events are bounded by local environment projection",
+        "lower-plane ack either arrives or timeout path is enabled",
+        "finite recovery alternatives are represented by booleans"
+      ],
+      "provenance": {
+        "source": "SDN_RIC_control_plane_formalization.tex",
+        "section": "Architectural position",
+        "line": 83
+      }
+    }
+  ],
+  "observers": [
+    {
+      "name": "ObsRuleMiss",
+      "trigger": "rule_miss_pending",
+      "responses": [
+        "RULE_ACKED",
+        "RULE_DROP",
+        "RULE_TIMEOUT"
+      ],
+      "deadline": "D_rule_install",
+      "violation_query": "A[] not ObsRuleMiss.Violation",
+      "provenance": {
+        "source": "SDN_RIC_control_plane_formalization.tex",
+        "section": "Observers",
+        "line": 477
+      }
+    },
+    {
+      "name": "ObsRecovery",
+      "trigger": "link_failure_pending || node_failure_pending",
+      "responses": [
+        "REC_STABLE",
+        "REC_FAILED"
+      ],
+      "deadline": "D_recovery + D_rollback",
+      "violation_query": "A[] not ObsRecovery.Violation",
+      "provenance": {
+        "source": "SDN_RIC_control_plane_formalization.tex",
+        "section": "Observers",
+        "line": 489
+      }
+    },
+    {
+      "name": "ObsAdmission",
+      "trigger": "service_request_pending",
+      "responses": [
+        "IMPACT_NONE",
+        "IMPACT_DEGRADED",
+        "IMPACT_REJECTED"
+      ],
+      "deadline": "D_admission",
+      "violation_query": "A[] not ObsAdmission.Violation",
+      "provenance": {
+        "source": "SDN_RIC_control_plane_formalization.tex",
+        "section": "Observers",
+        "line": 502
+      }
+    },
+    {
+      "name": "ObsStaleTelemetry",
+      "trigger": "telemetryClass == TEL_STALE || telemetryClass == TEL_MISSING",
+      "responses": [
+        "!optimistic_reconfig"
+      ],
+      "deadline": "0",
+      "violation_query": "A[] not ObsStaleTelemetry.Violation",
+      "provenance": {
+        "source": "SDN_RIC_control_plane_formalization.tex",
+        "section": "Observers",
+        "line": 514
+      }
+    },
+    {
+      "name": "ObsCommandAck",
+      "trigger": "command_pending",
+      "responses": [
+        "!command_pending"
+      ],
+      "deadline": "D_ctrl_ack",
+      "violation_query": "A[] not ObsCommandAck.Violation",
+      "provenance": {
+        "source": "SDN_RIC_control_plane_formalization.tex",
+        "section": "Observers",
+        "line": 474
+      }
+    },
+    {
+      "name": "ObsSensingDecision",
+      "trigger": "sensing_degradation_pending",
+      "responses": [
+        "POL_SENS_BOOST",
+        "POL_CONSTRAINED",
+        "POL_REJECT"
+      ],
+      "deadline": "D_decision",
+      "violation_query": "A[] not ObsSensingDecision.Violation",
+      "provenance": {
+        "source": "SDN_RIC_control_plane_formalization.tex",
+        "section": "Interface table",
+        "line": 227
+      }
+    }
+  ],
+  "policies": [
+    {
+      "name": "POL_REJECT",
+      "guard": "riskClass == RISK_CRIT || sliceClass == SLICE_VIOLATED || recoveryClass == REC_FAILED",
+      "mode": "RejectByPolicy",
+      "outcome": "service_reject/drop_report with reason",
+      "provenance": {
+        "source": "SDN_RIC_control_plane_formalization.tex",
+        "section": "Policy guards",
+        "line": 355
+      }
+    },
+    {
+      "name": "POL_CONSTRAINED",
+      "guard": "telemetryClass == TEL_STALE || telemetryClass == TEL_MISSING || riskClass == RISK_HIGH || sliceClass == SLICE_WARN",
+      "mode": "ConstrainedMode",
+      "outcome": "conservative command or degraded service",
+      "provenance": {
+        "source": "SDN_RIC_control_plane_formalization.tex",
+        "section": "Policy guards",
+        "line": 355
+      }
+    },
+    {
+      "name": "POL_REROUTE",
+      "guard": "(ruleClass == RULE_MISS || link_failure_pending || node_failure_pending) && finite alternative && fresh telemetry",
+      "mode": "NormalMode/Reroute",
+      "outcome": "flow_mod or standby command",
+      "provenance": {
+        "source": "SDN_RIC_control_plane_formalization.tex",
+        "section": "Policy guards",
+        "line": 355
+      }
+    },
+    {
+      "name": "POL_SENS_BOOST",
+      "guard": "sensing_degradation_pending && fresh telemetry && riskClass != RISK_CRIT",
+      "mode": "SensingBoostMode",
+      "outcome": "sdn_policy_cmd and service_degraded",
+      "provenance": {
+        "source": "SDN_RIC_control_plane_formalization.tex",
+        "section": "Policy guards",
+        "line": 355
+      }
+    },
+    {
+      "name": "POL_COMM_PRIO",
+      "guard": "service_request_pending && sliceClass != SLICE_VIOLATED && fresh telemetry",
+      "mode": "CommPriorityMode",
+      "outcome": "service_accept and policy command",
+      "provenance": {
+        "source": "SDN_RIC_control_plane_formalization.tex",
+        "section": "Policy guards",
+        "line": 355
+      }
+    },
+    {
+      "name": "POL_NORMAL",
+      "guard": "fallback when no higher-priority guard holds",
+      "mode": "NormalMode",
+      "outcome": "maintain current rules/slices",
+      "provenance": {
+        "source": "SDN_RIC_control_plane_formalization.tex",
+        "section": "Policy guards",
+        "line": 355
+      }
+    }
+  ],
+  "interfaces": [
+    {
+      "name": "rule_miss",
+      "trigger": "rule_miss?",
+      "payload": [
+        "FlowId",
+        "SliceClass",
+        "ServiceId",
+        "RuleClass"
+      ],
+      "path": [
+        "RuleStable",
+        "RuleMiss",
+        "RuleInstallPending|RuleDropReason"
+      ],
+      "outcomes": [
+        "flow_mod!",
+        "forward_cmd!",
+        "drop_report!",
+        "timeout_report!"
+      ],
+      "deadline": "D_rule_install",
+      "provenance": {
+        "source": "SDN_RIC_control_plane_formalization.tex",
+        "section": "Interface table",
+        "line": 226
+      }
+    },
+    {
+      "name": "recovery",
+      "trigger": "link_failure? | node_failure?",
+      "payload": [
+        "FaultId",
+        "AffectedSlice",
+        "AffectedService",
+        "RecoveryClass"
+      ],
+      "path": [
+        "StableConfig",
+        "FailureDetected",
+        "StandbySwitch|ReactiveReembedding",
+        "Rollback|StableConfig"
+      ],
+      "outcomes": [
+        "sdn_policy_cmd!",
+        "flow_mod!",
+        "rollback_cmd!",
+        "failure_report!"
+      ],
+      "deadline": "D_recovery + D_rollback",
+      "provenance": {
+        "source": "SDN_RIC_control_plane_formalization.tex",
+        "section": "Interface table",
+        "line": 227
+      }
+    },
+    {
+      "name": "sensing_degradation",
+      "trigger": "mac_report? | phy_kpi_report?",
+      "payload": [
+        "SensingState",
+        "FreshnessClass",
+        "ResourceClass",
+        "ConflictReason"
+      ],
+      "path": [
+        "NormalMode",
+        "Evaluate",
+        "SensingBoostMode|ConstrainedMode|RejectByPolicy"
+      ],
+      "outcomes": [
+        "sdn_policy_cmd!",
+        "service_degraded!",
+        "service_reject!"
+      ],
+      "deadline": "D_decision",
+      "provenance": {
+        "source": "SDN_RIC_control_plane_formalization.tex",
+        "section": "Interface table",
+        "line": 228
+      }
+    },
+    {
+      "name": "service_admission",
+      "trigger": "service_request?",
+      "payload": [
+        "ServiceClass",
+        "CriticalityClass",
+        "DemandClass",
+        "SLAClass"
+      ],
+      "path": [
+        "PolicyIdle",
+        "Evaluate",
+        "NormalMode|ConstrainedMode|RejectByPolicy"
+      ],
+      "outcomes": [
+        "service_accept!",
+        "service_degraded!",
+        "service_reject!"
+      ],
+      "deadline": "D_admission",
+      "provenance": {
+        "source": "SDN_RIC_control_plane_formalization.tex",
+        "section": "Interface table",
+        "line": 229
+      }
+    }
+  ],
+  "properties": [
+    {
+      "name": "deadlock_free",
+      "query": "A[] not deadlock",
+      "category": "safety",
+      "interpretation": "closed SDN/RIC model has no deadlocks",
+      "provenance": {
+        "source": "SDN_RIC_control_plane_formalization.tex",
+        "section": "Verification properties",
+        "line": 623
+      }
+    },
+    {
+      "name": "rule_invariant",
+      "query": "A[] (A_RULE.RuleInstallPending imply c_rule <= D_rule_install)",
+      "category": "timing",
+      "interpretation": "rule install pending respects deadline invariant",
+      "provenance": {
+        "source": "SDN_RIC_control_plane_formalization.tex",
+        "section": "Verification properties",
+        "line": 624
+      }
+    },
+    {
+      "name": "stale_no_optimistic",
+      "query": "A[] (telemetryClass == TEL_STALE imply !optimistic_reconfig)",
+      "category": "safety",
+      "interpretation": "stale telemetry blocks optimistic reconfiguration",
+      "provenance": {
+        "source": "SDN_RIC_control_plane_formalization.tex",
+        "section": "Verification properties",
+        "line": 626
+      }
+    },
+    {
+      "name": "missing_no_optimistic",
+      "query": "A[] (telemetryClass == TEL_MISSING imply !optimistic_reconfig)",
+      "category": "safety",
+      "interpretation": "missing telemetry blocks optimistic reconfiguration",
+      "provenance": {
+        "source": "SDN_RIC_control_plane_formalization.tex",
+        "section": "Verification properties",
+        "line": 626
+      }
+    },
+    {
+      "name": "recovery_failure_report",
+      "query": "A[] (recoveryClass == REC_FAILED imply failure_report_sent)",
+      "category": "safety",
+      "interpretation": "recovery failure is explicit",
+      "provenance": {
+        "source": "SDN_RIC_control_plane_formalization.tex",
+        "section": "Verification properties",
+        "line": 628
+      }
+    },
+    {
+      "name": "ObsRuleMiss",
+      "query": "A[] not ObsRuleMiss.Violation",
+      "category": "observer",
+      "interpretation": "rule miss has bounded explicit outcome",
+      "provenance": {
+        "source": "SDN_RIC_control_plane_formalization.tex",
+        "section": "Observers",
+        "line": 477
+      }
+    },
+    {
+      "name": "ObsRecovery",
+      "query": "A[] not ObsRecovery.Violation",
+      "category": "observer",
+      "interpretation": "recovery has bounded explicit outcome",
+      "provenance": {
+        "source": "SDN_RIC_control_plane_formalization.tex",
+        "section": "Observers",
+        "line": 489
+      }
+    },
+    {
+      "name": "ObsAdmission",
+      "query": "A[] not ObsAdmission.Violation",
+      "category": "observer",
+      "interpretation": "admission has bounded service outcome",
+      "provenance": {
+        "source": "SDN_RIC_control_plane_formalization.tex",
+        "section": "Observers",
+        "line": 502
+      }
+    },
+    {
+      "name": "ObsStaleTelemetry",
+      "query": "A[] not ObsStaleTelemetry.Violation",
+      "category": "observer",
+      "interpretation": "stale/missing telemetry never enables optimistic reconfiguration",
+      "provenance": {
+        "source": "SDN_RIC_control_plane_formalization.tex",
+        "section": "Observers",
+        "line": 514
+      }
+    },
+    {
+      "name": "reach_policy_evaluate",
+      "query": "E<> A_POLICY.Evaluate",
+      "category": "reachability",
+      "interpretation": "policy evaluation is reachable",
+      "provenance": {
+        "source": "SDN_RIC_control_plane_formalization.tex",
+        "section": "Verification properties",
+        "line": 619
+      }
+    },
+    {
+      "name": "reach_rule_timeout",
+      "query": "E<> A_RULE.RuleTimeout",
+      "category": "reachability",
+      "interpretation": "rule timeout path is reachable",
+      "provenance": {
+        "source": "SDN_RIC_control_plane_formalization.tex",
+        "section": "Verification properties",
+        "line": 619
+      }
+    },
+    {
+      "name": "reach_recovery_failed",
+      "query": "E<> A_REC.RecoveryFailed",
+      "category": "reachability",
+      "interpretation": "recovery failure path is reachable",
+      "provenance": {
+        "source": "SDN_RIC_control_plane_formalization.tex",
+        "section": "Verification properties",
+        "line": 619
+      }
+    }
+  ],
+  "contracts": [
+    {
+      "name": "C_SDN",
+      "assumptions": [
+        "MAC/PHY reports contain finite classes",
+        "service request is finite-class payload",
+        "policy/rule/recovery configuration spaces are finite",
+        "ack either arrives or timeout remains enabled"
+      ],
+      "guarantees": [
+        "rule miss gets install/drop/timeout outcome",
+        "stale telemetry forbids optimistic reconfiguration",
+        "service admission gets accept/degraded/reject outcome",
+        "recovery gets stable/rollback/failure outcome",
+        "lower command is acked or reaches CommandTimeout"
+      ],
+      "provenance": {
+        "source": "SDN_RIC_control_plane_formalization.tex",
+        "section": "SDN contract",
+        "line": 533
+      }
+    }
+  ],
+  "mappings": {
+    "policy_priority": [
+      "POL_REJECT",
+      "POL_CONSTRAINED",
+      "POL_REROUTE",
+      "POL_SENS_BOOST",
+      "POL_COMM_PRIO",
+      "POL_NORMAL"
+    ],
+    "closed_system": "A_SYS_SDN = A_SDN || A_ENV_SDN",
+    "optional_extension": "A_SEC is excluded from base A_SDN"
+  },
+  "limitations": [
+    "SDN/RIC timed automata do not learn policies.",
+    "SDN/RIC timed automata do not compute PHY metrics.",
+    "Recovery probability, expected cost and optimization scores require external/priced/probabilistic models.",
+    "A_SEC is optional and outside the base composition."
+  ]
+}

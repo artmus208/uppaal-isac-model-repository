@@ -1,0 +1,8 @@
+{
+  "ok": true,
+  "errors": [],
+  "warnings": [
+    "Template_A_RISK has dense/reused label coordinates."
+  ],
+  "details": {}
+}

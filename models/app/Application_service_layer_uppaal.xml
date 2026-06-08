@@ -1,0 +1,1020 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC "-//Uppaal Team//DTD Flat System 1.1//EN" "http://www.it.uu.se/research/group/darts/uppaal/flat-1_1.dtd">
+<nta>
+  <declaration>// Generated from Application_service_layer_formalization.tex
+// Application / Service Layer UPPAAL baseline project
+
+// ----- Service constants -----
+const int D_req              = 3;
+const int D_admission        = 15;
+const int D_event            = 5;
+const int D_update           = 3;
+const int D_fresh            = 10;
+const int D_sla_warn         = 5;
+const int D_sla_violation    = 3;
+const int D_safety           = 2;
+const int D_fresh_report     = 3;
+const int D_update_report    = 3;
+const int D_fa_report        = 3;
+const int D_miss_report      = 2;
+const int D_detect_warn      = 5;
+const int D_detect_violation = 3;
+const int D_sensing_fresh    = 10;
+
+// ----- Clocks -----
+clock c_req, c_admission, c_sla_warn, c_sla_violation;
+clock c_session, age_sensing, c_detect;
+
+// ----- Channels -----
+chan service_request, service_accept, service_degraded, service_reject;
+chan sla_warning_report, sla_violation_report;
+chan service_reconfigure, degraded_accept_report, service_terminate;
+broadcast chan new_demand, service_kpi_update, degraded_notice;
+broadcast chan freshness_expired, sla_warn, sla_violation, service_complete;
+
+// ----- Service classes -----
+typedef int[0,5] ServiceClass_t;
+const ServiceClass_t SVC_URLLC=0, SVC_EMBB=1, SVC_MMTC=2;
+const ServiceClass_t SVC_ISAC_SENSING=3, SVC_UAV=4, SVC_INDUSTRIAL=5;
+
+typedef int[0,3] CriticalityClass_t;
+const CriticalityClass_t CRIT_LOW=0, CRIT_MED=1, CRIT_HIGH=2, CRIT_SAFETY=3;
+
+typedef int[0,2] SLAClass_t;
+const SLAClass_t SLA_OK=0, SLA_WARN=1, SLA_VIOLATED=2;
+
+typedef int[0,3] AdmissionClass_t;
+const AdmissionClass_t ADM_PENDING=0, ADM_ACCEPTED=1;
+const AdmissionClass_t ADM_REJECTED=2, ADM_DEGRADED=3;
+
+typedef int[0,2] DemandClass_t;
+const DemandClass_t DEMAND_COMM=0, DEMAND_SENS=1, DEMAND_JOINT=2;
+
+typedef int[0,2] DetectionFreshnessClass_t;
+const DetectionFreshnessClass_t DET_FRESH=0, DET_STALE=1, DET_EXPIRED=2;
+
+typedef int[0,2] UpdatePeriodClass_t;
+const UpdatePeriodClass_t UPD_OK=0, UPD_SLOW=1, UPD_VIOLATED=2;
+
+typedef int[0,2] FalseAlarmClass_t;
+const FalseAlarmClass_t FA_OK=0, FA_HIGH=1, FA_CRITICAL=2;
+
+typedef int[0,2] MissedDetectionClass_t;
+const MissedDetectionClass_t MISS_OK=0, MISS_HIGH=1, MISS_CRITICAL=2;
+
+typedef int[0,2] PdClass_t;
+const PdClass_t PD_OK=0, PD_LOW=1, PD_FAILED=2;
+
+typedef int[0,2] QualityClass_t;
+const QualityClass_t OK=0, LIMITED=1, FAILED=2;
+
+typedef int[0,2] RequirementClass_t;
+const RequirementClass_t REQ_RELAXED=0, REQ_NORMAL=1, REQ_STRICT=2;
+
+typedef int[0,6] DegradedReason_t;
+const DegradedReason_t DEG_NONE=0, DEG_STALE=1, DEG_LOW_PD=2;
+const DegradedReason_t DEG_HIGH_PFA=3, DEG_UPDATE_SLOW=4;
+const DegradedReason_t DEG_RESOURCE_LIMITED=5;
+const DegradedReason_t DEG_COMM_LIMITED=6;
+
+// ----- Shared variables: payload replacement -----
+ServiceClass_t serviceClass;
+CriticalityClass_t criticalityClass;
+SLAClass_t slaClass;
+AdmissionClass_t admissionClass;
+DemandClass_t demandClass;
+RequirementClass_t latencyBoundClass;
+RequirementClass_t reliabilityClass;
+RequirementClass_t sensingUpdateBoundClass;
+RequirementClass_t sensingFreshnessBoundClass;
+RequirementClass_t pdMinClass;
+RequirementClass_t pfaMaxClass;
+RequirementClass_t pmissMaxClass;
+RequirementClass_t accuracyBoundClass;
+RequirementClass_t coverageBoundClass;
+DetectionFreshnessClass_t detectionFreshnessClass;
+UpdatePeriodClass_t updatePeriodClass;
+FalseAlarmClass_t falseAlarmClass;
+MissedDetectionClass_t missedDetectionClass;
+PdClass_t pdClass;
+QualityClass_t accuracyClass;
+QualityClass_t coverageClass;
+DegradedReason_t degradedReason;
+
+bool service_request_pending = false;
+bool sla_warning_report_sent = false;
+bool sla_violation_report_sent = false;
+bool degraded_allowed = false;
+bool degraded_accept_pending = false;
+bool violation_report_sent = false;
+bool service_reconfigure_sent = false;
+bool service_terminate_sent = false;
+
+int service_request_seq = 0;
+int sla_warn_seq = 0;
+int sla_violation_seq = 0;
+int freshness_expired_seq = 0;
+int update_violation_seq = 0;
+int fa_critical_seq = 0;
+int miss_critical_seq = 0;
+int safety_violation_seq = 0;
+
+int svc_risk() {
+  return 3*missedDetectionClass + 2*falseAlarmClass
+       + 2*detectionFreshnessClass + updatePeriodClass
+       + accuracyClass + coverageClass + criticalityClass;
+}
+
+bool detection_kpi_consistent() {
+  return !(pdClass == PD_OK
+           &amp;&amp; missedDetectionClass == MISS_CRITICAL)
+      &amp;&amp; !(pdClass == PD_FAILED
+           &amp;&amp; missedDetectionClass == MISS_OK);
+}
+
+bool pd_req_satisfied() {
+  return (pdMinClass == REQ_STRICT &amp;&amp; pdClass == PD_OK)
+      || (pdMinClass == REQ_NORMAL &amp;&amp; pdClass != PD_FAILED)
+      || (pdMinClass == REQ_RELAXED);
+}
+
+bool pfa_req_satisfied() {
+  return (pfaMaxClass == REQ_STRICT &amp;&amp; falseAlarmClass == FA_OK)
+      || (pfaMaxClass == REQ_NORMAL &amp;&amp; falseAlarmClass != FA_CRITICAL)
+      || (pfaMaxClass == REQ_RELAXED);
+}
+
+bool pmiss_req_satisfied() {
+  return (pmissMaxClass == REQ_STRICT &amp;&amp; missedDetectionClass == MISS_OK)
+      || (pmissMaxClass == REQ_NORMAL &amp;&amp; missedDetectionClass != MISS_CRITICAL)
+      || (pmissMaxClass == REQ_RELAXED);
+}
+
+bool freshness_req_satisfied() {
+  return (sensingFreshnessBoundClass == REQ_STRICT
+          &amp;&amp; detectionFreshnessClass == DET_FRESH)
+      || (sensingFreshnessBoundClass == REQ_NORMAL
+          &amp;&amp; detectionFreshnessClass != DET_EXPIRED)
+      || (sensingFreshnessBoundClass == REQ_RELAXED);
+}
+
+bool update_req_satisfied() {
+  return (sensingUpdateBoundClass == REQ_STRICT
+          &amp;&amp; updatePeriodClass == UPD_OK)
+      || (sensingUpdateBoundClass == REQ_NORMAL
+          &amp;&amp; updatePeriodClass != UPD_VIOLATED)
+      || (sensingUpdateBoundClass == REQ_RELAXED);
+}
+
+bool quality_req_satisfied(RequirementClass_t req, QualityClass_t value) {
+  return (req == REQ_STRICT &amp;&amp; value == OK)
+      || (req == REQ_NORMAL &amp;&amp; value != FAILED)
+      || (req == REQ_RELAXED);
+}
+
+bool sensing_req_satisfied() {
+  return freshness_req_satisfied()
+      &amp;&amp; update_req_satisfied()
+      &amp;&amp; pd_req_satisfied()
+      &amp;&amp; pfa_req_satisfied()
+      &amp;&amp; pmiss_req_satisfied()
+      &amp;&amp; quality_req_satisfied(accuracyBoundClass, accuracyClass)
+      &amp;&amp; quality_req_satisfied(coverageBoundClass, coverageClass);
+}
+
+bool sla_sens_violated() {
+  return !detection_kpi_consistent()
+      || detectionFreshnessClass == DET_EXPIRED
+      || updatePeriodClass == UPD_VIOLATED
+      || falseAlarmClass == FA_CRITICAL
+      || missedDetectionClass == MISS_CRITICAL
+      || pdClass == PD_FAILED
+      || accuracyClass == FAILED
+      || coverageClass == FAILED;
+}
+
+bool sla_sens_warn() {
+  return detection_kpi_consistent()
+      &amp;&amp; !sla_sens_violated()
+      &amp;&amp; !sensing_req_satisfied();
+}
+
+bool sla_sens_ok() {
+  return detection_kpi_consistent()
+      &amp;&amp; sensing_req_satisfied()
+      &amp;&amp; !sla_sens_violated();
+}
+
+bool gAdmissionRequest() {
+  return serviceClass == SVC_UAV
+      || serviceClass == SVC_ISAC_SENSING
+      || demandClass == DEMAND_JOINT
+      || demandClass == DEMAND_SENS;
+}
+
+bool gSafetyAllowsDegraded() {
+  return criticalityClass != CRIT_SAFETY
+      || (sla_sens_ok()
+          &amp;&amp; degradedReason == DEG_COMM_LIMITED);
+}
+
+bool gAcceptDegraded() {
+  return admissionClass == ADM_DEGRADED
+      &amp;&amp; degraded_allowed
+      &amp;&amp; degradedReason != DEG_NONE
+      &amp;&amp; gSafetyAllowsDegraded();
+}
+
+bool gRejectDegraded() {
+  return admissionClass == ADM_DEGRADED &amp;&amp; !gAcceptDegraded();
+}
+
+bool gSlaWarning() {
+  return slaClass == SLA_WARN || sla_sens_warn();
+}
+
+bool gSlaViolation() {
+  return slaClass == SLA_VIOLATED || sla_sens_violated();
+}
+
+bool gSafetyCriticalViolation() {
+  return criticalityClass == CRIT_SAFETY &amp;&amp; gSlaViolation();
+}
+
+void build_uav_service_request() {
+  serviceClass = SVC_UAV;
+  criticalityClass = CRIT_SAFETY;
+  slaClass = SLA_OK;
+  admissionClass = ADM_PENDING;
+  demandClass = DEMAND_SENS;
+  latencyBoundClass = REQ_STRICT;
+  reliabilityClass = REQ_STRICT;
+  sensingUpdateBoundClass = REQ_STRICT;
+  sensingFreshnessBoundClass = REQ_STRICT;
+  pdMinClass = REQ_STRICT;
+  pfaMaxClass = REQ_STRICT;
+  pmissMaxClass = REQ_STRICT;
+  accuracyBoundClass = REQ_STRICT;
+  coverageBoundClass = REQ_STRICT;
+  detectionFreshnessClass = DET_FRESH;
+  updatePeriodClass = UPD_OK;
+  falseAlarmClass = FA_OK;
+  missedDetectionClass = MISS_OK;
+  pdClass = PD_OK;
+  accuracyClass = OK;
+  coverageClass = OK;
+}
+
+void note_kpi_update_event() {
+  if (detectionFreshnessClass == DET_EXPIRED)
+    freshness_expired_seq = freshness_expired_seq + 1;
+  if (updatePeriodClass == UPD_VIOLATED)
+    update_violation_seq = update_violation_seq + 1;
+  if (falseAlarmClass == FA_CRITICAL)
+    fa_critical_seq = fa_critical_seq + 1;
+  if (missedDetectionClass == MISS_CRITICAL)
+    miss_critical_seq = miss_critical_seq + 1;
+  if (gSlaWarning())
+    sla_warn_seq = sla_warn_seq + 1;
+  if (gSlaViolation()) {
+    sla_violation_seq = sla_violation_seq + 1;
+    if (criticalityClass == CRIT_SAFETY)
+      safety_violation_seq = safety_violation_seq + 1;
+  }
+}
+
+void note_sla_warning_event() {
+  sla_warn_seq = sla_warn_seq + 1;
+}
+
+void note_sla_violation_event() {
+  sla_violation_seq = sla_violation_seq + 1;
+  if (criticalityClass == CRIT_SAFETY)
+    safety_violation_seq = safety_violation_seq + 1;
+}
+</declaration>
+  <template>
+    <name>A_REQ</name>
+    <location id="A_REQ_1" x="0" y="0">
+      <name x="10" y="-20">ServiceIdle</name>
+    </location>
+    <location id="A_REQ_2" x="180" y="0">
+      <name x="190" y="-20">RequestBuild</name>
+      <label kind="invariant" x="180" y="20">c_req &lt;= D_req</label>
+    </location>
+    <location id="A_REQ_3" x="360" y="0">
+      <name x="370" y="-20">RequestReady</name>
+      <committed/>
+    </location>
+    <location id="A_REQ_4" x="540" y="0">
+      <name x="550" y="-20">RequestPending</name>
+      <label kind="invariant" x="540" y="20">c_admission &lt;= D_admission</label>
+    </location>
+    <location id="A_REQ_5" x="720" y="-120">
+      <name x="730" y="-140">Accepted</name>
+      <label kind="invariant" x="720" y="-100">age_sensing &lt;= D_sensing_fresh</label>
+    </location>
+    <location id="A_REQ_6" x="720" y="120">
+      <name x="730" y="100">AcceptedDegraded</name>
+      <label kind="invariant" x="720" y="140">age_sensing &lt;= D_sensing_fresh</label>
+    </location>
+    <location id="A_REQ_7" x="720" y="260">
+      <name x="730" y="240">Rejected</name>
+    </location>
+    <location id="A_REQ_8" x="900" y="0">
+      <name x="910" y="-20">Completed</name>
+    </location>
+    <init ref="A_REQ_1"/>
+    <transition>
+      <source ref="A_REQ_1"/>
+      <target ref="A_REQ_2"/>
+      <label kind="synchronisation" x="0" y="15">new_demand?</label>
+      <label kind="assignment" x="0" y="30">c_req = 0,
+build_uav_service_request(),
+service_request_pending = false,
+sla_warning_report_sent = false,
+sla_violation_report_sent = false,
+violation_report_sent = false,
+service_reconfigure_sent = false,
+service_terminate_sent = false</label>
+    </transition>
+    <transition>
+      <source ref="A_REQ_2"/>
+      <target ref="A_REQ_3"/>
+      <label kind="guard" x="0" y="0">gAdmissionRequest()</label>
+      <label kind="assignment" x="0" y="30">admissionClass = ADM_PENDING,
+c_req = 0</label>
+    </transition>
+    <transition>
+      <source ref="A_REQ_3"/>
+      <target ref="A_REQ_4"/>
+      <label kind="synchronisation" x="0" y="15">service_request!</label>
+      <label kind="assignment" x="0" y="30">service_request_pending = true,
+service_request_seq = service_request_seq + 1,
+c_admission = 0</label>
+    </transition>
+    <transition>
+      <source ref="A_REQ_4"/>
+      <target ref="A_REQ_5"/>
+      <label kind="guard" x="0" y="0">admissionClass == ADM_ACCEPTED</label>
+      <label kind="synchronisation" x="0" y="15">service_accept?</label>
+      <label kind="assignment" x="0" y="30">service_request_pending = false,
+age_sensing = 0</label>
+    </transition>
+    <transition>
+      <source ref="A_REQ_4"/>
+      <target ref="A_REQ_6"/>
+      <label kind="guard" x="0" y="0">gAcceptDegraded()</label>
+      <label kind="synchronisation" x="0" y="15">service_degraded?</label>
+      <label kind="assignment" x="0" y="30">service_request_pending = false,
+degraded_accept_pending = true,
+age_sensing = 0</label>
+    </transition>
+    <transition>
+      <source ref="A_REQ_4"/>
+      <target ref="A_REQ_7"/>
+      <label kind="guard" x="0" y="0">admissionClass == ADM_REJECTED || gRejectDegraded()</label>
+      <label kind="synchronisation" x="0" y="15">service_reject?</label>
+      <label kind="assignment" x="0" y="30">service_request_pending = false</label>
+    </transition>
+    <transition>
+      <source ref="A_REQ_5"/>
+      <target ref="A_REQ_5"/>
+      <label kind="synchronisation" x="0" y="15">service_kpi_update?</label>
+      <label kind="assignment" x="0" y="30">age_sensing = 0,
+note_kpi_update_event()</label>
+    </transition>
+    <transition>
+      <source ref="A_REQ_6"/>
+      <target ref="A_REQ_6"/>
+      <label kind="synchronisation" x="0" y="15">service_kpi_update?</label>
+      <label kind="assignment" x="0" y="30">age_sensing = 0,
+note_kpi_update_event()</label>
+    </transition>
+    <transition>
+      <source ref="A_REQ_5"/>
+      <target ref="A_REQ_6"/>
+      <label kind="guard" x="0" y="0">degraded_allowed &amp;&amp; degradedReason != DEG_NONE &amp;&amp; gSafetyAllowsDegraded()</label>
+      <label kind="synchronisation" x="0" y="15">degraded_notice?</label>
+      <label kind="assignment" x="0" y="30">degraded_accept_pending = true</label>
+    </transition>
+    <transition>
+      <source ref="A_REQ_6"/>
+      <target ref="A_REQ_5"/>
+      <label kind="guard" x="0" y="0">sla_sens_ok()</label>
+      <label kind="synchronisation" x="0" y="15">service_kpi_update?</label>
+      <label kind="assignment" x="0" y="30">age_sensing = 0,
+note_kpi_update_event()</label>
+    </transition>
+    <transition>
+      <source ref="A_REQ_6"/>
+      <target ref="A_REQ_6"/>
+      <label kind="guard" x="0" y="0">degraded_accept_pending</label>
+      <label kind="synchronisation" x="0" y="15">degraded_accept_report!</label>
+      <label kind="assignment" x="0" y="30">degraded_accept_pending = false,
+violation_report_sent = false</label>
+    </transition>
+    <transition>
+      <source ref="A_REQ_5"/>
+      <target ref="A_REQ_8"/>
+      <label kind="synchronisation" x="0" y="15">service_complete?</label>
+    </transition>
+    <transition>
+      <source ref="A_REQ_6"/>
+      <target ref="A_REQ_8"/>
+      <label kind="synchronisation" x="0" y="15">service_complete?</label>
+    </transition>
+  </template>
+  <template>
+    <name>A_SLA</name>
+    <location id="A_SLA_9" x="0" y="0">
+      <name x="10" y="-20">SLAOk</name>
+    </location>
+    <location id="A_SLA_10" x="240" y="-120">
+      <name x="250" y="-140">SLAWarning</name>
+      <label kind="invariant" x="240" y="-100">c_sla_warn &lt;= D_sla_warn</label>
+    </location>
+    <location id="A_SLA_11" x="240" y="120">
+      <name x="250" y="100">SLAViolated</name>
+      <label kind="invariant" x="240" y="140">c_sla_violation &lt;= D_sla_violation</label>
+    </location>
+    <location id="A_SLA_12" x="520" y="0">
+      <name x="530" y="-20">SLAReported</name>
+    </location>
+    <init ref="A_SLA_9"/>
+    <transition>
+      <source ref="A_SLA_9"/>
+      <target ref="A_SLA_10"/>
+      <label kind="guard" x="0" y="0">gSlaWarning()</label>
+      <label kind="synchronisation" x="0" y="15">sla_warn?</label>
+      <label kind="assignment" x="0" y="30">c_sla_warn = 0,
+note_sla_warning_event(),
+sla_warning_report_sent = false</label>
+    </transition>
+    <transition>
+      <source ref="A_SLA_9"/>
+      <target ref="A_SLA_11"/>
+      <label kind="guard" x="0" y="0">gSlaViolation()</label>
+      <label kind="synchronisation" x="0" y="15">sla_violation?</label>
+      <label kind="assignment" x="0" y="30">c_sla_violation = 0,
+note_sla_violation_event(),
+sla_violation_report_sent = false,
+violation_report_sent = false,
+service_reconfigure_sent = false,
+service_terminate_sent = false</label>
+    </transition>
+    <transition>
+      <source ref="A_SLA_10"/>
+      <target ref="A_SLA_12"/>
+      <label kind="guard" x="0" y="0">gSlaWarning() &amp;&amp; !gSlaViolation()</label>
+      <label kind="synchronisation" x="0" y="15">sla_warning_report!</label>
+      <label kind="assignment" x="0" y="30">sla_warning_report_sent = true,
+c_sla_warn = 0</label>
+    </transition>
+    <transition>
+      <source ref="A_SLA_10"/>
+      <target ref="A_SLA_9"/>
+      <label kind="guard" x="0" y="0">!gSlaWarning() &amp;&amp; !gSlaViolation()</label>
+      <label kind="synchronisation" x="0" y="15">service_kpi_update?</label>
+      <label kind="assignment" x="0" y="30">c_sla_warn = 0</label>
+    </transition>
+    <transition>
+      <source ref="A_SLA_10"/>
+      <target ref="A_SLA_11"/>
+      <label kind="guard" x="0" y="0">gSlaViolation()</label>
+      <label kind="synchronisation" x="0" y="15">sla_violation?</label>
+      <label kind="assignment" x="0" y="30">c_sla_violation = 0,
+note_sla_violation_event(),
+sla_violation_report_sent = false,
+violation_report_sent = false,
+service_reconfigure_sent = false,
+service_terminate_sent = false</label>
+    </transition>
+    <transition>
+      <source ref="A_SLA_12"/>
+      <target ref="A_SLA_9"/>
+      <label kind="guard" x="0" y="0">!gSlaWarning() &amp;&amp; !gSlaViolation()</label>
+      <label kind="synchronisation" x="0" y="15">service_kpi_update?</label>
+      <label kind="assignment" x="0" y="30">sla_warning_report_sent = false,
+sla_violation_report_sent = false,
+violation_report_sent = false,
+service_reconfigure_sent = false,
+service_terminate_sent = false</label>
+    </transition>
+    <transition>
+      <source ref="A_SLA_11"/>
+      <target ref="A_SLA_12"/>
+      <label kind="guard" x="0" y="0">gSlaViolation()</label>
+      <label kind="synchronisation" x="0" y="15">sla_violation_report!</label>
+      <label kind="assignment" x="0" y="30">sla_violation_report_sent = true,
+violation_report_sent = true,
+c_sla_violation = 0</label>
+    </transition>
+    <transition>
+      <source ref="A_SLA_11"/>
+      <target ref="A_SLA_12"/>
+      <label kind="guard" x="0" y="0">gSafetyCriticalViolation()</label>
+      <label kind="synchronisation" x="0" y="15">service_reconfigure!</label>
+      <label kind="assignment" x="0" y="30">service_reconfigure_sent = true,
+violation_report_sent = true</label>
+    </transition>
+    <transition>
+      <source ref="A_SLA_11"/>
+      <target ref="A_SLA_12"/>
+      <label kind="guard" x="0" y="0">gSafetyCriticalViolation()</label>
+      <label kind="synchronisation" x="0" y="15">service_terminate!</label>
+      <label kind="assignment" x="0" y="30">service_terminate_sent = true,
+violation_report_sent = true</label>
+    </transition>
+  </template>
+  <template>
+    <name>A_CRIT</name>
+    <location id="A_CRIT_13" x="0" y="0">
+      <name x="10" y="-20">Idle</name>
+    </location>
+    <init ref="A_CRIT_13"/>
+  </template>
+  <template>
+    <name>A_SVC_AGG</name>
+    <location id="A_SVC_AGG_14" x="0" y="0">
+      <name x="10" y="-20">DemandStored</name>
+    </location>
+    <init ref="A_SVC_AGG_14"/>
+  </template>
+  <template>
+    <name>A_SDN_RIC_STUB</name>
+    <location id="A_SDN_RIC_STUB_15" x="0" y="0">
+      <name x="10" y="-20">SdnIdle</name>
+    </location>
+    <location id="A_SDN_RIC_STUB_16" x="180" y="0">
+      <name x="190" y="-20">SdnDecide</name>
+      <committed/>
+    </location>
+    <location id="A_SDN_RIC_STUB_17" x="360" y="-120">
+      <name x="370" y="-140">ReadyAccept</name>
+      <committed/>
+    </location>
+    <location id="A_SDN_RIC_STUB_18" x="360" y="0">
+      <name x="370" y="-20">ReadyDegraded</name>
+      <committed/>
+    </location>
+    <location id="A_SDN_RIC_STUB_19" x="360" y="120">
+      <name x="370" y="100">ReadyReject</name>
+      <committed/>
+    </location>
+    <init ref="A_SDN_RIC_STUB_15"/>
+    <transition>
+      <source ref="A_SDN_RIC_STUB_15"/>
+      <target ref="A_SDN_RIC_STUB_16"/>
+      <label kind="synchronisation" x="0" y="15">service_request?</label>
+    </transition>
+    <transition>
+      <source ref="A_SDN_RIC_STUB_16"/>
+      <target ref="A_SDN_RIC_STUB_17"/>
+      <label kind="assignment" x="0" y="30">admissionClass = ADM_ACCEPTED,
+degraded_allowed = false,
+degradedReason = DEG_NONE</label>
+    </transition>
+    <transition>
+      <source ref="A_SDN_RIC_STUB_17"/>
+      <target ref="A_SDN_RIC_STUB_15"/>
+      <label kind="synchronisation" x="0" y="15">service_accept!</label>
+    </transition>
+    <transition>
+      <source ref="A_SDN_RIC_STUB_16"/>
+      <target ref="A_SDN_RIC_STUB_18"/>
+      <label kind="assignment" x="0" y="30">admissionClass = ADM_DEGRADED,
+degraded_allowed = true,
+degradedReason = DEG_COMM_LIMITED</label>
+    </transition>
+    <transition>
+      <source ref="A_SDN_RIC_STUB_18"/>
+      <target ref="A_SDN_RIC_STUB_15"/>
+      <label kind="synchronisation" x="0" y="15">service_degraded!</label>
+    </transition>
+    <transition>
+      <source ref="A_SDN_RIC_STUB_16"/>
+      <target ref="A_SDN_RIC_STUB_19"/>
+      <label kind="assignment" x="0" y="30">admissionClass = ADM_REJECTED,
+degraded_allowed = false,
+degradedReason = DEG_RESOURCE_LIMITED</label>
+    </transition>
+    <transition>
+      <source ref="A_SDN_RIC_STUB_19"/>
+      <target ref="A_SDN_RIC_STUB_15"/>
+      <label kind="synchronisation" x="0" y="15">service_reject!</label>
+    </transition>
+  </template>
+  <template>
+    <name>A_ENV_DEMAND</name>
+    <declaration>clock env_t;</declaration>
+    <location id="A_ENV_DEMAND_20" x="0" y="0">
+      <name x="10" y="-20">EnvIdle</name>
+    </location>
+    <location id="A_ENV_DEMAND_21" x="200" y="0">
+      <name x="210" y="-20">EnvWait</name>
+    </location>
+    <init ref="A_ENV_DEMAND_20"/>
+    <transition>
+      <source ref="A_ENV_DEMAND_20"/>
+      <target ref="A_ENV_DEMAND_21"/>
+      <label kind="synchronisation" x="0" y="15">new_demand!</label>
+      <label kind="assignment" x="0" y="30">env_t = 0</label>
+    </transition>
+    <transition>
+      <source ref="A_ENV_DEMAND_21"/>
+      <target ref="A_ENV_DEMAND_20"/>
+      <label kind="guard" x="0" y="0">env_t &gt;= D_event</label>
+      <label kind="assignment" x="0" y="30">env_t = 0</label>
+    </transition>
+  </template>
+  <template>
+    <name>A_KPI_OK_STUB</name>
+    <declaration>clock kpi_t;</declaration>
+    <location id="A_KPI_OK_STUB_22" x="0" y="0">
+      <name x="10" y="-20">KpiIdle</name>
+    </location>
+    <init ref="A_KPI_OK_STUB_22"/>
+    <transition>
+      <source ref="A_KPI_OK_STUB_22"/>
+      <target ref="A_KPI_OK_STUB_22"/>
+      <label kind="guard" x="0" y="0">kpi_t &gt;= D_update</label>
+      <label kind="synchronisation" x="0" y="15">service_kpi_update!</label>
+      <label kind="assignment" x="0" y="30">detectionFreshnessClass = DET_FRESH,
+updatePeriodClass = UPD_OK,
+falseAlarmClass = FA_OK,
+missedDetectionClass = MISS_OK,
+pdClass = PD_OK,
+accuracyClass = OK,
+coverageClass = OK,
+slaClass = SLA_OK,
+kpi_t = 0</label>
+    </transition>
+  </template>
+  <template>
+    <name>A_REPORT_SINK</name>
+    <location id="A_REPORT_SINK_23" x="0" y="0">
+      <name x="10" y="-20">Sink</name>
+    </location>
+    <init ref="A_REPORT_SINK_23"/>
+    <transition>
+      <source ref="A_REPORT_SINK_23"/>
+      <target ref="A_REPORT_SINK_23"/>
+      <label kind="synchronisation" x="0" y="15">sla_warning_report?</label>
+    </transition>
+    <transition>
+      <source ref="A_REPORT_SINK_23"/>
+      <target ref="A_REPORT_SINK_23"/>
+      <label kind="synchronisation" x="0" y="15">sla_violation_report?</label>
+    </transition>
+    <transition>
+      <source ref="A_REPORT_SINK_23"/>
+      <target ref="A_REPORT_SINK_23"/>
+      <label kind="synchronisation" x="0" y="15">service_reconfigure?</label>
+    </transition>
+    <transition>
+      <source ref="A_REPORT_SINK_23"/>
+      <target ref="A_REPORT_SINK_23"/>
+      <label kind="synchronisation" x="0" y="15">service_terminate?</label>
+    </transition>
+    <transition>
+      <source ref="A_REPORT_SINK_23"/>
+      <target ref="A_REPORT_SINK_23"/>
+      <label kind="synchronisation" x="0" y="15">degraded_accept_report?</label>
+    </transition>
+  </template>
+  <template>
+    <name>ObsServiceAdmission</name>
+    <declaration>clock x;
+int seen = 0;</declaration>
+    <location id="ObsServiceAdmission_24" x="0" y="0">
+      <name x="10" y="-20">Idle</name>
+    </location>
+    <location id="ObsServiceAdmission_25" x="220" y="0">
+      <name x="230" y="-20">Waiting</name>
+    </location>
+    <location id="ObsServiceAdmission_26" x="440" y="0">
+      <name x="450" y="-20">Violation</name>
+    </location>
+    <init ref="ObsServiceAdmission_24"/>
+    <transition>
+      <source ref="ObsServiceAdmission_24"/>
+      <target ref="ObsServiceAdmission_25"/>
+      <label kind="guard" x="0" y="0">service_request_seq &gt; seen</label>
+      <label kind="assignment" x="0" y="30">seen = service_request_seq,
+x = 0</label>
+    </transition>
+    <transition>
+      <source ref="ObsServiceAdmission_25"/>
+      <target ref="ObsServiceAdmission_24"/>
+      <label kind="guard" x="0" y="0">admissionClass == ADM_ACCEPTED || admissionClass == ADM_DEGRADED || admissionClass == ADM_REJECTED</label>
+    </transition>
+    <transition>
+      <source ref="ObsServiceAdmission_25"/>
+      <target ref="ObsServiceAdmission_26"/>
+      <label kind="guard" x="0" y="0">x &gt; D_admission</label>
+    </transition>
+  </template>
+  <template>
+    <name>ObsSlaWarningDeadline</name>
+    <declaration>clock x;
+int seen = 0;</declaration>
+    <location id="ObsSlaWarningDeadline_27" x="0" y="0">
+      <name x="10" y="-20">Idle</name>
+    </location>
+    <location id="ObsSlaWarningDeadline_28" x="220" y="0">
+      <name x="230" y="-20">Waiting</name>
+    </location>
+    <location id="ObsSlaWarningDeadline_29" x="440" y="0">
+      <name x="450" y="-20">Violation</name>
+    </location>
+    <init ref="ObsSlaWarningDeadline_27"/>
+    <transition>
+      <source ref="ObsSlaWarningDeadline_27"/>
+      <target ref="ObsSlaWarningDeadline_28"/>
+      <label kind="guard" x="0" y="0">sla_warn_seq &gt; seen</label>
+      <label kind="assignment" x="0" y="30">seen = sla_warn_seq,
+x = 0</label>
+    </transition>
+    <transition>
+      <source ref="ObsSlaWarningDeadline_28"/>
+      <target ref="ObsSlaWarningDeadline_27"/>
+      <label kind="guard" x="0" y="0">sla_warning_report_sent || gSlaViolation()</label>
+    </transition>
+    <transition>
+      <source ref="ObsSlaWarningDeadline_28"/>
+      <target ref="ObsSlaWarningDeadline_29"/>
+      <label kind="guard" x="0" y="0">x &gt; D_sla_warn</label>
+    </transition>
+  </template>
+  <template>
+    <name>ObsSlaViolationDeadline</name>
+    <declaration>clock x;
+int seen = 0;</declaration>
+    <location id="ObsSlaViolationDeadline_30" x="0" y="0">
+      <name x="10" y="-20">Idle</name>
+    </location>
+    <location id="ObsSlaViolationDeadline_31" x="220" y="0">
+      <name x="230" y="-20">Waiting</name>
+    </location>
+    <location id="ObsSlaViolationDeadline_32" x="440" y="0">
+      <name x="450" y="-20">Violation</name>
+    </location>
+    <init ref="ObsSlaViolationDeadline_30"/>
+    <transition>
+      <source ref="ObsSlaViolationDeadline_30"/>
+      <target ref="ObsSlaViolationDeadline_31"/>
+      <label kind="guard" x="0" y="0">sla_violation_seq &gt; seen</label>
+      <label kind="assignment" x="0" y="30">seen = sla_violation_seq,
+x = 0</label>
+    </transition>
+    <transition>
+      <source ref="ObsSlaViolationDeadline_31"/>
+      <target ref="ObsSlaViolationDeadline_30"/>
+      <label kind="guard" x="0" y="0">sla_violation_report_sent || violation_report_sent || service_reconfigure_sent || service_terminate_sent</label>
+    </transition>
+    <transition>
+      <source ref="ObsSlaViolationDeadline_31"/>
+      <target ref="ObsSlaViolationDeadline_32"/>
+      <label kind="guard" x="0" y="0">x &gt; D_sla_violation</label>
+    </transition>
+  </template>
+  <template>
+    <name>ObsDetectionFreshness</name>
+    <declaration>clock x;
+int seen = 0;</declaration>
+    <location id="ObsDetectionFreshness_33" x="0" y="0">
+      <name x="10" y="-20">Idle</name>
+    </location>
+    <location id="ObsDetectionFreshness_34" x="220" y="0">
+      <name x="230" y="-20">Waiting</name>
+    </location>
+    <location id="ObsDetectionFreshness_35" x="440" y="0">
+      <name x="450" y="-20">Violation</name>
+    </location>
+    <init ref="ObsDetectionFreshness_33"/>
+    <transition>
+      <source ref="ObsDetectionFreshness_33"/>
+      <target ref="ObsDetectionFreshness_34"/>
+      <label kind="guard" x="0" y="0">freshness_expired_seq &gt; seen</label>
+      <label kind="assignment" x="0" y="30">seen = freshness_expired_seq,
+x = 0</label>
+    </transition>
+    <transition>
+      <source ref="ObsDetectionFreshness_34"/>
+      <target ref="ObsDetectionFreshness_33"/>
+      <label kind="guard" x="0" y="0">sla_violation_report_sent || violation_report_sent || service_reconfigure_sent || service_terminate_sent</label>
+    </transition>
+    <transition>
+      <source ref="ObsDetectionFreshness_34"/>
+      <target ref="ObsDetectionFreshness_35"/>
+      <label kind="guard" x="0" y="0">x &gt; D_fresh_report</label>
+    </transition>
+  </template>
+  <template>
+    <name>ObsUpdatePeriodViolation</name>
+    <declaration>clock x;
+int seen = 0;</declaration>
+    <location id="ObsUpdatePeriodViolation_36" x="0" y="0">
+      <name x="10" y="-20">Idle</name>
+    </location>
+    <location id="ObsUpdatePeriodViolation_37" x="220" y="0">
+      <name x="230" y="-20">Waiting</name>
+    </location>
+    <location id="ObsUpdatePeriodViolation_38" x="440" y="0">
+      <name x="450" y="-20">Violation</name>
+    </location>
+    <init ref="ObsUpdatePeriodViolation_36"/>
+    <transition>
+      <source ref="ObsUpdatePeriodViolation_36"/>
+      <target ref="ObsUpdatePeriodViolation_37"/>
+      <label kind="guard" x="0" y="0">update_violation_seq &gt; seen</label>
+      <label kind="assignment" x="0" y="30">seen = update_violation_seq,
+x = 0</label>
+    </transition>
+    <transition>
+      <source ref="ObsUpdatePeriodViolation_37"/>
+      <target ref="ObsUpdatePeriodViolation_36"/>
+      <label kind="guard" x="0" y="0">sla_violation_report_sent || violation_report_sent || service_reconfigure_sent || service_terminate_sent</label>
+    </transition>
+    <transition>
+      <source ref="ObsUpdatePeriodViolation_37"/>
+      <target ref="ObsUpdatePeriodViolation_38"/>
+      <label kind="guard" x="0" y="0">x &gt; D_update_report</label>
+    </transition>
+  </template>
+  <template>
+    <name>ObsFalseAlarmCritical</name>
+    <declaration>clock x;
+int seen = 0;</declaration>
+    <location id="ObsFalseAlarmCritical_39" x="0" y="0">
+      <name x="10" y="-20">Idle</name>
+    </location>
+    <location id="ObsFalseAlarmCritical_40" x="220" y="0">
+      <name x="230" y="-20">Waiting</name>
+    </location>
+    <location id="ObsFalseAlarmCritical_41" x="440" y="0">
+      <name x="450" y="-20">Violation</name>
+    </location>
+    <init ref="ObsFalseAlarmCritical_39"/>
+    <transition>
+      <source ref="ObsFalseAlarmCritical_39"/>
+      <target ref="ObsFalseAlarmCritical_40"/>
+      <label kind="guard" x="0" y="0">fa_critical_seq &gt; seen</label>
+      <label kind="assignment" x="0" y="30">seen = fa_critical_seq,
+x = 0</label>
+    </transition>
+    <transition>
+      <source ref="ObsFalseAlarmCritical_40"/>
+      <target ref="ObsFalseAlarmCritical_39"/>
+      <label kind="guard" x="0" y="0">sla_violation_report_sent || violation_report_sent || service_reconfigure_sent || service_terminate_sent</label>
+    </transition>
+    <transition>
+      <source ref="ObsFalseAlarmCritical_40"/>
+      <target ref="ObsFalseAlarmCritical_41"/>
+      <label kind="guard" x="0" y="0">x &gt; D_fa_report</label>
+    </transition>
+  </template>
+  <template>
+    <name>ObsMissedDetectionCritical</name>
+    <declaration>clock x;
+int seen = 0;</declaration>
+    <location id="ObsMissedDetectionCritical_42" x="0" y="0">
+      <name x="10" y="-20">Idle</name>
+    </location>
+    <location id="ObsMissedDetectionCritical_43" x="220" y="0">
+      <name x="230" y="-20">Waiting</name>
+    </location>
+    <location id="ObsMissedDetectionCritical_44" x="440" y="0">
+      <name x="450" y="-20">Violation</name>
+    </location>
+    <init ref="ObsMissedDetectionCritical_42"/>
+    <transition>
+      <source ref="ObsMissedDetectionCritical_42"/>
+      <target ref="ObsMissedDetectionCritical_43"/>
+      <label kind="guard" x="0" y="0">miss_critical_seq &gt; seen</label>
+      <label kind="assignment" x="0" y="30">seen = miss_critical_seq,
+x = 0</label>
+    </transition>
+    <transition>
+      <source ref="ObsMissedDetectionCritical_43"/>
+      <target ref="ObsMissedDetectionCritical_42"/>
+      <label kind="guard" x="0" y="0">sla_violation_report_sent || violation_report_sent || service_reconfigure_sent || service_terminate_sent</label>
+    </transition>
+    <transition>
+      <source ref="ObsMissedDetectionCritical_43"/>
+      <target ref="ObsMissedDetectionCritical_44"/>
+      <label kind="guard" x="0" y="0">x &gt; D_miss_report</label>
+    </transition>
+  </template>
+  <template>
+    <name>ObsSafetyCriticalViolation</name>
+    <declaration>clock x;
+int seen = 0;</declaration>
+    <location id="ObsSafetyCriticalViolation_45" x="0" y="0">
+      <name x="10" y="-20">Idle</name>
+    </location>
+    <location id="ObsSafetyCriticalViolation_46" x="220" y="0">
+      <name x="230" y="-20">Waiting</name>
+    </location>
+    <location id="ObsSafetyCriticalViolation_47" x="440" y="0">
+      <name x="450" y="-20">Violation</name>
+    </location>
+    <init ref="ObsSafetyCriticalViolation_45"/>
+    <transition>
+      <source ref="ObsSafetyCriticalViolation_45"/>
+      <target ref="ObsSafetyCriticalViolation_46"/>
+      <label kind="guard" x="0" y="0">safety_violation_seq &gt; seen</label>
+      <label kind="assignment" x="0" y="30">seen = safety_violation_seq,
+x = 0</label>
+    </transition>
+    <transition>
+      <source ref="ObsSafetyCriticalViolation_46"/>
+      <target ref="ObsSafetyCriticalViolation_45"/>
+      <label kind="guard" x="0" y="0">sla_violation_report_sent || violation_report_sent || service_reconfigure_sent || service_terminate_sent || admissionClass == ADM_REJECTED</label>
+    </transition>
+    <transition>
+      <source ref="ObsSafetyCriticalViolation_46"/>
+      <target ref="ObsSafetyCriticalViolation_47"/>
+      <label kind="guard" x="0" y="0">x &gt; D_safety</label>
+    </transition>
+  </template>
+  <system>Req = A_REQ();
+Sla = A_SLA();
+Crit = A_CRIT();
+Agg = A_SVC_AGG();
+Sdn = A_SDN_RIC_STUB();
+Env = A_ENV_DEMAND();
+Kpi = A_KPI_OK_STUB();
+Sink = A_REPORT_SINK();
+ObsAdmission = ObsServiceAdmission();
+ObsWarn = ObsSlaWarningDeadline();
+ObsViolation = ObsSlaViolationDeadline();
+ObsFresh = ObsDetectionFreshness();
+ObsUpdate = ObsUpdatePeriodViolation();
+ObsFa = ObsFalseAlarmCritical();
+ObsMiss = ObsMissedDetectionCritical();
+ObsSafety = ObsSafetyCriticalViolation();
+
+system Req, Sla, Crit, Agg, Sdn, Env, Kpi, Sink,
+       ObsAdmission, ObsWarn, ObsViolation, ObsFresh,
+       ObsUpdate, ObsFa, ObsMiss, ObsSafety;</system>
+  <queries>
+    <query>
+      <formula>A[] not deadlock</formula>
+      <comment>No global deadlock in baseline service-layer composition.</comment>
+    </query>
+    <query>
+      <formula>A[] not ObsAdmission.Violation</formula>
+      <comment>Admission decision arrives within D_admission.</comment>
+    </query>
+    <query>
+      <formula>A[] not ObsWarn.Violation</formula>
+      <comment>SLA warning is reported or escalated within D_sla_warn.</comment>
+    </query>
+    <query>
+      <formula>A[] not ObsViolation.Violation</formula>
+      <comment>SLA violation is handled within D_sla_violation.</comment>
+    </query>
+    <query>
+      <formula>A[] not ObsFresh.Violation</formula>
+      <comment>Expired freshness is handled within D_fresh_report.</comment>
+    </query>
+    <query>
+      <formula>A[] not ObsUpdate.Violation</formula>
+      <comment>Update-period violation is handled within D_update_report.</comment>
+    </query>
+    <query>
+      <formula>A[] not ObsFa.Violation</formula>
+      <comment>Critical false alarm is handled within D_fa_report.</comment>
+    </query>
+    <query>
+      <formula>A[] not ObsMiss.Violation</formula>
+      <comment>Critical missed detection is handled within D_miss_report.</comment>
+    </query>
+    <query>
+      <formula>A[] not ObsSafety.Violation</formula>
+      <comment>Safety-critical violation is handled within D_safety.</comment>
+    </query>
+    <query>
+      <formula>A[] detection_kpi_consistent()</formula>
+      <comment>Discrete detection KPI classes are not mutually inconsistent.</comment>
+    </query>
+    <query>
+      <formula>A[] not (criticalityClass == CRIT_SAFETY &amp;&amp; admissionClass == ADM_DEGRADED &amp;&amp; !gSafetyAllowsDegraded())</formula>
+      <comment>Safety-critical degraded admission is allowed only by the contract.</comment>
+    </query>
+    <query>
+      <formula>E&lt;&gt; Req.Accepted</formula>
+      <comment>Accepted service state is reachable.</comment>
+    </query>
+    <query>
+      <formula>E&lt;&gt; Req.AcceptedDegraded</formula>
+      <comment>AcceptedDegraded state is reachable under SDN degraded decision.</comment>
+    </query>
+    <query>
+      <formula>E&lt;&gt; Req.Rejected</formula>
+      <comment>Rejected state is reachable under SDN reject decision.</comment>
+    </query>
+  </queries>
+</nta>

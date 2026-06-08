@@ -1,0 +1,57 @@
+{
+  "ok": true,
+  "errors": [],
+  "warnings": [],
+  "details": {
+    "templates": {
+      "A_CH": {
+        "location_count": 8,
+        "distinct_y": 7
+      },
+      "A_SIG": {
+        "location_count": 6,
+        "distinct_y": 3
+      },
+      "A_BM": {
+        "location_count": 11,
+        "distinct_y": 5
+      },
+      "A_SQ": {
+        "location_count": 11,
+        "distinct_y": 4
+      },
+      "A_PH": {
+        "location_count": 8,
+        "distinct_y": 7
+      },
+      "ENV_CH": {
+        "location_count": 1,
+        "distinct_y": 1
+      },
+      "ENV_TARGET": {
+        "location_count": 1,
+        "distinct_y": 1
+      },
+      "ENV_MAC": {
+        "location_count": 1,
+        "distinct_y": 1
+      },
+      "ENV_NET": {
+        "location_count": 1,
+        "distinct_y": 1
+      },
+      "ObsSenseReport": {
+        "location_count": 3,
+        "distinct_y": 2
+      },
+      "ObsFreshness": {
+        "location_count": 3,
+        "distinct_y": 2
+      },
+      "ObsBeamRecovery": {
+        "location_count": 3,
+        "distinct_y": 2
+      }
+    }
+  }
+}

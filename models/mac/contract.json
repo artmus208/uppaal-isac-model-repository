@@ -1,0 +1,973 @@
+{
+  "source_name": "MAC_resource_scheduling_formalization.tex",
+  "layer_id": "mac",
+  "mac_components": [
+    "A_SCH",
+    "A_Q",
+    "A_BUF",
+    "A_RSRC",
+    "A_MAC_AGG"
+  ],
+  "env_components": [
+    "A_ENV_MAC"
+  ],
+  "classes": [
+    {
+      "name": "QueueClass",
+      "values": [
+        "Q_EMPTY",
+        "Q_LOW",
+        "Q_MED",
+        "Q_HIGH",
+        "Q_CRIT"
+      ],
+      "provenance": {
+        "source": "MAC_resource_scheduling_formalization.tex",
+        "section": "Discrete abstraction",
+        "line": null
+      }
+    },
+    {
+      "name": "BufferClass",
+      "values": [
+        "B_SAFE",
+        "B_WARN",
+        "B_OVERFLOW"
+      ],
+      "provenance": {
+        "source": "MAC_resource_scheduling_formalization.tex",
+        "section": "Discrete abstraction",
+        "line": null
+      }
+    },
+    {
+      "name": "DelayClass",
+      "values": [
+        "D_OK",
+        "D_WARN",
+        "D_DEADLINE_RISK",
+        "D_VIOLATED"
+      ],
+      "provenance": {
+        "source": "MAC_resource_scheduling_formalization.tex",
+        "section": "Discrete abstraction",
+        "line": null
+      }
+    },
+    {
+      "name": "DropClass",
+      "values": [
+        "DROP_NONE",
+        "DROP_LOW",
+        "DROP_HIGH"
+      ],
+      "provenance": {
+        "source": "MAC_resource_scheduling_formalization.tex",
+        "section": "Discrete abstraction",
+        "line": null
+      }
+    },
+    {
+      "name": "ResourceClass",
+      "values": [
+        "RES_FREE",
+        "RES_BALANCED",
+        "RES_TIGHT",
+        "RES_EXHAUSTED"
+      ],
+      "provenance": {
+        "source": "MAC_resource_scheduling_formalization.tex",
+        "section": "Discrete abstraction",
+        "line": null
+      }
+    },
+    {
+      "name": "SensingDemand",
+      "values": [
+        "SENS_NOMINAL",
+        "SENS_BOOST_REQ",
+        "SENS_CRITICAL"
+      ],
+      "provenance": {
+        "source": "MAC_resource_scheduling_formalization.tex",
+        "section": "Discrete abstraction",
+        "line": null
+      }
+    },
+    {
+      "name": "CommDemand",
+      "values": [
+        "COMM_NOMINAL",
+        "COMM_HIGH",
+        "COMM_CRITICAL"
+      ],
+      "provenance": {
+        "source": "MAC_resource_scheduling_formalization.tex",
+        "section": "Discrete abstraction",
+        "line": null
+      }
+    },
+    {
+      "name": "KPIFreshnessClass",
+      "values": [
+        "KPI_FRESH",
+        "KPI_STALE",
+        "KPI_MISSING"
+      ],
+      "provenance": {
+        "source": "MAC_resource_scheduling_formalization.tex",
+        "section": "Discrete abstraction",
+        "line": null
+      }
+    },
+    {
+      "name": "ScheduleMode",
+      "values": [
+        "SCH_IDLE",
+        "SCH_COMM",
+        "SCH_SENS",
+        "SCH_JOINT",
+        "SCH_CONSTRAINED"
+      ],
+      "provenance": {
+        "source": "MAC_resource_scheduling_formalization.tex",
+        "section": "Declarations",
+        "line": null
+      }
+    },
+    {
+      "name": "MacReason",
+      "values": [
+        "REASON_NONE",
+        "REASON_RESOURCE_EXHAUSTED",
+        "REASON_PHY_ACK_TIMEOUT",
+        "REASON_QUEUE_CRITICAL",
+        "REASON_SENS_COMM_CONFLICT",
+        "REASON_STALE_PHY_KPI",
+        "REASON_BUFFER_OVERFLOW"
+      ],
+      "provenance": {
+        "source": "MAC_resource_scheduling_formalization.tex",
+        "section": "Declarations",
+        "line": null
+      }
+    }
+  ],
+  "clocks": [
+    {
+      "name": "c_sched",
+      "meaning": "Scheduling window age.",
+      "reset": "reset on mac_tick/selection",
+      "provenance": {
+        "source": "MAC_resource_scheduling_formalization.tex",
+        "section": "Operational semantics",
+        "line": null
+      }
+    },
+    {
+      "name": "c_phy_ack",
+      "meaning": "PHY command acknowledgement age.",
+      "reset": "reset before waiting for phy_ack",
+      "provenance": {
+        "source": "MAC_resource_scheduling_formalization.tex",
+        "section": "Operational semantics",
+        "line": null
+      }
+    },
+    {
+      "name": "c_queue",
+      "meaning": "Queue critical age.",
+      "reset": "reset on entering QueueCritical",
+      "provenance": {
+        "source": "MAC_resource_scheduling_formalization.tex",
+        "section": "Operational semantics",
+        "line": null
+      }
+    },
+    {
+      "name": "c_buf",
+      "meaning": "Buffer overflow age.",
+      "reset": "reset on entering BufferOverflow",
+      "provenance": {
+        "source": "MAC_resource_scheduling_formalization.tex",
+        "section": "Operational semantics",
+        "line": null
+      }
+    },
+    {
+      "name": "c_report",
+      "meaning": "MAC report build age.",
+      "reset": "reset on ReportBuild",
+      "provenance": {
+        "source": "MAC_resource_scheduling_formalization.tex",
+        "section": "Operational semantics",
+        "line": null
+      }
+    }
+  ],
+  "variables": [
+    {
+      "name": "queueClass",
+      "type_name": "QueueClass_t",
+      "initial": "Q_EMPTY",
+      "role": "alpha_MAC class",
+      "provenance": null
+    },
+    {
+      "name": "bufferClass",
+      "type_name": "BufferClass_t",
+      "initial": "B_SAFE",
+      "role": "alpha_MAC class",
+      "provenance": null
+    },
+    {
+      "name": "delayClass",
+      "type_name": "DelayClass_t",
+      "initial": "D_OK",
+      "role": "alpha_MAC class",
+      "provenance": null
+    },
+    {
+      "name": "dropClass",
+      "type_name": "DropClass_t",
+      "initial": "DROP_NONE",
+      "role": "alpha_MAC class",
+      "provenance": null
+    },
+    {
+      "name": "resourceClass",
+      "type_name": "ResourceClass_t",
+      "initial": "RES_FREE",
+      "role": "alpha_MAC class",
+      "provenance": null
+    },
+    {
+      "name": "mappedResourceClass",
+      "type_name": "ResourceClass_t",
+      "initial": "RES_FREE",
+      "role": "mu_PHY_to_MAC result",
+      "provenance": null
+    },
+    {
+      "name": "sensingDemand",
+      "type_name": "SensingDemand_t",
+      "initial": "SENS_NOMINAL",
+      "role": "policy input class",
+      "provenance": null
+    },
+    {
+      "name": "commDemand",
+      "type_name": "CommDemand_t",
+      "initial": "COMM_NOMINAL",
+      "role": "policy input class",
+      "provenance": null
+    },
+    {
+      "name": "kpiFreshnessClass",
+      "type_name": "KPIFreshnessClass_t",
+      "initial": "KPI_FRESH",
+      "role": "freshness input class",
+      "provenance": null
+    },
+    {
+      "name": "scheduleMode",
+      "type_name": "ScheduleMode_t",
+      "initial": "SCH_IDLE",
+      "role": "MAC decision",
+      "provenance": null
+    },
+    {
+      "name": "macReason",
+      "type_name": "MacReason_t",
+      "initial": "REASON_NONE",
+      "role": "report payload",
+      "provenance": null
+    },
+    {
+      "name": "mac_report_pending",
+      "type_name": "bool",
+      "initial": "false",
+      "role": "report flag",
+      "provenance": null
+    },
+    {
+      "name": "mac_report_sent",
+      "type_name": "bool",
+      "initial": "false",
+      "role": "report flag",
+      "provenance": null
+    },
+    {
+      "name": "silent_accept",
+      "type_name": "bool",
+      "initial": "false",
+      "role": "safety flag",
+      "provenance": null
+    },
+    {
+      "name": "phy_ack_timeout",
+      "type_name": "bool",
+      "initial": "false",
+      "role": "failure flag",
+      "provenance": null
+    },
+    {
+      "name": "phy_command_pending",
+      "type_name": "bool",
+      "initial": "false",
+      "role": "ack observer flag",
+      "provenance": null
+    },
+    {
+      "name": "sdn_sensing_priority_allowed",
+      "type_name": "bool",
+      "initial": "false",
+      "role": "policy flag",
+      "provenance": null
+    },
+    {
+      "name": "sdn_comm_priority_allowed",
+      "type_name": "bool",
+      "initial": "false",
+      "role": "policy flag",
+      "provenance": null
+    }
+  ],
+  "channels": [
+    {
+      "name": "phy_kpi_report",
+      "kind": "broadcast",
+      "role": "PHY-to-MAC finite KPI report",
+      "provenance": {
+        "source": "MAC_resource_scheduling_formalization.tex",
+        "section": "Declarations",
+        "line": null
+      }
+    },
+    {
+      "name": "mac_report",
+      "kind": "broadcast",
+      "role": "MAC-to-SDN/RIC report",
+      "provenance": {
+        "source": "MAC_resource_scheduling_formalization.tex",
+        "section": "Declarations",
+        "line": null
+      }
+    },
+    {
+      "name": "mac_tick",
+      "kind": "handshake",
+      "role": "scheduling window tick",
+      "provenance": {
+        "source": "MAC_resource_scheduling_formalization.tex",
+        "section": "Declarations",
+        "line": null
+      }
+    },
+    {
+      "name": "sdn_policy_cmd",
+      "kind": "handshake",
+      "role": "finite SDN/RIC policy command",
+      "provenance": {
+        "source": "MAC_resource_scheduling_formalization.tex",
+        "section": "Declarations",
+        "line": null
+      }
+    },
+    {
+      "name": "service_priority",
+      "kind": "handshake",
+      "role": "service priority update",
+      "provenance": {
+        "source": "MAC_resource_scheduling_formalization.tex",
+        "section": "Declarations",
+        "line": null
+      }
+    },
+    {
+      "name": "phy_ack",
+      "kind": "handshake",
+      "role": "PHY command acknowledgement",
+      "provenance": {
+        "source": "MAC_resource_scheduling_formalization.tex",
+        "section": "Declarations",
+        "line": null
+      }
+    },
+    {
+      "name": "mac_schedule_cmd",
+      "kind": "handshake",
+      "role": "PHY scheduling command",
+      "provenance": {
+        "source": "MAC_resource_scheduling_formalization.tex",
+        "section": "Declarations",
+        "line": null
+      }
+    },
+    {
+      "name": "beam_update_cmd",
+      "kind": "handshake",
+      "role": "PHY beam update command",
+      "provenance": {
+        "source": "MAC_resource_scheduling_formalization.tex",
+        "section": "Declarations",
+        "line": null
+      }
+    },
+    {
+      "name": "sensing_boost_cmd",
+      "kind": "handshake",
+      "role": "PHY sensing boost command",
+      "provenance": {
+        "source": "MAC_resource_scheduling_formalization.tex",
+        "section": "Declarations",
+        "line": null
+      }
+    },
+    {
+      "name": "constrained_mode_cmd",
+      "kind": "handshake",
+      "role": "PHY constrained mode command",
+      "provenance": {
+        "source": "MAC_resource_scheduling_formalization.tex",
+        "section": "Declarations",
+        "line": null
+      }
+    },
+    {
+      "name": "resource_reject",
+      "kind": "handshake",
+      "role": "explicit resource rejection",
+      "provenance": {
+        "source": "MAC_resource_scheduling_formalization.tex",
+        "section": "Declarations",
+        "line": null
+      }
+    }
+  ],
+  "automata": [
+    {
+      "name": "A_SCH",
+      "initial": "Idle",
+      "locations": [
+        {
+          "name": "Idle",
+          "invariant": null,
+          "provenance": null
+        },
+        {
+          "name": "CollectKPI",
+          "invariant": "c_sched <= D_collect",
+          "provenance": null
+        },
+        {
+          "name": "SelectMode",
+          "invariant": "c_sched <= D_sched",
+          "provenance": null
+        },
+        {
+          "name": "ApplySchedule",
+          "invariant": null,
+          "provenance": null
+        },
+        {
+          "name": "WaitPHYAck",
+          "invariant": "c_phy_ack <= D_phy_ack",
+          "provenance": null
+        },
+        {
+          "name": "ScheduleFailure",
+          "invariant": null,
+          "provenance": null
+        }
+      ],
+      "transitions": [],
+      "assumptions": [],
+      "guarantees": [
+        "fresh KPI/policy selection finishes by D_sched",
+        "PHY command is acknowledged or reported by D_phy_ack"
+      ],
+      "provenance": {
+        "source": "MAC_resource_scheduling_formalization.tex",
+        "section": "Automaton scheduler",
+        "line": null
+      }
+    },
+    {
+      "name": "A_Q",
+      "initial": "QueueNormal",
+      "locations": [
+        {
+          "name": "QueueNormal",
+          "invariant": null,
+          "provenance": null
+        },
+        {
+          "name": "QueueWarning",
+          "invariant": null,
+          "provenance": null
+        },
+        {
+          "name": "QueueCritical",
+          "invariant": "c_queue <= D_queue_crit",
+          "provenance": null
+        },
+        {
+          "name": "QueueDraining",
+          "invariant": null,
+          "provenance": null
+        }
+      ],
+      "transitions": [],
+      "assumptions": [],
+      "guarantees": [
+        "Q_CRIT triggers drain, reject or report by D_queue_crit"
+      ],
+      "provenance": {
+        "source": "MAC_resource_scheduling_formalization.tex",
+        "section": "Queue and buffer automata",
+        "line": null
+      }
+    },
+    {
+      "name": "A_BUF",
+      "initial": "BufferSafe",
+      "locations": [
+        {
+          "name": "BufferSafe",
+          "invariant": null,
+          "provenance": null
+        },
+        {
+          "name": "BufferWarning",
+          "invariant": null,
+          "provenance": null
+        },
+        {
+          "name": "BufferOverflow",
+          "invariant": "c_buf <= D_buf_report",
+          "provenance": null
+        }
+      ],
+      "transitions": [],
+      "assumptions": [],
+      "guarantees": [
+        "B_OVERFLOW triggers mac_report by D_buf_report"
+      ],
+      "provenance": {
+        "source": "MAC_resource_scheduling_formalization.tex",
+        "section": "Queue and buffer automata",
+        "line": null
+      }
+    },
+    {
+      "name": "A_RSRC",
+      "initial": "ResourceAvailable",
+      "locations": [
+        {
+          "name": "ResourceAvailable",
+          "invariant": null,
+          "provenance": null
+        },
+        {
+          "name": "ResourceTight",
+          "invariant": null,
+          "provenance": null
+        },
+        {
+          "name": "ResourceConflict",
+          "invariant": null,
+          "provenance": null
+        },
+        {
+          "name": "ResourceExhausted",
+          "invariant": null,
+          "provenance": null
+        }
+      ],
+      "transitions": [],
+      "assumptions": [],
+      "guarantees": [
+        "RES_EXHAUSTED cannot be silently accepted"
+      ],
+      "provenance": {
+        "source": "MAC_resource_scheduling_formalization.tex",
+        "section": "Resource automaton",
+        "line": null
+      }
+    },
+    {
+      "name": "A_MAC_AGG",
+      "initial": "ReportIdle",
+      "locations": [
+        {
+          "name": "ReportIdle",
+          "invariant": null,
+          "provenance": null
+        },
+        {
+          "name": "ReportBuild",
+          "invariant": "c_report <= D_mac_report",
+          "provenance": null
+        },
+        {
+          "name": "ReportSent",
+          "invariant": null,
+          "provenance": null
+        },
+        {
+          "name": "ReportStale",
+          "invariant": null,
+          "provenance": null
+        }
+      ],
+      "transitions": [],
+      "assumptions": [],
+      "guarantees": [
+        "pending report is emitted by D_mac_report"
+      ],
+      "provenance": {
+        "source": "MAC_resource_scheduling_formalization.tex",
+        "section": "Report interface",
+        "line": null
+      }
+    }
+  ],
+  "env": [
+    {
+      "name": "A_ENV_MAC",
+      "initial": "EnvIdle",
+      "locations": [
+        {
+          "name": "EnvIdle",
+          "invariant": null,
+          "provenance": null
+        }
+      ],
+      "transitions": [],
+      "assumptions": [
+        "mac_tick is bounded",
+        "PHY reports are finite and fresh or explicitly stale",
+        "SDN/RIC commands are finite admissible policies",
+        "mutually exclusive classes are not forced simultaneously"
+      ],
+      "provenance": {
+        "source": "MAC_resource_scheduling_formalization.tex",
+        "section": "Local environment",
+        "line": null
+      }
+    }
+  ],
+  "observers": [
+    {
+      "name": "ObsPhyAck",
+      "trigger": "phy_command_pending",
+      "responses": [
+        "!phy_command_pending"
+      ],
+      "deadline": "D_phy_ack",
+      "violation_query": "A[] not ObsPhyAck.Violation",
+      "provenance": {
+        "source": "MAC_resource_scheduling_formalization.tex",
+        "section": "Observers",
+        "line": null
+      }
+    },
+    {
+      "name": "ObsQueueCritical",
+      "trigger": "queueClass == Q_CRIT",
+      "responses": [
+        "QueueDraining",
+        "mac_report_sent",
+        "SCH_COMM",
+        "SCH_CONSTRAINED"
+      ],
+      "deadline": "D_queue_crit",
+      "violation_query": "A[] not ObsQueueCritical.Violation",
+      "provenance": {
+        "source": "MAC_resource_scheduling_formalization.tex",
+        "section": "Observers",
+        "line": null
+      }
+    },
+    {
+      "name": "ObsSensingCritical",
+      "trigger": "sensingDemand == SENS_CRITICAL",
+      "responses": [
+        "SCH_SENS",
+        "SCH_JOINT",
+        "SCH_CONSTRAINED",
+        "mac_report_sent"
+      ],
+      "deadline": "D_sched",
+      "violation_query": "A[] not ObsSensingCritical.Violation",
+      "provenance": {
+        "source": "MAC_resource_scheduling_formalization.tex",
+        "section": "Observers",
+        "line": null
+      }
+    },
+    {
+      "name": "ObsBufferOverflow",
+      "trigger": "bufferClass == B_OVERFLOW",
+      "responses": [
+        "mac_report_sent"
+      ],
+      "deadline": "D_buf_report",
+      "violation_query": "A[] not ObsBufferOverflow.Violation",
+      "provenance": {
+        "source": "MAC_resource_scheduling_formalization.tex",
+        "section": "Observers",
+        "line": null
+      }
+    },
+    {
+      "name": "ObsMacReportFreshness",
+      "trigger": "mac_report_pending",
+      "responses": [
+        "mac_report_sent"
+      ],
+      "deadline": "D_mac_report",
+      "violation_query": "A[] not ObsMacReportFreshness.Violation",
+      "provenance": {
+        "source": "MAC_resource_scheduling_formalization.tex",
+        "section": "Observers",
+        "line": null
+      }
+    }
+  ],
+  "policies": [
+    {
+      "name": "P0",
+      "guard": "resourceClass == RES_EXHAUSTED || mappedResourceClass == RES_EXHAUSTED",
+      "mode": "SCH_CONSTRAINED",
+      "outcome": "resource_reject! or mac_report! by D_sched",
+      "provenance": {
+        "source": "MAC_resource_scheduling_formalization.tex",
+        "section": "MAC policies",
+        "line": null
+      }
+    },
+    {
+      "name": "P1",
+      "guard": "bufferClass == B_OVERFLOW || delayClass == D_VIOLATED",
+      "mode": "SCH_COMM",
+      "outcome": "protect communication and report SDN/RIC",
+      "provenance": {
+        "source": "MAC_resource_scheduling_formalization.tex",
+        "section": "MAC policies",
+        "line": null
+      }
+    },
+    {
+      "name": "P2",
+      "guard": "queueClass == Q_CRIT && commDemand == COMM_CRITICAL",
+      "mode": "SCH_COMM",
+      "outcome": "mac_schedule_cmd! or mac_report!",
+      "provenance": {
+        "source": "MAC_resource_scheduling_formalization.tex",
+        "section": "MAC policies",
+        "line": null
+      }
+    },
+    {
+      "name": "P3",
+      "guard": "sensingDemand == SENS_CRITICAL && SDN allows sensing priority",
+      "mode": "SCH_SENS or SCH_JOINT",
+      "outcome": "sensing_boost_cmd! or constrained_mode_cmd!",
+      "provenance": {
+        "source": "MAC_resource_scheduling_formalization.tex",
+        "section": "MAC policies",
+        "line": null
+      }
+    },
+    {
+      "name": "P4",
+      "guard": "resourceClass == RES_TIGHT and both demands active",
+      "mode": "SCH_JOINT or SCH_CONSTRAINED",
+      "outcome": "joint scheduling or deficit report",
+      "provenance": {
+        "source": "MAC_resource_scheduling_formalization.tex",
+        "section": "MAC policies",
+        "line": null
+      }
+    },
+    {
+      "name": "P5",
+      "guard": "KPIFreshnessClass stale or missing",
+      "mode": "SCH_CONSTRAINED",
+      "outcome": "avoid aggressive reconfiguration",
+      "provenance": {
+        "source": "MAC_resource_scheduling_formalization.tex",
+        "section": "MAC policies",
+        "line": null
+      }
+    },
+    {
+      "name": "P6",
+      "guard": "ResourceClass free or balanced",
+      "mode": "SCH_JOINT",
+      "outcome": "ordinary ISAC schedule",
+      "provenance": {
+        "source": "MAC_resource_scheduling_formalization.tex",
+        "section": "MAC policies",
+        "line": null
+      }
+    },
+    {
+      "name": "P7",
+      "guard": "fallback",
+      "mode": "SCH_CONSTRAINED",
+      "outcome": "safe fallback",
+      "provenance": {
+        "source": "MAC_resource_scheduling_formalization.tex",
+        "section": "MAC policies",
+        "line": null
+      }
+    }
+  ],
+  "properties": [
+    {
+      "name": "deadlock_free",
+      "query": "A[] not deadlock",
+      "category": "safety",
+      "interpretation": "closed MAC model has no deadlocks",
+      "provenance": {
+        "source": "MAC_resource_scheduling_formalization.tex",
+        "section": "Verification properties",
+        "line": null
+      }
+    },
+    {
+      "name": "no_silent_accept",
+      "query": "A[] (resourceClass == RES_EXHAUSTED imply !silent_accept)",
+      "category": "safety",
+      "interpretation": "exhausted resource is never silently accepted",
+      "provenance": {
+        "source": "MAC_resource_scheduling_formalization.tex",
+        "section": "Verification properties",
+        "line": null
+      }
+    },
+    {
+      "name": "ack_invariant",
+      "query": "A[] (A_SCH.WaitPHYAck imply c_phy_ack <= D_phy_ack)",
+      "category": "timing",
+      "interpretation": "wait-for-PHY-ack state respects its deadline",
+      "provenance": {
+        "source": "MAC_resource_scheduling_formalization.tex",
+        "section": "Verification properties",
+        "line": null
+      }
+    },
+    {
+      "name": "ObsPhyAck",
+      "query": "A[] not ObsPhyAck.Violation",
+      "category": "observer",
+      "interpretation": "PHY command is acked or failed by deadline",
+      "provenance": {
+        "source": "MAC_resource_scheduling_formalization.tex",
+        "section": "Observers",
+        "line": null
+      }
+    },
+    {
+      "name": "ObsQueueCritical",
+      "query": "A[] not ObsQueueCritical.Violation",
+      "category": "observer",
+      "interpretation": "critical queue gets bounded response",
+      "provenance": {
+        "source": "MAC_resource_scheduling_formalization.tex",
+        "section": "Observers",
+        "line": null
+      }
+    },
+    {
+      "name": "ObsSensingCritical",
+      "query": "A[] not ObsSensingCritical.Violation",
+      "category": "observer",
+      "interpretation": "critical sensing demand gets bounded response",
+      "provenance": {
+        "source": "MAC_resource_scheduling_formalization.tex",
+        "section": "Observers",
+        "line": null
+      }
+    },
+    {
+      "name": "reach_schedule",
+      "query": "E<> A_SCH.SelectMode",
+      "category": "reachability",
+      "interpretation": "scheduler can reach policy selection",
+      "provenance": {
+        "source": "MAC_resource_scheduling_formalization.tex",
+        "section": "Verification properties",
+        "line": null
+      }
+    },
+    {
+      "name": "reach_report",
+      "query": "E<> A_MAC_AGG.ReportSent",
+      "category": "reachability",
+      "interpretation": "MAC can emit report",
+      "provenance": {
+        "source": "MAC_resource_scheduling_formalization.tex",
+        "section": "Verification properties",
+        "line": null
+      }
+    }
+  ],
+  "contracts": [
+    {
+      "name": "C_MAC",
+      "assumptions": [
+        "PHY report contains finite classes",
+        "SDN/RIC command belongs to finite admissible policy set",
+        "service priority is already admitted by upper layers",
+        "alpha_MAC classes have bounded domains"
+      ],
+      "guarantees": [
+        "critical queue or deadline risk gets bounded local response",
+        "critical sensing demand gets bounded command/report",
+        "resource exhaustion is explicit reject/constrained/report",
+        "PHY command is acknowledged or failed by D_phy_ack"
+      ],
+      "provenance": {
+        "source": "MAC_resource_scheduling_formalization.tex",
+        "section": "MAC contract",
+        "line": null
+      }
+    }
+  ],
+  "mappings": {
+    "mu_PHY_to_MAC": [
+      {
+        "phy": "PHYState=PHY_FAILURE or ChannelClass=OUTAGE",
+        "mac": "ResourceClass=RES_EXHAUSTED"
+      },
+      {
+        "phy": "PHYCommunicationDegraded or ChannelClass=MOBILITY_LIMITED/MULTIPATH_LIMITED",
+        "mac": "ResourceClass=RES_TIGHT, CommDemand=COMM_HIGH"
+      },
+      {
+        "phy": "SensingState=ProbabilityLimited/AccuracyLimited/FreshnessLimited",
+        "mac": "SensingDemand=SENS_BOOST_REQ"
+      },
+      {
+        "phy": "nominal PHY classes",
+        "mac": "ResourceClass=RES_BALANCED"
+      }
+    ],
+    "strictest_priority": [
+      "RES_EXHAUSTED",
+      "RES_TIGHT",
+      "RES_BALANCED",
+      "RES_FREE"
+    ]
+  },
+  "limitations": [
+    "MAC timed automata do not optimize throughput.",
+    "MAC timed automata do not simulate stochastic queues.",
+    "MAC does not perform SDN/RIC global recovery or admission control.",
+    "Raw MAC measurements are external to alpha_MAC."
+  ]
+}
