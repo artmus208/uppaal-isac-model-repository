@@ -1,0 +1,26 @@
+{
+  "cpu_seconds": 957.71875,
+  "elapsed_seconds": 971.8130000000001,
+  "finished_at": "2026-10-05T06:44:21.411921+00:00",
+  "formula": "A[] (u0_app_Req_0.Completed imply (c82_success && c82_received && c82_admitted && c82_request_id==c82_received_request_id && c82_sample_id==c82_received_sample_id && c82_job_id==c82_request_id && c82_admitted_id==c82_request_id && c82_tx_request_id==c82_request_id && c82_tx_sample_id==c82_sample_id && c82_payload_quality() && c82_req_fresh==2 && c82_req_update==2 && c82_sample_request_id==c82_request_id && c82_enqueued && c82_dispatched && c82_attempted && c82_sampled && c82_receipt_timely && c82_receipt_quality && c82_receipt_sample_band==0 && c82_receipt_service_band>0 && !c82_cancelled && !c82_sensing_failed && !c82_tx_lost && !c82_queue_failed && c82_outcome==1))",
+  "memory_stop_bytes": 2147483648,
+  "model_hash": "b80db319ff7cdb511cb97aa155be01f1d68707358399fbe02fa39c1c6c32be6c",
+  "model_path": "models/R/model.xml",
+  "peak_rss_bytes": 2148343808,
+  "query_hash": "f3cfb3800063b21045d94625f616950944663fcba61956a3498aba62ca32edf9",
+  "query_path": "queries/R/completion-safety.q",
+  "record_kind": "public_scientific_projection",
+  "returncode": 125,
+  "run_id": "001-50159654f5d640a78c70c2ce89acc81d",
+  "started_at": "2026-10-05T06:28:09.579337+00:00",
+  "states_explored": null,
+  "status": "memory_limit",
+  "stderr_path": "results/diagnostic/001-50159654f5d640a78c70c2ce89acc81d/stderr.txt",
+  "stdout_path": "results/diagnostic/001-50159654f5d640a78c70c2ce89acc81d/stdout.txt",
+  "telemetry_paths": [
+    "results/diagnostic/001-50159654f5d640a78c70c2ce89acc81d/telemetry.csv"
+  ],
+  "timeout_seconds": 1800,
+  "tool_version": "UPPAAL 5.0.0 (rev. 714BA9DB36F49691), June 2023\nCopyright (c) 2011 - 2023, Aalborg University.\nCopyright (c) 1995 - 2011, Uppsala University and Aalborg University.\nAll rights reserved.\nCompiled using -DENABLE_TIGA -DMULTI_TERMINAL -DENABLE_TIGA_SMC -DENABLE_STORE_MINGRAPH -DTIGA_OTF_BUCHI -DENABLE_LSC \nBuilt with Boost-1.79.0, LibXml2-2.9.14, xxHash-0.8.1, UTAP-1.1.6, UUtils-1.2.0, UDBM-2.0.11, and UCDD-0.2.1",
+  "verdict": null
+}

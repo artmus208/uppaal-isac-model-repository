@@ -1,0 +1,10 @@
+Options for the verification:
+  Generating some trace
+  Search order is depth first
+  Using conservative space optimisation
+  Seed is 1790169856
+  State space representation uses minimal constraint systems with future testing
+  Using HashMap + Compress integers for discrete state storage
+[2K
+Verifying formula 1 at <query>:1
+ -- Throughput: 24 states/sec, Load: 20839 states[K -- Throughput: 286 states/sec, Load: 29955 states[K -- Throughput: 85 states/sec, Load: 72697 states[K -- Throughput: 62 states/sec, Load: 91228 states[K -- Throughput: 27 states/sec, Load: 122648 states[K -- Throughput: 101 states/sec, Load: 155744 states[K -- Throughput: 74 states/sec, Load: 171793 states[K -- Throughput: 123 states/sec, Load: 179245 states[K -- Throughput: 74 states/sec, Load: 243407 states[K -- Throughput: 80 states/sec, Load: 308825 states[K -- Throughput: 55 states/sec, Load: 326038 states[K -- Throughput: 41 states/sec, Load: 343113 states[K -- Throughput: 115 states/sec, Load: 386307 states[K -- Throughput: 76 states/sec, Load: 402305 states[K -- Throughput: 52 states/sec, Load: 419553 states[K -- Throughput: 49 states/sec, Load: 435405 states[K -- Throughput: 35 states/sec, Load: 452511 states[K -- Throughput: 85 states/sec, Load: 479384 states[K -- Throughput: 86 states/sec, Load: 500872 states[K -- Throughput: 65 states/sec, Load: 534186 states[K -- Throughput: 140 states/sec, Load: 552147 states[K -- Throughput: 88 states/sec, Load: 569525 states[K -- Throughput: 59 states/sec, Load: 585447 states[K -- Throughput: 57 states/sec, Load: 596063 states[K

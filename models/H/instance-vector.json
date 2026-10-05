@@ -1,0 +1,314 @@
+{
+  "configuration_id": "p2-single-uav-abstract-v2-queue-candidate",
+  "entities": {
+    "aggregate_queue_classes": 1,
+    "base_stations": 1,
+    "devices_total": 1,
+    "explicit_handover_destination_cells": 0,
+    "explicit_packet_queues": 0,
+    "radio_links": 1,
+    "sdn_ric_controllers": 1,
+    "sensing_targets": 1,
+    "service_sessions": 1,
+    "uav_devices_subset": 1
+  },
+  "historical_status_note": "Original vector proposal label is provenance; acceptance is #15/#17/#19 and #47.",
+  "historical_vector": {
+    "application_placeholders_retained_without_behavior": [
+      "app_Crit_0",
+      "app_Agg_0"
+    ],
+    "baseline_id": "reviewer-r1-candidate",
+    "bindings": {
+      "device_0": {
+        "kind": "UAV",
+        "link": 0,
+        "service": 0,
+        "serving_bs": 0
+      },
+      "link_0": {
+        "bs": 0,
+        "device": 0,
+        "target": 0
+      },
+      "service_0": {
+        "class": "SVC_UAV",
+        "controller": 0,
+        "device": 0
+      }
+    },
+    "configuration_id": "p2-single-uav-abstract-v1-proposal",
+    "count_per_retained_process": 1,
+    "entities": {
+      "aggregate_queue_classes": 1,
+      "base_stations": 1,
+      "devices_total": 1,
+      "explicit_handover_destination_cells": 0,
+      "explicit_packet_queues": 0,
+      "radio_links": 1,
+      "sdn_ric_controllers": 1,
+      "sensing_targets": 1,
+      "service_sessions": 1,
+      "uav_devices_subset": 1
+    },
+    "expected_process_counts": {
+      "boundary": 8,
+      "core": 20,
+      "observers": 22,
+      "total": 50
+    },
+    "extended_phy_observers": 0,
+    "groups_in_system_order": [
+      {
+        "group": "phy",
+        "retain": [
+          "A_CH",
+          "A_SIG",
+          "A_BM",
+          "A_SQ",
+          "A_PH"
+        ],
+        "source": "generated:phy:with_observers"
+      },
+      {
+        "group": "mac",
+        "retain": [
+          "A_SCH",
+          "A_Q",
+          "A_BUF",
+          "A_RSRC",
+          "A_MAC_AGG"
+        ],
+        "source": "generated:mac:with_observers"
+      },
+      {
+        "group": "sdn",
+        "retain": [
+          "A_MON",
+          "A_RISK",
+          "A_POLICY",
+          "A_RULE",
+          "A_REC",
+          "A_SDN_AGG"
+        ],
+        "source": "generated:sdn:with_observers"
+      },
+      {
+        "group": "app",
+        "retain": [
+          "Req",
+          "Sla",
+          "Crit",
+          "Agg"
+        ],
+        "source": "stored:app"
+      },
+      {
+        "group": "boundary",
+        "retain": [
+          "E_PHY_INPUT",
+          "E_MAC_LOAD",
+          "E_FAULT",
+          "E_SERVICE",
+          "B_PHY_MAC",
+          "B_POLICY",
+          "B_ADMISSION",
+          "B_KPI"
+        ],
+        "source": "new_templates_required"
+      },
+      {
+        "group": "obs_phy",
+        "retain": [
+          "ObsSenseReport",
+          "ObsFreshness",
+          "ObsBeamRecovery"
+        ],
+        "source": "generated:phy:with_observers"
+      },
+      {
+        "group": "obs_mac",
+        "retain": [
+          "ObsPhyAck",
+          "ObsQueueCritical",
+          "ObsSensingCritical",
+          "ObsBufferOverflow",
+          "ObsMacReportFreshness"
+        ],
+        "source": "generated:mac:with_observers"
+      },
+      {
+        "group": "obs_sdn",
+        "retain": [
+          "ObsRuleMiss",
+          "ObsRecovery",
+          "ObsAdmission",
+          "ObsStaleTelemetry",
+          "ObsCommandAck",
+          "ObsSensingDecision"
+        ],
+        "source": "generated:sdn:with_observers"
+      },
+      {
+        "group": "obs_app",
+        "retain": [
+          "ObsAdmission",
+          "ObsWarn",
+          "ObsViolation",
+          "ObsFresh",
+          "ObsUpdate",
+          "ObsFa",
+          "ObsMiss",
+          "ObsSafety"
+        ],
+        "source": "stored:app"
+      }
+    ],
+    "implementation_preconditions": [
+      "replace standalone environments with specified boundary processes",
+      "namespace declarations and localize component clocks",
+      "resolve service channel kinds and pre-synchronization payload staging",
+      "separate rule and controller acknowledgements",
+      "add missing lower-layer policy/command and KPI mappings",
+      "retain failure and timeout behavior including absent receivers",
+      "review APP placeholder scope and lack of complete service lifecycle",
+      "obtain independent parameter/interface decision before Gate 1"
+    ],
+    "new_template_contracts": "interface-contract.md#boundary-processes",
+    "optional_security_instances": 0,
+    "parameter_policy": {
+      "D_bus": 1,
+      "D_cmd": 1,
+      "T_complete": 40,
+      "T_demand": 1,
+      "T_input": 5,
+      "T_mac_tick": 5,
+      "fault_window": [
+        12,
+        13
+      ],
+      "freshness_expire_age": 10,
+      "freshness_warn_age": 5,
+      "justification": "Explicit abstract test choices for independent review, not calibrated network bounds. See interface-contract.md for ownership, loss and timeout rules.",
+      "layer_profiles": "default profiles recorded in inventory.json; APP constants from stored:app",
+      "max_fault_events": 1,
+      "max_outstanding_per_command_kind": 1,
+      "max_requests_per_service": 1
+    },
+    "physical_time_scale_seconds": null,
+    "qualified_process_name": "<group>_<original_process>_0",
+    "remove": {
+      "generated:mac:with_observers": [
+        "A_ENV_MAC"
+      ],
+      "generated:phy:with_observers": [
+        "ENV_CH",
+        "ENV_TARGET",
+        "ENV_MAC",
+        "ENV_NET"
+      ],
+      "generated:sdn:with_observers": [
+        "A_ENV_SDN"
+      ],
+      "stored:app": [
+        "Sdn",
+        "Env",
+        "Kpi",
+        "Sink"
+      ]
+    },
+    "schema_version": 1,
+    "source_commit": "7baa86e8d0d9eb2fc2df8d728a360c6b7cfb91bb",
+    "status": "proposed_not_implemented_not_accepted",
+    "time_unit": "abstract_model_unit"
+  },
+  "physical_time_scale_seconds": null,
+  "process_count": 50,
+  "queue_abstraction": {
+    "drop": 0,
+    "event": "existing MAC load tick",
+    "issue": 43,
+    "overflow": "absorbing K+1 and sticky flag",
+    "physical_calibration": false,
+    "policy_change": true,
+    "service_guaranteed": false,
+    "service_modes": [
+      "SCH_COMM",
+      "SCH_JOINT"
+    ],
+    "units": "abstract work units",
+    "update_order": "service old work, then arrival",
+    "version": 1,
+    "writer": "boundary_E_MAC_LOAD_0"
+  },
+  "recovery_attempt_recording": {
+    "episode": "accepted failure to local outcome",
+    "issue": 45,
+    "limits": {
+      "primary": 1,
+      "rollback": 1,
+      "total": 2
+    },
+    "overflow_domains": {
+      "primary": 2,
+      "rollback": 2,
+      "total": 3
+    },
+    "passive": true,
+    "sticky_across_episodes": true,
+    "version": 1
+  },
+  "system_order": [
+    "phy_A_CH_0",
+    "phy_A_SIG_0",
+    "phy_A_BM_0",
+    "phy_A_SQ_0",
+    "phy_A_PH_0",
+    "mac_A_SCH_0",
+    "mac_A_Q_0",
+    "mac_A_BUF_0",
+    "mac_A_RSRC_0",
+    "mac_A_MAC_AGG_0",
+    "sdn_A_MON_0",
+    "sdn_A_RISK_0",
+    "sdn_A_POLICY_0",
+    "sdn_A_RULE_0",
+    "sdn_A_REC_0",
+    "sdn_A_SDN_AGG_0",
+    "app_Req_0",
+    "app_Sla_0",
+    "app_Crit_0",
+    "app_Agg_0",
+    "boundary_E_PHY_INPUT_0",
+    "boundary_E_MAC_LOAD_0",
+    "boundary_E_FAULT_0",
+    "boundary_E_SERVICE_0",
+    "boundary_B_PHY_MAC_0",
+    "boundary_B_POLICY_0",
+    "boundary_B_ADMISSION_0",
+    "boundary_B_KPI_0",
+    "obs_phy_ObsSenseReport_0",
+    "obs_phy_ObsFreshness_0",
+    "obs_phy_ObsBeamRecovery_0",
+    "obs_mac_ObsPhyAck_0",
+    "obs_mac_ObsQueueCritical_0",
+    "obs_mac_ObsSensingCritical_0",
+    "obs_mac_ObsBufferOverflow_0",
+    "obs_mac_ObsMacReportFreshness_0",
+    "obs_sdn_ObsRuleMiss_0",
+    "obs_sdn_ObsRecovery_0",
+    "obs_sdn_ObsAdmission_0",
+    "obs_sdn_ObsStaleTelemetry_0",
+    "obs_sdn_ObsCommandAck_0",
+    "obs_sdn_ObsSensingDecision_0",
+    "obs_app_ObsAdmission_0",
+    "obs_app_ObsWarn_0",
+    "obs_app_ObsViolation_0",
+    "obs_app_ObsFresh_0",
+    "obs_app_ObsUpdate_0",
+    "obs_app_ObsFa_0",
+    "obs_app_ObsMiss_0",
+    "obs_app_ObsSafety_0"
+  ],
+  "time_unit": "abstract_model_unit"
+}

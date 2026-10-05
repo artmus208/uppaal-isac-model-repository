@@ -1,0 +1,21 @@
+{
+  "accepted_transitions": 100,
+  "elapsed_seconds": 11.7128538,
+  "evidence_paths": [
+    "results/completion-witness/replay-001/reachable-prefix.xtr",
+    "results/completion-witness/replay-001/stdout.txt",
+    "results/completion-witness/replay-001/steps.jsonl"
+  ],
+  "goal": true,
+  "mode": "replay",
+  "model_hash": "b8ab50e112b71491f8242789cc7906497baf8440c473d7a5a4d5214840187e02",
+  "model_path": "models/S/model.xml",
+  "property_verdict": null,
+  "query_hash": null,
+  "query_path": null,
+  "record_kind": "public_scientific_projection",
+  "run_id": "replay-001",
+  "status": "replay_complete",
+  "stored_states": 101,
+  "tool_version": "UPPAAL version 5.0.0 (rev. 714BA9DB36F49691), June 2023 -- server."
+}

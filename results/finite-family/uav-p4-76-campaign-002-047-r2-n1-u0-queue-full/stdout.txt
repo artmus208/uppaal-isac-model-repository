@@ -1,0 +1,9 @@
+
+Verifying formula 1 at <query>:1
+ -- Formula is satisfied.
+ -- States stored : 91667 states
+ -- States explored : 748 states
+ -- CPU user time used : 4312 ms
+ -- Virtual memory used : 150128 KiB
+ -- Resident memory used : 61348 KiB
+ -- Writing witness trace to \\wsl.localhost\Ubuntu\tmp\uppaal-p4-76\evidence\scalability\runs\uav-family-p4-20260929\campaign-002\047-r2-n1-u0-queue-full\trace-1

@@ -1,0 +1,22 @@
+[
+  {
+    "kernel": "receipt",
+    "unchanged_function_and_class_count": 18,
+    "audit_functions_changed": false
+  },
+  {
+    "kernel": "service",
+    "unchanged_function_and_class_count": 10,
+    "audit_functions_changed": false
+  },
+  {
+    "kernel": "observers",
+    "unchanged_function_and_class_count": 13,
+    "audit_functions_changed": false
+  },
+  {
+    "kernel": "capacity",
+    "unchanged_function_and_class_count": 13,
+    "audit_functions_changed": false
+  }
+]

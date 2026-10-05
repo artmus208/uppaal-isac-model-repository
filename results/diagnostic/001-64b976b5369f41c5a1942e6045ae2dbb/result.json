@@ -1,0 +1,26 @@
+{
+  "cpu_seconds": 1034.796875,
+  "elapsed_seconds": 1064.141,
+  "finished_at": "2026-10-05T07:03:07.326660+00:00",
+  "formula": "E<> u0_app_Req_0.Completed && c82_success",
+  "memory_stop_bytes": 2147483648,
+  "model_hash": "b80db319ff7cdb511cb97aa155be01f1d68707358399fbe02fa39c1c6c32be6c",
+  "model_path": "models/R/model.xml",
+  "peak_rss_bytes": 2147688448,
+  "query_hash": "745ab5968a673463fac5e014c7d7f192d4ed9d43ad5e193e1b7736af6d44541b",
+  "query_path": "queries/R/success.q",
+  "record_kind": "public_scientific_projection",
+  "returncode": 125,
+  "run_id": "001-64b976b5369f41c5a1942e6045ae2dbb",
+  "started_at": "2026-10-05T06:45:23.174373+00:00",
+  "states_explored": null,
+  "status": "memory_limit",
+  "stderr_path": "results/diagnostic/001-64b976b5369f41c5a1942e6045ae2dbb/stderr.txt",
+  "stdout_path": "results/diagnostic/001-64b976b5369f41c5a1942e6045ae2dbb/stdout.txt",
+  "telemetry_paths": [
+    "results/diagnostic/001-64b976b5369f41c5a1942e6045ae2dbb/telemetry.csv"
+  ],
+  "timeout_seconds": 1800,
+  "tool_version": "UPPAAL 5.0.0 (rev. 714BA9DB36F49691), June 2023\nCopyright (c) 2011 - 2023, Aalborg University.\nCopyright (c) 1995 - 2011, Uppsala University and Aalborg University.\nAll rights reserved.\nCompiled using -DENABLE_TIGA -DMULTI_TERMINAL -DENABLE_TIGA_SMC -DENABLE_STORE_MINGRAPH -DTIGA_OTF_BUCHI -DENABLE_LSC \nBuilt with Boost-1.79.0, LibXml2-2.9.14, xxHash-0.8.1, UTAP-1.1.6, UUtils-1.2.0, UDBM-2.0.11, and UCDD-0.2.1",
+  "verdict": null
+}

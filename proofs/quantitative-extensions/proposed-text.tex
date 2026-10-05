@@ -1,0 +1,23 @@
+% P6 #95 / I02. Non-standalone replacement snippet for P9a/P9b review.
+% Anchor in published source: "Statistical model checking is a plausible..."
+% Add references.bib entries and reuse the existing uppaal_smc_2015 key.
+% No experimental result or manuscript acceptance is asserted by this file.
+
+Quantitative extensions require an explicit choice of semantics and objective.
+Priced timed automata support cost-optimal reachability with location rates and
+transition costs \cite{behrmann_priced_2001}; a least-cost successful execution
+does not guarantee success against uncontrolled failures. Probabilistic timed
+automata can represent both random and nondeterministic choices, allowing
+reachability probabilities to be bounded over a declared class of schedulers
+\cite{kwiatkowska_digital_clocks_2006}. Such analysis requires justified
+probabilities and a suitable model encoding; the digital-clocks reduction cannot
+be applied directly to our strict freshness guards. UPPAAL SMC instead estimates
+properties of a stochastic interpretation from sampled runs
+\cite{uppaal_smc_2015}. Applying it here would require validated arrival, failure
+and delay distributions, a specified service policy, compatible synchronization
+and progress semantics, and reported confidence, precision and stopping settings.
+The observation must preserve request--result correlation and measure successful
+receipt from actual request emission. Energy analysis would additionally require
+calibrated cost rates and an explicit treatment of failed requests. These are
+future extensions: no probabilistic or energy result is claimed, and statistical
+estimates would not discharge the present universal verification obligations.

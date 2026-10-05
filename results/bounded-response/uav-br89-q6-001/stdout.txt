@@ -1,0 +1,11 @@
+Options for the verification:
+  Generating some trace
+  Search order is depth first
+  Using conservative space optimisation
+  Seed is 1791074395
+  State space representation uses minimal constraint systems with future testing
+  Using HashMap + Compress integers for discrete state storage
+[2K
+Verifying formula 1 at <query>:1
+[2K -- Formula is NOT satisfied.
+XMLTrace outputted to: C:\Users\musta\Desktop\pySources\uppaal-issue89-runner-20261004\evidence\verification\uav-bounded-response-89\execution\continuation-q2-q6\runs\uav-br89-q6-001\trace1.xml

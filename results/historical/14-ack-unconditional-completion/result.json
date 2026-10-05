@@ -1,0 +1,30 @@
+{
+  "evidence_kind": "native_model_checking",
+  "exit_code": 0,
+  "finished_at_utc": "2026-09-23T13:26:40.4009161Z",
+  "memory_measurement": "Windows Process.PeakWorkingSet64, observed every 50ms; private bytes sampled. Stop threshold is not a hard allocation cap.",
+  "memory_stop_bytes": 2147483648,
+  "model_hash": "592678ed678ce8f70cf278f542e48bd2bb739969b53a962423d3e63f91e3e1e2",
+  "model_path": "models/H/model.xml",
+  "peak_working_set_bytes": 134987776,
+  "query_hash": "3f406107b55e4e196c2416c16e0573e3b362e2ff0396ab3ac696b183e252d249",
+  "query_path": "queries/H/14-ack-unconditional-completion.q",
+  "record_kind": "public_scientific_projection",
+  "result_per_query": [
+    false
+  ],
+  "run_id": "14-ack-unconditional-completion",
+  "runtime_seconds": 9.9051675,
+  "sampled_peak_private_bytes": 171728896,
+  "started_at_utc": "2026-09-23T13:26:30.4093593Z",
+  "status": "success",
+  "stderr_path": "results/historical/14-ack-unconditional-completion/stderr.txt",
+  "stdout_path": "results/historical/14-ack-unconditional-completion/stdout.txt",
+  "termination": "completed",
+  "timeout_seconds": 60,
+  "tool_version": "UPPAAL 5.0.0 (rev. 714BA9DB36F49691), June 2023",
+  "trace_paths": [
+    "results/historical/14-ack-unconditional-completion/14-ack-unconditional-completion-trace1.xml.gz"
+  ],
+  "verdict": false
+}

@@ -1,0 +1,21 @@
+{
+  "accepted_transitions": 100,
+  "elapsed_seconds": 8.7299545,
+  "evidence_paths": [
+    "results/completion-witness/simulate-006/partial.xtr",
+    "results/completion-witness/simulate-006/stdout.txt",
+    "results/completion-witness/simulate-006/steps.jsonl",
+    "results/completion-witness/simulate-006/trace.xtr"
+  ],
+  "goal": true,
+  "mode": "simulate",
+  "model_hash": "b8ab50e112b71491f8242789cc7906497baf8440c473d7a5a4d5214840187e02",
+  "model_path": "models/S/model.xml",
+  "property_verdict": null,
+  "query_hash": null,
+  "query_path": null,
+  "record_kind": "public_scientific_projection",
+  "run_id": "simulate-006",
+  "status": "goal_reached",
+  "tool_version": "UPPAAL version 5.0.0 (rev. 714BA9DB36F49691), June 2023 -- server."
+}

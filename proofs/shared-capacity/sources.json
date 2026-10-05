@@ -1,0 +1,113 @@
+{
+  "consulted_on": "2026-10-04",
+  "local_publications": [
+    {
+      "id": "D1",
+      "pdf_pages_visually_checked": [
+        157,
+        169,
+        185,
+        189,
+        195,
+        207
+      ],
+      "printed_pages_consulted": [
+        63,
+        64,
+        67,
+        79,
+        80,
+        81,
+        82,
+        83,
+        84,
+        85,
+        86,
+        139,
+        140,
+        145,
+        147,
+        148,
+        149,
+        157,
+        162,
+        165,
+        166,
+        167,
+        168,
+        169,
+        177,
+        180,
+        181,
+        182,
+        183,
+        184,
+        185,
+        189,
+        190,
+        194,
+        195,
+        197,
+        201,
+        202,
+        204,
+        205,
+        206,
+        207,
+        208
+      ],
+      "sha256": "4f8a778c52ff1e6b33383d447ebc13e91b8d18ce8161996d79d86dc32d0f5de6",
+      "title": "Glonina A. B., dissertation, Moscow, 2020"
+    },
+    {
+      "id": "D2",
+      "pdf_pages_visually_checked": [
+        1,
+        6,
+        8,
+        10
+      ],
+      "printed_pages_consulted": [
+        16,
+        21,
+        23,
+        25
+      ],
+      "sha256": "094977c0712b54ced1d09abfe4a268b5ab2a540ea92b4e7e4586dfee752e9790",
+      "title": "Glonina A. B., 2020, no. 3, pp. 16-29"
+    }
+  ],
+  "web_sources": [
+    {
+      "id": "U1",
+      "kind": "official_primary_documentation",
+      "url": "https://docs.uppaal.org/language-reference/system-description/semantics/",
+      "used_for": "Initial states, action/delay semantics, invalid evaluation"
+    },
+    {
+      "id": "U2",
+      "kind": "official_primary_documentation",
+      "url": "https://docs.uppaal.org/language-reference/system-description/templates/edges/",
+      "used_for": "Select scope and sequential update expressions"
+    },
+    {
+      "id": "U3",
+      "kind": "official_primary_documentation",
+      "url": "https://docs.uppaal.org/language-reference/query-semantics/symb_queries/",
+      "used_for": "Invariant semantics and complete-successor observation boundary"
+    },
+    {
+      "id": "U4",
+      "kind": "official_primary_documentation",
+      "url": "https://docs.uppaal.org/language-reference/system-description/templates/locations/",
+      "used_for": "Committed locations and interleavings"
+    },
+    {
+      "id": "U5",
+      "kind": "official_primary_documentation",
+      "url": "https://docs.uppaal.org/language-reference/system-description/declarations/functions/",
+      "used_for": "By-reference calls and lifecycle/update hooks"
+    }
+  ],
+  "full_publication_files_distributed": false
+}

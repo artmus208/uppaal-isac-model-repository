@@ -1,0 +1,16 @@
+* -text
+*.xml -text
+*.q -text
+*.gz -text
+*.pdf -text
+*.png -text
+*.json -text
+*.jsonl -text
+*.csv -text
+*.tsv -text
+*.txt -text
+*.py -text
+*.md -text
+*.cff -text
+*.bib -text
+*.tex -text

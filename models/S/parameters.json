@@ -1,0 +1,25 @@
+{
+  "D_service": 40,
+  "D_service_provenance": "user confirmation in Issue #82, 2026-10-02 02:51:55 UTC",
+  "boundary_equalities": {
+    "deadline40": "receipt may succeed; timeout is also enabled",
+    "sample_age10": "expired",
+    "sample_age5": "stale, strict request cannot succeed"
+  },
+  "candidate_id": "uav-service-completion-candidate-82-n1",
+  "freshness_mapping": {
+    "expired": "sample_age>=10",
+    "fresh": "0<=sample_age<5",
+    "stale": "5<=sample_age<10"
+  },
+  "frozen_parameters_path": "evidence/scalability/family-series-68/generated/n1/parameters.json",
+  "measurement_duration": 5,
+  "measurement_provenance": "u0_phy_D_sense (new deliberate fixed-duration acquisition assumption)",
+  "queue_capacity": 4,
+  "single_request_bound": 1,
+  "single_sample_bound": 1,
+  "time_units": "abstract model units; no physical calibration",
+  "transmission_bound": 1,
+  "transmission_provenance": "u0_bus_D_bus (new lossy result transport assumption)",
+  "update_mapping": "UPD_OK/UPD_SLOW/UPD_VIOLATED uses the same sample-age bands as the historical B_KPI mapping; this is NOT a measured physical update period"
+}

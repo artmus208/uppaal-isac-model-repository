@@ -1,0 +1,144 @@
+[
+  {
+    "assumptions": [
+      "full generated composition; no reduction",
+      "optional service, no fairness or priorities",
+      "abstract time and frozen observer limitations retained"
+    ],
+    "claim_scope": "one global invariant at this N; not an arbitrary-N theorem",
+    "id": "shared-capacity",
+    "measurement_unit": "one fresh process, one query",
+    "nonvacuity": [
+      "u0-service",
+      "u1-service"
+    ],
+    "path": "p4/shared-capacity.q",
+    "query": "A[] ((family_grant_0 ? 1 : 0) + (family_grant_1 ? 1 : 0) <= 1)",
+    "role": "global-safety",
+    "scientific_meaning": "At most one recorded service opportunity in an epoch; not an ACK or useful departure after overflow.",
+    "source_obligation": null,
+    "substitution": "sum grant indicators over i=0..N-1",
+    "verdict": null
+  },
+  {
+    "assumptions": [
+      "full generated composition; no reduction",
+      "optional service, no fairness or priorities",
+      "abstract time and frozen observer limitations retained"
+    ],
+    "claim_scope": "entity 0 in full N=2 composition",
+    "id": "u0-service",
+    "measurement_unit": "one fresh process, one query",
+    "nonvacuity": [
+      "predicate false initially; witness must traverse shared service epoch"
+    ],
+    "path": "p4/u0-service.q",
+    "query": "E<> family_grant_0",
+    "role": "entity-reachability",
+    "scientific_meaning": "Some execution selects this UAV for service. Different UAV witnesses may be different executions; no eventual-service guarantee.",
+    "source_obligation": null,
+    "substitution": "one formula for each concrete i=0..N-1",
+    "verdict": null
+  },
+  {
+    "assumptions": [
+      "full generated composition; no reduction",
+      "optional service, no fairness or priorities",
+      "abstract time and frozen observer limitations retained"
+    ],
+    "claim_scope": "entity 1 in full N=2 composition",
+    "id": "u1-service",
+    "measurement_unit": "one fresh process, one query",
+    "nonvacuity": [
+      "predicate false initially; witness must traverse shared service epoch"
+    ],
+    "path": "p4/u1-service.q",
+    "query": "E<> family_grant_1",
+    "role": "entity-reachability",
+    "scientific_meaning": "Some execution selects this UAV for service. Different UAV witnesses may be different executions; no eventual-service guarantee.",
+    "source_obligation": null,
+    "substitution": "one formula for each concrete i=0..N-1",
+    "verdict": null
+  },
+  {
+    "assumptions": [
+      "full generated composition; no reduction",
+      "optional service, no fairness or priorities",
+      "abstract time and frozen observer limitations retained"
+    ],
+    "claim_scope": "one simultaneous encoded-backlog existential; not necessarily pre-overflow backlog, simultaneous service or sustained congestion",
+    "id": "joint-backlog",
+    "measurement_unit": "one fresh process, one query",
+    "nonvacuity": [
+      "all queues start empty; a witness must include queue arrivals"
+    ],
+    "path": "p4/joint-backlog.q",
+    "query": "E<> u0_mac_queue_q > 0 && u1_mac_queue_q > 0",
+    "role": "global-reachability",
+    "scientific_meaning": "All encoded queues can be nonzero at the same instant, including absorbing overflow sentinels; N=1 is the nonempty control.",
+    "source_obligation": null,
+    "substitution": "conjunction over i=0..N-1",
+    "verdict": null
+  },
+  {
+    "assumptions": [
+      "full generated composition; no reduction",
+      "optional service, no fairness or priorities",
+      "abstract time and frozen observer limitations retained"
+    ],
+    "claim_scope": "original C01-queue predicate for fixed entity u0 inside full composition",
+    "id": "u0-queue-safety",
+    "measurement_unit": "one fresh process, one query",
+    "nonvacuity": [
+      "u0-queue-full"
+    ],
+    "path": "p4/u0-queue-safety.q",
+    "query": "A[] !u0_mac_queue_overflow_seen",
+    "role": "fixed-entity-original-obligation",
+    "scientific_meaning": "No sticky overflow witness is ever recorded for u0. Optional service means truth is not presumed.",
+    "source_obligation": "C01-queue: A[] !mac_queue_overflow_seen",
+    "substitution": "exact alpha-renaming mac_ -> u0_mac_; predicate size independent of N",
+    "verdict": null
+  },
+  {
+    "assumptions": [
+      "full generated composition; no reduction",
+      "optional service, no fairness or priorities",
+      "abstract time and frozen observer limitations retained"
+    ],
+    "claim_scope": "one query with a growing predicate; kept separate from fixed-u0 cost and an N-query suite",
+    "id": "family-queue-safety",
+    "measurement_unit": "one fresh process, one query",
+    "nonvacuity": [
+      "joint-backlog",
+      "u0-queue-full; does not establish queue-full reachability for every entity"
+    ],
+    "path": "p4/family-queue-safety.q",
+    "query": "A[] !(u0_mac_queue_overflow_seen || u1_mac_queue_overflow_seen)",
+    "role": "whole-family-original-obligation",
+    "scientific_meaning": "Every UAV satisfies the original queue invariant in this same composition.",
+    "source_obligation": "C01-queue instantiated for each i; no strengthening of a per-entity predicate",
+    "substitution": "conjunction of N original C01-queue obligations, expressed as negated disjunction",
+    "verdict": null
+  },
+  {
+    "assumptions": [
+      "full generated composition; no reduction",
+      "optional service, no fairness or priorities",
+      "abstract time and frozen observer limitations retained"
+    ],
+    "claim_scope": "fixed u0; not evidence for all other entities or time divergence",
+    "id": "u0-queue-full",
+    "measurement_unit": "one fresh process, one query",
+    "nonvacuity": [
+      "predicate false initially; requires arrivals over multiple epochs"
+    ],
+    "path": "p4/u0-queue-full.q",
+    "query": "E<> u0_mac_queue_q == u0_mac_queue_K && !u0_mac_queue_overflow_seen",
+    "role": "nonvacuity",
+    "scientific_meaning": "u0 can reach capacity K without an earlier overflow; exercises the boundary relevant to C01-queue.",
+    "source_obligation": "queue-full: E<> mac_queue_q == mac_queue_K && !mac_queue_overflow_seen",
+    "substitution": "exact alpha-renaming of frozen queue-full diagnostic; K remains 4",
+    "verdict": null
+  }
+]

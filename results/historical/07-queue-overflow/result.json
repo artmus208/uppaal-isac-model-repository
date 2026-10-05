@@ -1,0 +1,30 @@
+{
+  "evidence_kind": "native_model_checking",
+  "exit_code": 0,
+  "finished_at_utc": "2026-09-23T13:21:11.8579293Z",
+  "memory_measurement": "Windows Process.PeakWorkingSet64, observed every 50ms; private bytes sampled. Stop threshold is not a hard allocation cap.",
+  "memory_stop_bytes": 2147483648,
+  "model_hash": "592678ed678ce8f70cf278f542e48bd2bb739969b53a962423d3e63f91e3e1e2",
+  "model_path": "models/H/model.xml",
+  "peak_working_set_bytes": 191811584,
+  "query_hash": "716ec20a3050dbbb7276f786f356042787f5611b315676fe012623d6bc551b78",
+  "query_path": "queries/H/07-queue-overflow.q",
+  "record_kind": "public_scientific_projection",
+  "result_per_query": [
+    true
+  ],
+  "run_id": "07-queue-overflow",
+  "runtime_seconds": 22.2454948,
+  "sampled_peak_private_bytes": 249044992,
+  "started_at_utc": "2026-09-23T13:20:49.5411796Z",
+  "status": "success",
+  "stderr_path": "results/historical/07-queue-overflow/stderr.txt",
+  "stdout_path": "results/historical/07-queue-overflow/stdout.txt",
+  "termination": "completed",
+  "timeout_seconds": 60,
+  "tool_version": "UPPAAL 5.0.0 (rev. 714BA9DB36F49691), June 2023",
+  "trace_paths": [
+    "results/historical/07-queue-overflow/07-queue-overflow-trace1.xml.gz"
+  ],
+  "verdict": true
+}

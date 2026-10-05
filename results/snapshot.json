@@ -1,0 +1,14 @@
+{
+  "completed_record_count": 129,
+  "date": "2026-10-05",
+  "finite_family_model_checking_count": 90,
+  "long_diagnostic_campaign": {
+    "as_of_utc": "2026-10-05T07:25:25.549403+00:00",
+    "included_as_completed_result": false,
+    "safety_status": "running",
+    "success_status": "queued",
+    "verdict": null
+  },
+  "new_native_runs": false,
+  "source": "fixed prepared-results delivery"
+}

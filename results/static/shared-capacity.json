@@ -1,0 +1,189 @@
+{
+  "evidence_kind": "static_validation",
+  "independent_scientific_acceptance": "pending",
+  "models": [
+    {
+      "N": 1,
+      "abstract_graph": {
+        "capacity_holds_on_enumerated_states": true,
+        "concrete_service_nonvacuity": "not_established",
+        "delay_rule": "every nonnegative delay is a self-loop; not counted as discrete edges",
+        "evidence_kind": "finite_abstract_graph_enumeration_not_native_model_checking",
+        "labeled_discrete_edges_including_stutter": 6,
+        "native_property_verdict": null,
+        "reachable_state_count": 2,
+        "reachable_states": [
+          {
+            "grants": [
+              false
+            ],
+            "last_server": -1
+          },
+          {
+            "grants": [
+              true
+            ],
+            "last_server": 0
+          }
+        ],
+        "strong_relation_holds_on_enumerated_states": true,
+        "unique_source_target_pairs_including_self_loops": 4,
+        "unrestricted_projection_valuations": 4
+      },
+      "process_count": 50
+    },
+    {
+      "N": 2,
+      "abstract_graph": {
+        "capacity_holds_on_enumerated_states": true,
+        "concrete_service_nonvacuity": "not_established",
+        "delay_rule": "every nonnegative delay is a self-loop; not counted as discrete edges",
+        "evidence_kind": "finite_abstract_graph_enumeration_not_native_model_checking",
+        "labeled_discrete_edges_including_stutter": 12,
+        "native_property_verdict": null,
+        "reachable_state_count": 3,
+        "reachable_states": [
+          {
+            "grants": [
+              false,
+              false
+            ],
+            "last_server": -1
+          },
+          {
+            "grants": [
+              true,
+              false
+            ],
+            "last_server": 0
+          },
+          {
+            "grants": [
+              false,
+              true
+            ],
+            "last_server": 1
+          }
+        ],
+        "strong_relation_holds_on_enumerated_states": true,
+        "unique_source_target_pairs_including_self_loops": 9,
+        "unrestricted_projection_valuations": 12
+      },
+      "process_count": 99
+    },
+    {
+      "N": 3,
+      "abstract_graph": {
+        "capacity_holds_on_enumerated_states": true,
+        "concrete_service_nonvacuity": "not_established",
+        "delay_rule": "every nonnegative delay is a self-loop; not counted as discrete edges",
+        "evidence_kind": "finite_abstract_graph_enumeration_not_native_model_checking",
+        "labeled_discrete_edges_including_stutter": 20,
+        "native_property_verdict": null,
+        "reachable_state_count": 4,
+        "reachable_states": [
+          {
+            "grants": [
+              false,
+              false,
+              false
+            ],
+            "last_server": -1
+          },
+          {
+            "grants": [
+              true,
+              false,
+              false
+            ],
+            "last_server": 0
+          },
+          {
+            "grants": [
+              false,
+              true,
+              false
+            ],
+            "last_server": 1
+          },
+          {
+            "grants": [
+              false,
+              false,
+              true
+            ],
+            "last_server": 2
+          }
+        ],
+        "strong_relation_holds_on_enumerated_states": true,
+        "unique_source_target_pairs_including_self_loops": 16,
+        "unrestricted_projection_valuations": 32
+      },
+      "process_count": 148
+    },
+    {
+      "N": 4,
+      "abstract_graph": {
+        "capacity_holds_on_enumerated_states": true,
+        "concrete_service_nonvacuity": "not_established",
+        "delay_rule": "every nonnegative delay is a self-loop; not counted as discrete edges",
+        "evidence_kind": "finite_abstract_graph_enumeration_not_native_model_checking",
+        "labeled_discrete_edges_including_stutter": 30,
+        "native_property_verdict": null,
+        "reachable_state_count": 5,
+        "reachable_states": [
+          {
+            "grants": [
+              false,
+              false,
+              false,
+              false
+            ],
+            "last_server": -1
+          },
+          {
+            "grants": [
+              true,
+              false,
+              false,
+              false
+            ],
+            "last_server": 0
+          },
+          {
+            "grants": [
+              false,
+              true,
+              false,
+              false
+            ],
+            "last_server": 1
+          },
+          {
+            "grants": [
+              false,
+              false,
+              true,
+              false
+            ],
+            "last_server": 2
+          },
+          {
+            "grants": [
+              false,
+              false,
+              false,
+              true
+            ],
+            "last_server": 3
+          }
+        ],
+        "strong_relation_holds_on_enumerated_states": true,
+        "unique_source_target_pairs_including_self_loops": 25,
+        "unrestricted_projection_valuations": 80
+      },
+      "process_count": 197
+    }
+  ],
+  "property_verdict": null
+}

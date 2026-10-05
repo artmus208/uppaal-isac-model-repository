@@ -1,0 +1,970 @@
+{
+  "purpose": "Reviewed fixed-model premise capsule; do not regenerate when inputs change. Not an independent oracle or native verifier.",
+  "query": "A [ ] ( u0_app_Req_0 . Completed imply ( c82_success && c82_received && c82_admitted && c82_request_id == c82_received_request_id && c82_sample_id == c82_received_sample_id && c82_job_id == c82_request_id && c82_admitted_id == c82_request_id && c82_tx_request_id == c82_request_id && c82_tx_sample_id == c82_sample_id && c82_payload_quality ( ) && c82_req_fresh == 2 && c82_req_update == 2 && c82_sample_request_id == c82_request_id && c82_enqueued && c82_dispatched && c82_attempted && c82_sampled && c82_receipt_timely && c82_receipt_quality && c82_receipt_sample_band == 0 && c82_receipt_service_band > 0 && ! c82_cancelled && ! c82_sensing_failed && ! c82_tx_lost && ! c82_queue_failed && c82_outcome == 1 ) )",
+  "query_sha256": "f3cfb3800063b21045d94625f616950944663fcba61956a3498aba62ca32edf9",
+  "snapshot": {
+    "c82_helpers": {
+      "c82_class_ok": "bool c82_class_ok ( int req , int value ) { return ( req == 2 && value == 0 ) || ( req == 1 && value != 2 ) || req == 0 ; }",
+      "c82_emit_request": "void c82_emit_request ( ) { c82_request_id = 1 ; c82_service_age = 0 ; c82_active = true ; c82_req_pd = u0_app_pdMinClass ; c82_req_fa = u0_app_pfaMaxClass ; c82_req_miss = u0_app_pmissMaxClass ; c82_req_acc = u0_app_accuracyBoundClass ; c82_req_cov = u0_app_coverageBoundClass ; c82_req_fresh = u0_app_sensingFreshnessBoundClass ; c82_req_update = u0_app_sensingUpdateBoundClass ; }",
+      "c82_insert_result": "void c82_insert_result ( ) { u0_mac_queue_q ++ ; c82_fifo_rank = u0_mac_queue_q ; c82_enqueued = true ; c82_queue_class ( ) ; }",
+      "c82_mac_service": "void c82_mac_service ( int server ) { if ( server == 0 && c82_active && c82_enqueued && ! c82_dispatched && u0_mac_queue_q <= u0_mac_queue_K && c82_fifo_rank > 0 ) { if ( c82_fifo_rank == 1 ) { c82_fifo_rank = 0 ; c82_dispatched = true ; c82_tx_request_id = c82_sample_request_id ; c82_tx_sample_id = c82_sample_id ; } else c82_fifo_rank -- ; } }",
+      "c82_payload_quality": "bool c82_payload_quality ( ) { return ! ( c82_pd == 0 && c82_miss == 2 ) && ! ( c82_pd == 2 && c82_miss == 0 ) && c82_class_ok ( c82_req_pd , c82_pd ) && c82_class_ok ( c82_req_fa , c82_fa ) && c82_class_ok ( c82_req_miss , c82_miss ) && c82_class_ok ( c82_req_acc , c82_acc ) && c82_class_ok ( c82_req_cov , c82_cov ) && c82_pd != 2 && c82_fa != 2 && c82_miss != 2 && c82_acc != 2 && c82_cov != 2 ; }",
+      "c82_queue_class": "void c82_queue_class ( ) { u0_mac_queueClass = ( u0_mac_queue_q == 0 ? u0_mac_Q_EMPTY : ( u0_mac_queue_q <= u0_mac_queue_L ? u0_mac_Q_LOW : ( u0_mac_queue_q <= u0_mac_queue_M ? u0_mac_Q_MED : ( u0_mac_queue_q < u0_mac_queue_H ? u0_mac_Q_HIGH : u0_mac_Q_CRIT ) ) ) ) ; }",
+      "c82_queue_overflow": "void c82_queue_overflow ( ) { u0_mac_queue_q = u0_mac_queue_K + 1 ; u0_mac_queue_overflow_seen = true ; c82_queue_failed = true ; c82_queue_class ( ) ; }",
+      "c82_store_measurement": "void c82_store_measurement ( ) { c82_sample_id = 1 ; c82_sample_request_id = c82_job_id ; c82_sampled = true ; c82_sample_age = 0 ; c82_pd = u0_phy_PdClass ; c82_fa = u0_phy_RfaClass ; c82_miss = u0_bus_missed_detection ; c82_acc = u0_phy_AccClass ; c82_cov = u0_phy_CoverageClass ; }"
+    },
+    "declaration_remainder": "const int FAMILY_N = 1 ; int [ - 1 , 0 ] family_last_server = - 1 ; bool family_grant_0 = false ; const int u0_bus_D_cmd = 1 , u0_bus_D_bus = 1 , u0_bus_T_input = 5 , u0_bus_T_mac_tick = 5 ; const int u0_bus_T_demand = 1 , u0_bus_T_complete = 40 ; clock u0_bus_time , u0_bus_phy_age , u0_bus_mac_age ; bool u0_bus_phy_valid = false , u0_bus_mac_valid = false ; bool u0_bus_phy_delivery_valid = false , u0_bus_mac_delivery_valid = false ; bool u0_bus_phy_pending = false , u0_bus_mac_pending = false ; bool u0_bus_phy_overwrite = false , u0_bus_mac_overwrite = false ; bool u0_bus_phy_loss = false , u0_bus_mac_loss = false ; bool u0_bus_input_missed = false , u0_bus_tick_missed = false ; bool u0_bus_demand_delivered = false , u0_bus_complete_delivered = false ; bool u0_bus_demand_dropped = false , u0_bus_complete_dropped = false ; bool u0_bus_fault_delivered = false , u0_bus_fault_dropped = false ; bool u0_bus_schedule_loss = false , u0_bus_policy_loss = false , u0_bus_dataplane_loss = false ; bool u0_bus_admission_timeout = false , u0_bus_admission_loss = false ; bool u0_bus_unsolicited_outcome = false , u0_bus_outcome_for_request = false ; bool u0_bus_mac_report_consumed = false , u0_bus_sdn_report_consumed = false ; bool u0_bus_allow_comm = false , u0_bus_allow_sensing = false ; bool u0_bus_warning_recorded = false , u0_bus_violation_recorded = false ; bool u0_bus_reconfigure_recorded = false , u0_bus_terminate_recorded = false , u0_bus_degraded_recorded = false ; bool u0_bus_termination_pending = false ; bool u0_bus_protocol_error = false ; bool u0_bus_schedule_open = false , u0_bus_ctrl_open = false , u0_bus_rec_policy_open = false ; bool u0_bus_rule_drop_recorded = false , u0_bus_failure_recorded = false , u0_bus_timeout_recorded = false ; bool u0_bus_resource_reject_recorded = false , u0_bus_forward_recorded = false , u0_bus_rollback_recorded = false ; int [ 0 , 2 ] u0_bus_missed_detection = 0 ; int [ 0 , 2 ] u0_bus_pd = 0 , u0_bus_fa = 0 , u0_bus_acc = 0 , u0_bus_coverage = 0 , u0_bus_miss = 0 , u0_bus_share = 0 ; int [ 0 , 3 ] u0_bus_queue = 0 , u0_bus_resource = 0 ; bool u0_bus_sensing_bad = false ; int [ 0 , 5 ] u0_bus_policy_value = 0 ; int [ 0 , 6 ] u0_bus_reason = 0 ; int [ 0 , 5 ] u0_bus_request_service = 0 ; int [ 0 , 3 ] u0_bus_request_criticality = 0 ; int [ 0 , 2 ] u0_bus_request_demand = 0 ; int [ 0 , 2 ] u0_bus_request_latency = 0 , u0_bus_request_reliability = 0 ; int [ 0 , 2 ] u0_bus_request_update = 0 , u0_bus_request_freshness = 0 ; int [ 0 , 2 ] u0_bus_request_pd = 0 , u0_bus_request_fa = 0 , u0_bus_request_miss = 0 ; int [ 0 , 2 ] u0_bus_request_accuracy = 0 , u0_bus_request_coverage = 0 ; chan u0_bus_policy , u0_bus_ctrl_request , u0_bus_ctrl_ack ; chan u0_bus_rec_policy_request , u0_bus_rec_policy_ack ; chan u0_bus_rec_flow_request , u0_bus_rec_flow_ack , u0_bus_rollback_request , u0_bus_rec_rollback_ack ; chan u0_bus_rule_ack , u0_bus_admit_request ; broadcast chan u0_bus_new_sample , u0_bus_new_mac_sample ; const int u0_mac_queue_K = 4 ; const int u0_mac_queue_L = 1 ; const int u0_mac_queue_M = 2 ; const int u0_mac_queue_H = 4 ; int [ 0 , u0_mac_queue_K + 1 ] u0_mac_queue_q = 0 ; bool u0_mac_queue_overflow_seen = false ; const int u0_phy_D_meas = 5 ; const int u0_phy_D_sig = 5 ; const int u0_phy_D_sense = 5 ; const int u0_phy_D_report = 5 ; const int u0_phy_D_BM = 5 ; const int u0_phy_D_child = 5 ; const int u0_phy_D_net = 5 ; const int u0_phy_T_meas = 5 ; const int u0_phy_J_meas = 1 ; const int u0_phy_T_report = 5 ; const int u0_phy_J_SSB = 1 ; const int u0_phy_tau_SSB = 4 ; const int u0_phy_SCENARIO_NORMAL = 0 ; const int u0_phy_SCENARIO_COMM_DEGRADED = 1 ; const int u0_phy_SCENARIO_SENSING_DEGRADED = 2 ; const int u0_phy_SCENARIO_JOINT_DEGRADED = 3 ; int [ 0 , 3 ] u0_phy_env_scenario = u0_phy_SCENARIO_NORMAL ; clock u0_phy_c_meas , u0_phy_c_sig , u0_phy_c_sense , u0_phy_c_report , u0_phy_c_rec , u0_phy_c_ssb ; clock u0_phy_aos_bs , u0_phy_aos_ctrl , u0_phy_c_env , u0_phy_c_net ; clock u0_phy_c_obs_sense , u0_phy_c_obs_fresh , u0_phy_c_obs_beam ; clock u0_phy_c_obs_channel , u0_phy_c_obs_signal , u0_phy_c_obs_sensing , u0_phy_c_obs_phy ; typedef int [ 0 , 4 ] u0_phy_WaveformT ; const int u0_phy_W_OFDM = 0 ; const int u0_phy_W_OTFS = 1 ; const int u0_phy_W_AFDM = 2 ; const int u0_phy_W_SC = 3 ; const int u0_phy_W_OTHER = 4 ; u0_phy_WaveformT u0_phy_W = u0_phy_W_OFDM ; chan u0_phy_beam_cmd , u0_phy_controller_report_delivered , u0_phy_extra_ssb_cmd , u0_phy_handover_assist_cmd , u0_phy_mac_report_delivered , u0_phy_measure_tick , u0_phy_new_beam_confirmed , u0_phy_payload_sensing_config , u0_phy_pilot_config , u0_phy_power_cmd , u0_phy_prs_config , u0_phy_recovery_cmd , u0_phy_sensing_mode_cmd , u0_phy_ssb_burst_config , u0_phy_waveform_config ; broadcast chan u0_phy_aos_ctrl_expired , u0_phy_beam_failure , u0_phy_beam_locked , u0_phy_beam_misaligned , u0_phy_beam_report , u0_phy_beam_restored , u0_phy_blockage_detected , u0_phy_channel_degraded , u0_phy_channel_report , u0_phy_contract_violation_bm , u0_phy_contract_violation_ch , u0_phy_contract_violation_ph , u0_phy_contract_violation_sig , u0_phy_contract_violation_sq , u0_phy_degradation_event , u0_phy_handover_hint , u0_phy_mobility_alert , u0_phy_multipath_alert , u0_phy_phy_failure , u0_phy_phy_kpi_report , u0_phy_phy_outage , u0_phy_recovery_event , u0_phy_recovery_start , u0_phy_sensing_degraded , u0_phy_sensing_failure , u0_phy_sensing_report , u0_phy_sensing_success , u0_phy_signal_degraded , u0_phy_signal_report , u0_phy_target_detected ; typedef int [ 0 , 3 ] u0_phy_SINRClassT ; const int u0_phy_SINRCLASS_OUTAGE = 0 ; const int u0_phy_SINRCLASS_LOW = 1 ; const int u0_phy_SINRCLASS_OK = 2 ; const int u0_phy_SINRCLASS_HIGH = 3 ; u0_phy_SINRClassT u0_phy_SINRClass = u0_phy_SINRCLASS_OK ; typedef int [ 0 , 2 ] u0_phy_BLERClassT ; const int u0_phy_BLERCLASS_OK = 0 ; const int u0_phy_BLERCLASS_HIGH = 1 ; const int u0_phy_BLERCLASS_CRITICAL = 2 ; u0_phy_BLERClassT u0_phy_BLERClass = u0_phy_BLERCLASS_OK ; typedef int [ 0 , 2 ] u0_phy_CQIClassT ; const int u0_phy_CQICLASS_GOOD = 0 ; const int u0_phy_CQICLASS_LIMITED = 1 ; const int u0_phy_CQICLASS_BAD = 2 ; u0_phy_CQIClassT u0_phy_CQIClass = u0_phy_CQICLASS_GOOD ; typedef int [ 0 , 2 ] u0_phy_IClassT ; const int u0_phy_ICLASS_OK = 0 ; const int u0_phy_ICLASS_HIGH = 1 ; const int u0_phy_ICLASS_CRITICAL = 2 ; u0_phy_IClassT u0_phy_IClass = u0_phy_ICLASS_OK ; typedef int [ 0 , 1 ] u0_phy_DopplerClassT ; const int u0_phy_DOPPLERCLASS_OK = 0 ; const int u0_phy_DOPPLERCLASS_HIGH = 1 ; u0_phy_DopplerClassT u0_phy_DopplerClass = u0_phy_DOPPLERCLASS_OK ; typedef int [ 0 , 1 ] u0_phy_DelaySpreadClassT ; const int u0_phy_DELAYSPREADCLASS_OK = 0 ; const int u0_phy_DELAYSPREADCLASS_HIGH = 1 ; u0_phy_DelaySpreadClassT u0_phy_DelaySpreadClass = u0_phy_DELAYSPREADCLASS_OK ; typedef int [ 0 , 2 ] u0_phy_PowerClassT ; const int u0_phy_POWERCLASS_OK = 0 ; const int u0_phy_POWERCLASS_LOW = 1 ; const int u0_phy_POWERCLASS_ABSENT = 2 ; u0_phy_PowerClassT u0_phy_PowerClass = u0_phy_POWERCLASS_OK ; typedef int [ 0 , 1 ] u0_phy_DRTClassT ; const int u0_phy_DRTCLASS_OK = 0 ; const int u0_phy_DRTCLASS_BAD = 1 ; u0_phy_DRTClassT u0_phy_DRTClass = u0_phy_DRTCLASS_OK ; typedef int [ 0 , 2 ] u0_phy_PilotDensityClassT ; const int u0_phy_PILOTDENSITYCLASS_OK = 0 ; const int u0_phy_PILOTDENSITYCLASS_LOW = 1 ; const int u0_phy_PILOTDENSITYCLASS_FAILED = 2 ; u0_phy_PilotDensityClassT u0_phy_PilotDensityClass = u0_phy_PILOTDENSITYCLASS_OK ; typedef int [ 0 , 2 ] u0_phy_PayloadSenseClassT ; const int u0_phy_PAYLOADSENSECLASS_OK = 0 ; const int u0_phy_PAYLOADSENSECLASS_LIMITED = 1 ; const int u0_phy_PAYLOADSENSECLASS_FAILED = 2 ; u0_phy_PayloadSenseClassT u0_phy_PayloadSenseClass = u0_phy_PAYLOADSENSECLASS_OK ; typedef int [ 0 , 2 ] u0_phy_PRSClassT ; const int u0_phy_PRSCLASS_OK = 0 ; const int u0_phy_PRSCLASS_LIMITED = 1 ; const int u0_phy_PRSCLASS_FAILED = 2 ; u0_phy_PRSClassT u0_phy_PRSClass = u0_phy_PRSCLASS_OK ; typedef int [ 0 , 2 ] u0_phy_BeamErrorClassT ; const int u0_phy_BEAMERRORCLASS_LOCKABLE = 0 ; const int u0_phy_BEAMERRORCLASS_UNSTABLE = 1 ; const int u0_phy_BEAMERRORCLASS_CRITICAL = 2 ; u0_phy_BeamErrorClassT u0_phy_BeamErrorClass = u0_phy_BEAMERRORCLASS_LOCKABLE ; typedef int [ 0 , 2 ] u0_phy_BlockageClassT ; const int u0_phy_BLOCKAGECLASS_NONE = 0 ; const int u0_phy_BLOCKAGECLASS_SUSPECTED = 1 ; const int u0_phy_BLOCKAGECLASS_CONFIRMED = 2 ; u0_phy_BlockageClassT u0_phy_BlockageClass = u0_phy_BLOCKAGECLASS_NONE ; typedef int [ 0 , 2 ] u0_phy_PdClassT ; const int u0_phy_PDCLASS_OK = 0 ; const int u0_phy_PDCLASS_LOW = 1 ; const int u0_phy_PDCLASS_FAILED = 2 ; u0_phy_PdClassT u0_phy_PdClass = u0_phy_PDCLASS_OK ; typedef int [ 0 , 2 ] u0_phy_RfaClassT ; const int u0_phy_RFACLASS_OK = 0 ; const int u0_phy_RFACLASS_HIGH = 1 ; const int u0_phy_RFACLASS_CRITICAL = 2 ; u0_phy_RfaClassT u0_phy_RfaClass = u0_phy_RFACLASS_OK ; typedef int [ 0 , 2 ] u0_phy_AccClassT ; const int u0_phy_ACCCLASS_OK = 0 ; const int u0_phy_ACCCLASS_LIMITED = 1 ; const int u0_phy_ACCCLASS_FAILED = 2 ; u0_phy_AccClassT u0_phy_AccClass = u0_phy_ACCCLASS_OK ; typedef int [ 0 , 2 ] u0_phy_CRBClassT ; const int u0_phy_CRBCLASS_OK = 0 ; const int u0_phy_CRBCLASS_LOOSE = 1 ; const int u0_phy_CRBCLASS_UNUSABLE = 2 ; u0_phy_CRBClassT u0_phy_CRBClass = u0_phy_CRBCLASS_OK ; typedef int [ 0 , 2 ] u0_phy_AoSClassT ; const int u0_phy_AOSCLASS_FRESH = 0 ; const int u0_phy_AOSCLASS_STALE = 1 ; const int u0_phy_AOSCLASS_EXPIRED = 2 ; u0_phy_AoSClassT u0_phy_AoSClass = u0_phy_AOSCLASS_FRESH ; typedef int [ 0 , 2 ] u0_phy_CapClassT ; const int u0_phy_CAPCLASS_OK = 0 ; const int u0_phy_CAPCLASS_LIMITED = 1 ; const int u0_phy_CAPCLASS_FAILED = 2 ; u0_phy_CapClassT u0_phy_CapClass = u0_phy_CAPCLASS_OK ; typedef int [ 0 , 2 ] u0_phy_CoverageClassT ; const int u0_phy_COVERAGECLASS_OK = 0 ; const int u0_phy_COVERAGECLASS_LIMITED = 1 ; const int u0_phy_COVERAGECLASS_FAILED = 2 ; u0_phy_CoverageClassT u0_phy_CoverageClass = u0_phy_COVERAGECLASS_OK ; typedef int [ 0 , 2 ] u0_phy_ResourceShareClassT ; const int u0_phy_RESOURCESHARECLASS_OK = 0 ; const int u0_phy_RESOURCESHARECLASS_LIMITED = 1 ; const int u0_phy_RESOURCESHARECLASS_STARVED = 2 ; u0_phy_ResourceShareClassT u0_phy_ResourceShareClass = u0_phy_RESOURCESHARECLASS_OK ; typedef int [ 0 , 2 ] u0_phy_MisClassT ; const int u0_phy_MISCLASS_OK = 0 ; const int u0_phy_MISCLASS_WARN = 1 ; const int u0_phy_MISCLASS_CRITICAL = 2 ; u0_phy_MisClassT u0_phy_MisClass = u0_phy_MISCLASS_OK ; typedef int [ 0 , 2 ] u0_phy_BMOverheadClassT ; const int u0_phy_BMOVERHEADCLASS_OK = 0 ; const int u0_phy_BMOVERHEADCLASS_HIGH = 1 ; const int u0_phy_BMOVERHEADCLASS_EXCESSIVE = 2 ; u0_phy_BMOverheadClassT u0_phy_BMOverheadClass = u0_phy_BMOVERHEADCLASS_OK ; typedef int [ 0 , 5 ] u0_phy_ChannelClassT ; const int u0_phy_CHANNELCLASS_NOMINAL = 0 ; const int u0_phy_CHANNELCLASS_INTERFERENCE_LIMITED = 1 ; const int u0_phy_CHANNELCLASS_MOBILITY_LIMITED = 2 ; const int u0_phy_CHANNELCLASS_MULTIPATH_LIMITED = 3 ; const int u0_phy_CHANNELCLASS_BLOCKAGE = 4 ; const int u0_phy_CHANNELCLASS_OUTAGE = 5 ; u0_phy_ChannelClassT u0_phy_ChannelClass = u0_phy_CHANNELCLASS_NOMINAL ; typedef int [ 0 , 4 ] u0_phy_SignalClassT ; const int u0_phy_SIGNALCLASS_NOMINAL = 0 ; const int u0_phy_SIGNALCLASS_PILOT_BASED = 1 ; const int u0_phy_SIGNALCLASS_PAYLOAD_ASSISTED = 2 ; const int u0_phy_SIGNALCLASS_RECONFIGURING = 3 ; const int u0_phy_SIGNALCLASS_LIMITED = 4 ; u0_phy_SignalClassT u0_phy_SignalClass = u0_phy_SIGNALCLASS_NOMINAL ; typedef int [ 0 , 7 ] u0_phy_BeamClassT ; const int u0_phy_BEAMCLASS_SEARCH = 0 ; const int u0_phy_BEAMCLASS_TRACK = 1 ; const int u0_phy_BEAMCLASS_LOCKED = 2 ; const int u0_phy_BEAMCLASS_PREDICT = 3 ; const int u0_phy_BEAMCLASS_MISALIGNED = 4 ; const int u0_phy_BEAMCLASS_RECOVERING = 5 ; const int u0_phy_BEAMCLASS_HO_ASSIST = 6 ; const int u0_phy_BEAMCLASS_FAILED = 7 ; u0_phy_BeamClassT u0_phy_BeamClass = u0_phy_BEAMCLASS_SEARCH ; typedef int [ 0 , 7 ] u0_phy_SensingStateT ; const int u0_phy_SENSINGSTATE_SENSINGQOSOK = 0 ; const int u0_phy_SENSINGSTATE_PROBABILITYLIMITED = 1 ; const int u0_phy_SENSINGSTATE_FALSEALARMLIMITED = 2 ; const int u0_phy_SENSINGSTATE_ACCURACYLIMITED = 3 ; const int u0_phy_SENSINGSTATE_FRESHNESSLIMITED = 4 ; const int u0_phy_SENSINGSTATE_COVERAGELIMITED = 5 ; const int u0_phy_SENSINGSTATE_CAPACITYLIMITED = 6 ; const int u0_phy_SENSINGSTATE_SENSINGFAILURE = 7 ; u0_phy_SensingStateT u0_phy_SensingState = u0_phy_SENSINGSTATE_SENSINGQOSOK ; typedef int [ 0 , 5 ] u0_phy_PHYStateT ; const int u0_phy_PHYSTATE_PHYNORMAL = 0 ; const int u0_phy_PHYSTATE_PHYCOMMUNICATIONDEGRADED = 1 ; const int u0_phy_PHYSTATE_PHYSENSINGDEGRADED = 2 ; const int u0_phy_PHYSTATE_PHYJOINTDEGRADED = 3 ; const int u0_phy_PHYSTATE_PHYRECOVERY = 4 ; const int u0_phy_PHYSTATE_PHYFAILURE = 5 ; u0_phy_PHYStateT u0_phy_PHYState = u0_phy_PHYSTATE_PHYNORMAL ; bool u0_phy_channel_degraded_flag = false ; bool u0_phy_signal_degraded_flag = false ; bool u0_phy_beam_degraded_flag = false ; bool u0_phy_sensing_degraded_flag = false ; bool u0_phy_sensing_failure_flag = false ; bool u0_phy_degradation_flag = false ; bool u0_phy_child_update = false ; bool u0_phy_input_changed = false ; bool u0_phy_target_seen = false ; bool u0_phy_channel_report_pending = false ; bool u0_phy_signal_report_pending = false ; bool u0_phy_sensing_report_pending = false ; bool u0_phy_phy_kpi_report_pending = false ; bool u0_phy_comm_ok = true ; bool u0_phy_sensing_qos_ok = true ; bool u0_phy_TimingOk = true ; bool u0_phy_ConfigAdmissible = true ; bool u0_phy_BeamCmdAdmissible = true ; bool u0_phy_NetDeliveryOk = true ; bool u0_phy_classes_in_range_ch = true ; bool u0_phy_classes_in_range_sig = true ; bool u0_phy_classes_in_range_bm = true ; bool u0_phy_fresh_child_reports = true ; int [ 0 , 1 ] u0_phy_ch_enabled_count = 1 ; int [ 0 , 1 ] u0_phy_sq_enabled_count = 1 ; const int u0_mac_D_collect = 2 ; const int u0_mac_D_sched = 5 ; const int u0_mac_D_phy_ack = 3 ; const int u0_mac_D_queue_crit = 10 ; const int u0_mac_D_buf_report = 4 ; const int u0_mac_D_mac_report = 5 ; const int u0_mac_D_phy_report = 10 ; clock u0_mac_c_sched , u0_mac_c_phy_ack , u0_mac_c_queue , u0_mac_c_buf , u0_mac_c_report ; clock u0_mac_c_obs_ack , u0_mac_c_obs_queue , u0_mac_c_obs_sensing , u0_mac_c_obs_buf , u0_mac_c_obs_report ; broadcast chan u0_mac_phy_kpi_report , u0_mac_mac_report ; chan u0_mac_mac_tick , u0_mac_sdn_policy_cmd , u0_mac_service_priority , u0_mac_phy_ack ; chan u0_mac_mac_schedule_cmd , u0_mac_beam_update_cmd , u0_mac_sensing_boost_cmd , u0_mac_constrained_mode_cmd , u0_mac_resource_reject ; typedef int [ 0 , 4 ] u0_mac_QueueClass_t ; const u0_mac_QueueClass_t u0_mac_Q_EMPTY = 0 , u0_mac_Q_LOW = 1 , u0_mac_Q_MED = 2 , u0_mac_Q_HIGH = 3 , u0_mac_Q_CRIT = 4 ; typedef int [ 0 , 2 ] u0_mac_BufferClass_t ; const u0_mac_BufferClass_t u0_mac_B_SAFE = 0 , u0_mac_B_WARN = 1 , u0_mac_B_OVERFLOW = 2 ; typedef int [ 0 , 3 ] u0_mac_DelayClass_t ; const u0_mac_DelayClass_t u0_mac_D_OK = 0 , u0_mac_D_WARN = 1 , u0_mac_D_DEADLINE_RISK = 2 , u0_mac_D_VIOLATED = 3 ; typedef int [ 0 , 2 ] u0_mac_DropClass_t ; const u0_mac_DropClass_t u0_mac_DROP_NONE = 0 , u0_mac_DROP_LOW = 1 , u0_mac_DROP_HIGH = 2 ; typedef int [ 0 , 3 ] u0_mac_ResourceClass_t ; const u0_mac_ResourceClass_t u0_mac_RES_FREE = 0 , u0_mac_RES_BALANCED = 1 , u0_mac_RES_TIGHT = 2 , u0_mac_RES_EXHAUSTED = 3 ; typedef int [ 0 , 2 ] u0_mac_SensingDemand_t ; const u0_mac_SensingDemand_t u0_mac_SENS_NOMINAL = 0 , u0_mac_SENS_BOOST_REQ = 1 , u0_mac_SENS_CRITICAL = 2 ; typedef int [ 0 , 2 ] u0_mac_CommDemand_t ; const u0_mac_CommDemand_t u0_mac_COMM_NOMINAL = 0 , u0_mac_COMM_HIGH = 1 , u0_mac_COMM_CRITICAL = 2 ; typedef int [ 0 , 2 ] u0_mac_KPIFreshnessClass_t ; const u0_mac_KPIFreshnessClass_t u0_mac_KPI_FRESH = 0 , u0_mac_KPI_STALE = 1 , u0_mac_KPI_MISSING = 2 ; typedef int [ 0 , 4 ] u0_mac_ScheduleMode_t ; const u0_mac_ScheduleMode_t u0_mac_SCH_IDLE = 0 , u0_mac_SCH_COMM = 1 , u0_mac_SCH_SENS = 2 , u0_mac_SCH_JOINT = 3 , u0_mac_SCH_CONSTRAINED = 4 ; typedef int [ 0 , 6 ] u0_mac_MacReason_t ; const u0_mac_MacReason_t u0_mac_REASON_NONE = 0 , u0_mac_REASON_RESOURCE_EXHAUSTED = 1 , u0_mac_REASON_PHY_ACK_TIMEOUT = 2 , u0_mac_REASON_QUEUE_CRITICAL = 3 , u0_mac_REASON_SENS_COMM_CONFLICT = 4 , u0_mac_REASON_STALE_PHY_KPI = 5 , u0_mac_REASON_BUFFER_OVERFLOW = 6 ; u0_mac_QueueClass_t u0_mac_queueClass = u0_mac_Q_EMPTY ; u0_mac_BufferClass_t u0_mac_bufferClass = u0_mac_B_SAFE ; u0_mac_DelayClass_t u0_mac_delayClass = u0_mac_D_OK ; u0_mac_DropClass_t u0_mac_dropClass = u0_mac_DROP_NONE ; u0_mac_ResourceClass_t u0_mac_resourceClass = u0_mac_RES_FREE ; u0_mac_ResourceClass_t u0_mac_mappedResourceClass = u0_mac_RES_FREE ; u0_mac_SensingDemand_t u0_mac_sensingDemand = u0_mac_SENS_NOMINAL ; u0_mac_CommDemand_t u0_mac_commDemand = u0_mac_COMM_NOMINAL ; u0_mac_KPIFreshnessClass_t u0_mac_kpiFreshnessClass = u0_mac_KPI_MISSING ; u0_mac_ScheduleMode_t u0_mac_scheduleMode = u0_mac_SCH_IDLE ; u0_mac_MacReason_t u0_mac_macReason = u0_mac_REASON_NONE ; bool u0_mac_mac_report_pending = false ; bool u0_mac_mac_report_sent = false ; bool u0_mac_silent_accept = false ; bool u0_mac_phy_ack_timeout = false ; bool u0_mac_phy_command_pending = false ; bool u0_mac_sdn_sensing_priority_allowed = false ; bool u0_mac_sdn_comm_priority_allowed = false ; int [ 0 , 8 ] u0_mac_policy_enabled_count = 1 ; bool u0_mac_obs_ack_active = false ; bool u0_mac_obs_ack_late = false ; const int u0_sdn_D_mon = 5 ; const int u0_sdn_D_decision = 5 ; const int u0_sdn_D_rule_install = 8 ; const int u0_sdn_D_rule_ack = 5 ; const int u0_sdn_D_ctrl_ack = 5 ; const int u0_sdn_D_recovery = 20 ; const int u0_sdn_D_rollback = 10 ; const int u0_sdn_D_admission = 15 ; const int u0_sdn_D_sec_ack = 10 ; clock u0_sdn_c_mon , u0_sdn_c_dec , u0_sdn_c_rule , u0_sdn_c_ctrl_ack , u0_sdn_c_rec , u0_sdn_c_rollback , u0_sdn_c_admission , u0_sdn_c_sec_ack ; clock u0_sdn_c_obs_rule , u0_sdn_c_obs_rec , u0_sdn_c_obs_admission , u0_sdn_c_obs_cmd , u0_sdn_c_obs_sensing ; broadcast chan u0_sdn_mac_report , u0_sdn_phy_kpi_report , u0_sdn_service_request ; broadcast chan u0_sdn_service_accept , u0_sdn_service_degraded , u0_sdn_service_reject ; chan u0_sdn_rule_miss , u0_sdn_link_failure , u0_sdn_node_failure , u0_sdn_ack ; chan u0_sdn_sdn_policy_cmd , u0_sdn_flow_mod , u0_sdn_forward_cmd , u0_sdn_drop_report ; chan u0_sdn_failure_report , u0_sdn_timeout_report , u0_sdn_rollback_cmd ; typedef int [ 0 , 2 ] u0_sdn_TelemetryClass_t ; const u0_sdn_TelemetryClass_t u0_sdn_TEL_FRESH = 0 , u0_sdn_TEL_STALE = 1 , u0_sdn_TEL_MISSING = 2 ; typedef int [ 0 , 3 ] u0_sdn_RiskClass_t ; const u0_sdn_RiskClass_t u0_sdn_RISK_LOW = 0 , u0_sdn_RISK_MED = 1 , u0_sdn_RISK_HIGH = 2 , u0_sdn_RISK_CRIT = 3 ; typedef int [ 0 , 5 ] u0_sdn_PolicyClass_t ; const u0_sdn_PolicyClass_t u0_sdn_POL_NORMAL = 0 , u0_sdn_POL_SENS_BOOST = 1 , u0_sdn_POL_COMM_PRIO = 2 , u0_sdn_POL_CONSTRAINED = 3 , u0_sdn_POL_REROUTE = 4 , u0_sdn_POL_REJECT = 5 ; typedef int [ 0 , 5 ] u0_sdn_RuleClass_t ; const u0_sdn_RuleClass_t u0_sdn_RULE_OK = 0 , u0_sdn_RULE_MISS = 1 , u0_sdn_RULE_PENDING = 2 , u0_sdn_RULE_ACKED = 3 , u0_sdn_RULE_TIMEOUT = 4 , u0_sdn_RULE_DROP = 5 ; typedef int [ 0 , 4 ] u0_sdn_RecoveryClass_t ; const u0_sdn_RecoveryClass_t u0_sdn_REC_STABLE = 0 , u0_sdn_REC_STANDBY = 1 , u0_sdn_REC_REEMBED = 2 , u0_sdn_REC_ROLLBACK = 3 , u0_sdn_REC_FAILED = 4 ; typedef int [ 0 , 2 ] u0_sdn_SliceClass_t ; const u0_sdn_SliceClass_t u0_sdn_SLICE_OK = 0 , u0_sdn_SLICE_WARN = 1 , u0_sdn_SLICE_VIOLATED = 2 ; typedef int [ 0 , 3 ] u0_sdn_ServiceImpact_t ; const u0_sdn_ServiceImpact_t u0_sdn_IMPACT_NONE = 0 , u0_sdn_IMPACT_DEGRADED = 1 , u0_sdn_IMPACT_REJECTED = 2 , u0_sdn_IMPACT_FAILED = 3 ; typedef int [ 0 , 6 ] u0_sdn_SdnReason_t ; const u0_sdn_SdnReason_t u0_sdn_SDN_NONE = 0 , u0_sdn_SDN_STALE_TELEMETRY = 1 , u0_sdn_SDN_RULE_TIMEOUT = 2 , u0_sdn_SDN_RECOVERY_FAILED = 3 , u0_sdn_SDN_RESOURCE_LIMITED = 4 , u0_sdn_SDN_SENSING_FAILURE = 5 , u0_sdn_SDN_POLICY_REJECT = 6 ; u0_sdn_TelemetryClass_t u0_sdn_telemetryClass = u0_sdn_TEL_MISSING ; u0_sdn_RiskClass_t u0_sdn_riskClass = u0_sdn_RISK_LOW ; u0_sdn_PolicyClass_t u0_sdn_policyClass = u0_sdn_POL_NORMAL ; u0_sdn_RuleClass_t u0_sdn_ruleClass = u0_sdn_RULE_OK ; u0_sdn_RecoveryClass_t u0_sdn_recoveryClass = u0_sdn_REC_STABLE ; u0_sdn_SliceClass_t u0_sdn_sliceClass = u0_sdn_SLICE_OK ; u0_sdn_ServiceImpact_t u0_sdn_serviceImpact = u0_sdn_IMPACT_NONE ; u0_sdn_SdnReason_t u0_sdn_sdnReason = u0_sdn_SDN_NONE ; bool u0_sdn_rule_miss_pending = false ; bool u0_sdn_link_failure_pending = false ; bool u0_sdn_node_failure_pending = false ; bool u0_sdn_sensing_degradation_pending = false ; bool u0_sdn_service_request_pending = false ; bool u0_sdn_command_pending = false ; bool u0_sdn_optimistic_reconfig = false ; bool u0_sdn_standby_available = false ; bool u0_sdn_alternative_config_exists = false ; bool u0_sdn_lower_ack_received = false ; bool u0_sdn_failure_report_sent = false ; int [ 0 , 6 ] u0_sdn_policy_enabled_count = 1 ; bool u0_sdn_obs_rec_active = false , u0_sdn_obs_rec_late = false ; bool u0_sdn_obs_rec_protocol_error = false ; int [ 0 , 2 ] u0_sdn_recovery_failure_kind = 0 ; bool u0_sdn_recovery_report_pending = false ; bool u0_sdn_attempt_active = false , u0_sdn_attempt_bad = false , u0_sdn_attempt_protocol_error = false ; int [ 0 , 2 ] u0_sdn_attempt_primary = 0 , u0_sdn_attempt_rollback = 0 ; int [ 0 , 3 ] u0_sdn_attempt_total = 0 ; const int u0_app_D_req = 3 ; const int u0_app_D_admission = 15 ; const int u0_app_D_event = 5 ; const int u0_app_D_update = 3 ; const int u0_app_D_fresh = 10 ; const int u0_app_D_sla_warn = 5 ; const int u0_app_D_sla_violation = 3 ; const int u0_app_D_safety = 2 ; const int u0_app_D_fresh_report = 3 ; const int u0_app_D_update_report = 3 ; const int u0_app_D_fa_report = 3 ; const int u0_app_D_miss_report = 2 ; const int u0_app_D_detect_warn = 5 ; const int u0_app_D_detect_violation = 3 ; const int u0_app_D_sensing_fresh = 10 ; clock u0_app_c_req , u0_app_c_admission , u0_app_c_sla_warn , u0_app_c_sla_violation ; clock u0_app_c_session , u0_app_age_sensing , u0_app_c_detect ; chan u0_app_service_request , u0_app_service_accept , u0_app_service_degraded , u0_app_service_reject ; chan u0_app_sla_warning_report , u0_app_sla_violation_report ; chan u0_app_service_reconfigure , u0_app_degraded_accept_report , u0_app_service_terminate ; broadcast chan u0_app_new_demand , u0_app_service_kpi_update , u0_app_degraded_notice ; broadcast chan u0_app_freshness_expired , u0_app_sla_warn , u0_app_sla_violation , u0_app_service_complete ; typedef int [ 0 , 5 ] u0_app_ServiceClass_t ; const u0_app_ServiceClass_t u0_app_SVC_URLLC = 0 , u0_app_SVC_EMBB = 1 , u0_app_SVC_MMTC = 2 ; const u0_app_ServiceClass_t u0_app_SVC_ISAC_SENSING = 3 , u0_app_SVC_UAV = 4 , u0_app_SVC_INDUSTRIAL = 5 ; typedef int [ 0 , 3 ] u0_app_CriticalityClass_t ; const u0_app_CriticalityClass_t u0_app_CRIT_LOW = 0 , u0_app_CRIT_MED = 1 , u0_app_CRIT_HIGH = 2 , u0_app_CRIT_SAFETY = 3 ; typedef int [ 0 , 2 ] u0_app_SLAClass_t ; const u0_app_SLAClass_t u0_app_SLA_OK = 0 , u0_app_SLA_WARN = 1 , u0_app_SLA_VIOLATED = 2 ; typedef int [ 0 , 3 ] u0_app_AdmissionClass_t ; const u0_app_AdmissionClass_t u0_app_ADM_PENDING = 0 , u0_app_ADM_ACCEPTED = 1 ; const u0_app_AdmissionClass_t u0_app_ADM_REJECTED = 2 , u0_app_ADM_DEGRADED = 3 ; typedef int [ 0 , 2 ] u0_app_DemandClass_t ; const u0_app_DemandClass_t u0_app_DEMAND_COMM = 0 , u0_app_DEMAND_SENS = 1 , u0_app_DEMAND_JOINT = 2 ; typedef int [ 0 , 2 ] u0_app_DetectionFreshnessClass_t ; const u0_app_DetectionFreshnessClass_t u0_app_DET_FRESH = 0 , u0_app_DET_STALE = 1 , u0_app_DET_EXPIRED = 2 ; typedef int [ 0 , 2 ] u0_app_UpdatePeriodClass_t ; const u0_app_UpdatePeriodClass_t u0_app_UPD_OK = 0 , u0_app_UPD_SLOW = 1 , u0_app_UPD_VIOLATED = 2 ; typedef int [ 0 , 2 ] u0_app_FalseAlarmClass_t ; const u0_app_FalseAlarmClass_t u0_app_FA_OK = 0 , u0_app_FA_HIGH = 1 , u0_app_FA_CRITICAL = 2 ; typedef int [ 0 , 2 ] u0_app_MissedDetectionClass_t ; const u0_app_MissedDetectionClass_t u0_app_MISS_OK = 0 , u0_app_MISS_HIGH = 1 , u0_app_MISS_CRITICAL = 2 ; typedef int [ 0 , 2 ] u0_app_PdClass_t ; const u0_app_PdClass_t u0_app_PD_OK = 0 , u0_app_PD_LOW = 1 , u0_app_PD_FAILED = 2 ; typedef int [ 0 , 2 ] u0_app_QualityClass_t ; const u0_app_QualityClass_t u0_app_OK = 0 , u0_app_LIMITED = 1 , u0_app_FAILED = 2 ; typedef int [ 0 , 2 ] u0_app_RequirementClass_t ; const u0_app_RequirementClass_t u0_app_REQ_RELAXED = 0 , u0_app_REQ_NORMAL = 1 , u0_app_REQ_STRICT = 2 ; typedef int [ 0 , 6 ] u0_app_DegradedReason_t ; const u0_app_DegradedReason_t u0_app_DEG_NONE = 0 , u0_app_DEG_STALE = 1 , u0_app_DEG_LOW_PD = 2 ; const u0_app_DegradedReason_t u0_app_DEG_HIGH_PFA = 3 , u0_app_DEG_UPDATE_SLOW = 4 ; const u0_app_DegradedReason_t u0_app_DEG_RESOURCE_LIMITED = 5 ; const u0_app_DegradedReason_t u0_app_DEG_COMM_LIMITED = 6 ; u0_app_ServiceClass_t u0_app_serviceClass ; u0_app_CriticalityClass_t u0_app_criticalityClass ; u0_app_SLAClass_t u0_app_slaClass ; u0_app_AdmissionClass_t u0_app_admissionClass ; u0_app_DemandClass_t u0_app_demandClass ; u0_app_RequirementClass_t u0_app_latencyBoundClass ; u0_app_RequirementClass_t u0_app_reliabilityClass ; u0_app_RequirementClass_t u0_app_sensingUpdateBoundClass ; u0_app_RequirementClass_t u0_app_sensingFreshnessBoundClass ; u0_app_RequirementClass_t u0_app_pdMinClass ; u0_app_RequirementClass_t u0_app_pfaMaxClass ; u0_app_RequirementClass_t u0_app_pmissMaxClass ; u0_app_RequirementClass_t u0_app_accuracyBoundClass ; u0_app_RequirementClass_t u0_app_coverageBoundClass ; u0_app_DetectionFreshnessClass_t u0_app_detectionFreshnessClass = u0_app_DET_EXPIRED ; u0_app_UpdatePeriodClass_t u0_app_updatePeriodClass = u0_app_UPD_VIOLATED ; u0_app_FalseAlarmClass_t u0_app_falseAlarmClass ; u0_app_MissedDetectionClass_t u0_app_missedDetectionClass ; u0_app_PdClass_t u0_app_pdClass ; u0_app_QualityClass_t u0_app_accuracyClass ; u0_app_QualityClass_t u0_app_coverageClass ; u0_app_DegradedReason_t u0_app_degradedReason ; bool u0_app_service_request_pending = false ; bool u0_app_sla_warning_report_sent = false ; bool u0_app_sla_violation_report_sent = false ; bool u0_app_degraded_allowed = false ; bool u0_app_degraded_accept_pending = false ; bool u0_app_violation_report_sent = false ; bool u0_app_service_reconfigure_sent = false ; bool u0_app_service_terminate_sent = false ; bool u0_app_service_request_seq = false ; clock u0_app_service_request_seq_age ; bool u0_app_sla_warn_seq = false ; clock u0_app_sla_warn_seq_age ; bool u0_app_sla_violation_seq = false ; clock u0_app_sla_violation_seq_age ; bool u0_app_freshness_expired_seq = false ; clock u0_app_freshness_expired_seq_age ; bool u0_app_update_violation_seq = false ; clock u0_app_update_violation_seq_age ; bool u0_app_fa_critical_seq = false ; clock u0_app_fa_critical_seq_age ; bool u0_app_miss_critical_seq = false ; clock u0_app_miss_critical_seq_age ; bool u0_app_safety_violation_seq = false ; clock u0_app_safety_violation_seq_age ; const int c82_D_service = 40 ; clock c82_service_age , c82_sample_age , c82_measure_age , c82_tx_age ; int [ 0 , 1 ] c82_request_id = 0 , c82_admitted_id = 0 , c82_job_id = 0 ; int [ 0 , 1 ] c82_sample_id = 0 , c82_sample_request_id = 0 ; int [ 0 , 1 ] c82_tx_request_id = 0 , c82_tx_sample_id = 0 ; int [ 0 , 1 ] c82_received_request_id = 0 , c82_received_sample_id = 0 ; bool c82_active = false , c82_admitted = false , c82_sampled = false ; bool c82_enqueued = false , c82_dispatched = false , c82_attempted = false ; bool c82_received = false , c82_success = false , c82_cancelled = false ; bool c82_sensing_failed = false , c82_tx_lost = false , c82_queue_failed = false ; bool c82_receipt_timely = false , c82_receipt_quality = false ; int [ 0 , 2 ] c82_receipt_service_band = 0 , c82_receipt_sample_band = 2 ; int [ 0 , 5 ] c82_outcome = 0 ; int [ 0 , u0_mac_queue_K ] c82_fifo_rank = 0 ; int [ 0 , 2 ] c82_pd = 2 , c82_fa = 2 , c82_miss = 2 , c82_acc = 2 , c82_cov = 2 ; int [ 0 , 2 ] c82_req_pd = 2 , c82_req_fa = 2 , c82_req_miss = 2 ; int [ 0 , 2 ] c82_req_acc = 2 , c82_req_cov = 2 , c82_req_fresh = 2 , c82_req_update = 2 ; chan c82_sense_start , c82_measurement , c82_sense_failure ; chan c82_enqueue , c82_enqueue_loss , c82_result_delivery ;",
+    "local_scopes": {
+      "C82_ResultJob": {
+        "declaration": "",
+        "parameter": ""
+      },
+      "SharedLoad": {
+        "declaration": "clock tick ; int [ 0 , 1 ] arrival_0 = 0 ; int [ 0 , 2 ] m1_0 = 0 ; int [ 0 , 3 ] m2_0 = 0 ; int [ 0 , 2 ] m3_0 = 0 ; int [ 0 , 3 ] m4_0 = 0 ; int [ 0 , 2 ] m5_0 = 0 ; int [ 0 , 2 ] m6_0 = 0 ;",
+        "parameter": ""
+      },
+      "u0_Boundary_B_ADMISSION": {
+        "declaration": "clock x , total ; int [ 0 , 3 ] outcome = 0 ;",
+        "parameter": ""
+      },
+      "u0_Boundary_B_KPI": {
+        "declaration": "clock p , m , n ; int [ 0 , 2 ] band = 2 ; bool publishing = false ;",
+        "parameter": ""
+      },
+      "u0_Boundary_B_PHY_MAC": {
+        "declaration": "clock x ; int [ 0 , 4 ] mode = 0 ;",
+        "parameter": ""
+      },
+      "u0_Boundary_B_POLICY": {
+        "declaration": "clock x ; bool recovery = false ;",
+        "parameter": ""
+      },
+      "u0_Boundary_E_FAULT": {
+        "declaration": "clock x ; bool lose = false ;",
+        "parameter": ""
+      },
+      "u0_Boundary_E_PHY_INPUT": {
+        "declaration": "clock tick ; bool target_due = false ; int [ 0 , 3 ] p0 = 0 ; int [ 0 , 2 ] p1 = 0 ; int [ 0 , 2 ] p2 = 0 ; int [ 0 , 2 ] p3 = 0 ; int [ 0 , 1 ] p4 = 0 ; int [ 0 , 1 ] p5 = 0 ; int [ 0 , 2 ] p6 = 0 ; int [ 0 , 1 ] p7 = 0 ; int [ 0 , 2 ] p8 = 0 ; int [ 0 , 2 ] p9 = 0 ; int [ 0 , 2 ] p10 = 0 ; int [ 0 , 2 ] p11 = 0 ; int [ 0 , 2 ] p12 = 0 ; int [ 0 , 2 ] p13 = 0 ; int [ 0 , 2 ] p14 = 0 ; int [ 0 , 2 ] p15 = 0 ; int [ 0 , 2 ] p16 = 0 ; int [ 0 , 2 ] p17 = 0 ; int [ 0 , 2 ] p18 = 0 ; int [ 0 , 2 ] p19 = 0 ; int [ 0 , 2 ] p20 = 0 ; int [ 0 , 2 ] p21 = 0 ; int [ 0 , 2 ] p22 = 0 ;",
+        "parameter": ""
+      },
+      "u0_Boundary_E_SERVICE": {
+        "declaration": "",
+        "parameter": ""
+      },
+      "u0_app_A_CRIT": {
+        "declaration": "",
+        "parameter": ""
+      },
+      "u0_app_A_REQ": {
+        "declaration": "",
+        "parameter": ""
+      },
+      "u0_app_A_SLA": {
+        "declaration": "",
+        "parameter": ""
+      },
+      "u0_app_A_SVC_AGG": {
+        "declaration": "",
+        "parameter": ""
+      },
+      "u0_app_ObsDetectionFreshness": {
+        "declaration": "",
+        "parameter": ""
+      },
+      "u0_app_ObsFalseAlarmCritical": {
+        "declaration": "",
+        "parameter": ""
+      },
+      "u0_app_ObsMissedDetectionCritical": {
+        "declaration": "",
+        "parameter": ""
+      },
+      "u0_app_ObsSafetyCriticalViolation": {
+        "declaration": "",
+        "parameter": ""
+      },
+      "u0_app_ObsServiceAdmission": {
+        "declaration": "",
+        "parameter": ""
+      },
+      "u0_app_ObsSlaViolationDeadline": {
+        "declaration": "",
+        "parameter": ""
+      },
+      "u0_app_ObsSlaWarningDeadline": {
+        "declaration": "",
+        "parameter": ""
+      },
+      "u0_app_ObsUpdatePeriodViolation": {
+        "declaration": "",
+        "parameter": ""
+      },
+      "u0_mac_Template_A_BUF": {
+        "declaration": "",
+        "parameter": ""
+      },
+      "u0_mac_Template_A_MAC_AGG": {
+        "declaration": "",
+        "parameter": ""
+      },
+      "u0_mac_Template_A_Q": {
+        "declaration": "",
+        "parameter": ""
+      },
+      "u0_mac_Template_A_RSRC": {
+        "declaration": "",
+        "parameter": ""
+      },
+      "u0_mac_Template_A_SCH": {
+        "declaration": "",
+        "parameter": ""
+      },
+      "u0_mac_Template_ObsBufferOverflow": {
+        "declaration": "",
+        "parameter": ""
+      },
+      "u0_mac_Template_ObsMacReportFreshness": {
+        "declaration": "",
+        "parameter": ""
+      },
+      "u0_mac_Template_ObsPhyAck": {
+        "declaration": "",
+        "parameter": ""
+      },
+      "u0_mac_Template_ObsQueueCritical": {
+        "declaration": "",
+        "parameter": ""
+      },
+      "u0_mac_Template_ObsSensingCritical": {
+        "declaration": "",
+        "parameter": ""
+      },
+      "u0_phy_Template_A_BM": {
+        "declaration": "",
+        "parameter": ""
+      },
+      "u0_phy_Template_A_CH": {
+        "declaration": "",
+        "parameter": ""
+      },
+      "u0_phy_Template_A_PH": {
+        "declaration": "",
+        "parameter": ""
+      },
+      "u0_phy_Template_A_SIG": {
+        "declaration": "",
+        "parameter": ""
+      },
+      "u0_phy_Template_A_SQ": {
+        "declaration": "",
+        "parameter": ""
+      },
+      "u0_phy_Template_ObsBeamRecovery": {
+        "declaration": "",
+        "parameter": ""
+      },
+      "u0_phy_Template_ObsFreshness": {
+        "declaration": "",
+        "parameter": ""
+      },
+      "u0_phy_Template_ObsSenseReport": {
+        "declaration": "",
+        "parameter": ""
+      },
+      "u0_sdn_Template_A_MON": {
+        "declaration": "",
+        "parameter": ""
+      },
+      "u0_sdn_Template_A_POLICY": {
+        "declaration": "",
+        "parameter": ""
+      },
+      "u0_sdn_Template_A_REC": {
+        "declaration": "",
+        "parameter": ""
+      },
+      "u0_sdn_Template_A_RISK": {
+        "declaration": "",
+        "parameter": ""
+      },
+      "u0_sdn_Template_A_RULE": {
+        "declaration": "",
+        "parameter": ""
+      },
+      "u0_sdn_Template_A_SDN_AGG": {
+        "declaration": "",
+        "parameter": ""
+      },
+      "u0_sdn_Template_ObsAdmission": {
+        "declaration": "",
+        "parameter": ""
+      },
+      "u0_sdn_Template_ObsCommandAck": {
+        "declaration": "",
+        "parameter": ""
+      },
+      "u0_sdn_Template_ObsRecovery": {
+        "declaration": "",
+        "parameter": ""
+      },
+      "u0_sdn_Template_ObsRuleMiss": {
+        "declaration": "",
+        "parameter": ""
+      },
+      "u0_sdn_Template_ObsSensingDecision": {
+        "declaration": "",
+        "parameter": ""
+      },
+      "u0_sdn_Template_ObsStaleTelemetry": {
+        "declaration": "",
+        "parameter": ""
+      }
+    },
+    "locations": {
+      "C82_ResultJob": {
+        "init": "c82_C82_ResultJob_Idle",
+        "locations": [
+          {
+            "committed": false,
+            "id": "c82_C82_ResultJob_Idle",
+            "invariant": [],
+            "name": "Idle",
+            "urgent": false
+          },
+          {
+            "committed": false,
+            "id": "c82_C82_ResultJob_Ready",
+            "invariant": [],
+            "name": "Ready",
+            "urgent": false
+          },
+          {
+            "committed": false,
+            "id": "c82_C82_ResultJob_Measuring",
+            "invariant": [],
+            "name": "Measuring",
+            "urgent": false
+          },
+          {
+            "committed": false,
+            "id": "c82_C82_ResultJob_ResultReady",
+            "invariant": [],
+            "name": "ResultReady",
+            "urgent": false
+          },
+          {
+            "committed": false,
+            "id": "c82_C82_ResultJob_Queued",
+            "invariant": [],
+            "name": "Queued",
+            "urgent": false
+          },
+          {
+            "committed": false,
+            "id": "c82_C82_ResultJob_Transmitting",
+            "invariant": [
+              "c82_tx_age <= u0_bus_D_bus"
+            ],
+            "name": "Transmitting",
+            "urgent": false
+          },
+          {
+            "committed": false,
+            "id": "c82_C82_ResultJob_Done",
+            "invariant": [],
+            "name": "Done",
+            "urgent": false
+          }
+        ]
+      },
+      "SharedLoad": {
+        "init": "shared_Wait",
+        "locations": [
+          {
+            "committed": false,
+            "id": "shared_Wait",
+            "invariant": [
+              "tick <= u0_bus_T_mac_tick"
+            ],
+            "name": "Wait",
+            "urgent": false
+          },
+          {
+            "committed": true,
+            "id": "shared_Publish_0",
+            "invariant": [],
+            "name": "Publish_0",
+            "urgent": false
+          },
+          {
+            "committed": true,
+            "id": "shared_Offer_0",
+            "invariant": [],
+            "name": "Offer_0",
+            "urgent": false
+          },
+          {
+            "committed": true,
+            "id": "shared_Sample_1",
+            "invariant": [],
+            "name": "Sample_1",
+            "urgent": false
+          }
+        ]
+      },
+      "u0_Boundary_E_SERVICE": {
+        "init": "u0_Boundary_E_SERVICE_Demand",
+        "locations": [
+          {
+            "committed": false,
+            "id": "u0_Boundary_E_SERVICE_Demand",
+            "invariant": [
+              "u0_bus_time <= u0_bus_T_demand"
+            ],
+            "name": "Demand",
+            "urgent": false
+          },
+          {
+            "committed": true,
+            "id": "u0_Boundary_E_SERVICE_DemandCheck",
+            "invariant": [],
+            "name": "DemandCheck",
+            "urgent": false
+          },
+          {
+            "committed": false,
+            "id": "u0_Boundary_E_SERVICE_Run",
+            "invariant": [],
+            "name": "Run",
+            "urgent": false
+          },
+          {
+            "committed": false,
+            "id": "u0_Boundary_E_SERVICE_Done",
+            "invariant": [],
+            "name": "Done",
+            "urgent": false
+          },
+          {
+            "committed": true,
+            "id": "u0_Boundary_E_SERVICE_Terminate",
+            "invariant": [],
+            "name": "Terminate",
+            "urgent": false
+          }
+        ]
+      },
+      "u0_app_A_REQ": {
+        "init": "u0_app_id0",
+        "locations": [
+          {
+            "committed": false,
+            "id": "u0_app_id0",
+            "invariant": [],
+            "name": "ServiceIdle",
+            "urgent": false
+          },
+          {
+            "committed": false,
+            "id": "u0_app_id1",
+            "invariant": [
+              "u0_app_c_req <= u0_app_D_req"
+            ],
+            "name": "RequestBuild",
+            "urgent": false
+          },
+          {
+            "committed": true,
+            "id": "u0_app_id2",
+            "invariant": [],
+            "name": "RequestReady",
+            "urgent": false
+          },
+          {
+            "committed": false,
+            "id": "u0_app_id3",
+            "invariant": [
+              "u0_app_c_admission <= u0_app_D_admission"
+            ],
+            "name": "RequestPending",
+            "urgent": false
+          },
+          {
+            "committed": false,
+            "id": "u0_app_id4",
+            "invariant": [
+              "c82_service_age <= c82_D_service"
+            ],
+            "name": "Accepted",
+            "urgent": false
+          },
+          {
+            "committed": false,
+            "id": "u0_app_id5",
+            "invariant": [
+              "c82_service_age <= c82_D_service"
+            ],
+            "name": "AcceptedDegraded",
+            "urgent": false
+          },
+          {
+            "committed": false,
+            "id": "u0_app_id6",
+            "invariant": [],
+            "name": "Rejected",
+            "urgent": false
+          },
+          {
+            "committed": false,
+            "id": "u0_app_id7",
+            "invariant": [],
+            "name": "Completed",
+            "urgent": false
+          },
+          {
+            "committed": false,
+            "id": "c82_u0_app_A_REQ_ServiceFailed",
+            "invariant": [],
+            "name": "ServiceFailed",
+            "urgent": false
+          },
+          {
+            "committed": false,
+            "id": "c82_u0_app_A_REQ_ServiceTimeout",
+            "invariant": [],
+            "name": "ServiceTimeout",
+            "urgent": false
+          },
+          {
+            "committed": false,
+            "id": "c82_u0_app_A_REQ_Cancelled",
+            "invariant": [],
+            "name": "Cancelled",
+            "urgent": false
+          }
+        ]
+      },
+      "u0_phy_Template_A_SQ": {
+        "init": "u0_phy_Template_A_SQ_0",
+        "locations": [
+          {
+            "committed": false,
+            "id": "u0_phy_Template_A_SQ_0",
+            "invariant": [],
+            "name": "Idle",
+            "urgent": false
+          },
+          {
+            "committed": false,
+            "id": "u0_phy_Template_A_SQ_1",
+            "invariant": [
+              "u0_phy_c_sense <= u0_phy_D_sense"
+            ],
+            "name": "SensingEvaluating",
+            "urgent": false
+          },
+          {
+            "committed": false,
+            "id": "u0_phy_Template_A_SQ_2",
+            "invariant": [],
+            "name": "SensingQoSOk",
+            "urgent": false
+          },
+          {
+            "committed": false,
+            "id": "u0_phy_Template_A_SQ_3",
+            "invariant": [],
+            "name": "ProbabilityLimited",
+            "urgent": false
+          },
+          {
+            "committed": false,
+            "id": "u0_phy_Template_A_SQ_4",
+            "invariant": [],
+            "name": "FalseAlarmLimited",
+            "urgent": false
+          },
+          {
+            "committed": false,
+            "id": "u0_phy_Template_A_SQ_5",
+            "invariant": [],
+            "name": "AccuracyLimited",
+            "urgent": false
+          },
+          {
+            "committed": false,
+            "id": "u0_phy_Template_A_SQ_6",
+            "invariant": [],
+            "name": "FreshnessLimited",
+            "urgent": false
+          },
+          {
+            "committed": false,
+            "id": "u0_phy_Template_A_SQ_7",
+            "invariant": [],
+            "name": "CoverageLimited",
+            "urgent": false
+          },
+          {
+            "committed": false,
+            "id": "u0_phy_Template_A_SQ_8",
+            "invariant": [],
+            "name": "CapacityLimited",
+            "urgent": false
+          },
+          {
+            "committed": false,
+            "id": "u0_phy_Template_A_SQ_9",
+            "invariant": [],
+            "name": "SensingFailure",
+            "urgent": false
+          },
+          {
+            "committed": false,
+            "id": "u0_phy_Template_A_SQ_10",
+            "invariant": [],
+            "name": "ContractViolation_SQ",
+            "urgent": false
+          },
+          {
+            "committed": false,
+            "id": "c82_u0_phy_Template_A_SQ_JobMeasuring",
+            "invariant": [
+              "c82_measure_age <= u0_phy_D_sense"
+            ],
+            "name": "JobMeasuring",
+            "urgent": false
+          }
+        ]
+      }
+    },
+    "non_c82_helpers_sha256": "db28100dbba93c865c778e5372624e1606a53e2669baa78658bf1cd4126236a6",
+    "relevant_edges": [
+      {
+        "assignment": "c82_measure_age = 0",
+        "guard": "c82_active && c82_admitted && ! c82_sampled",
+        "index": 24,
+        "source": "SensingQoSOk",
+        "synchronisation": "c82_sense_start ?",
+        "target": "JobMeasuring",
+        "template": "u0_phy_Template_A_SQ"
+      },
+      {
+        "assignment": "c82_store_measurement ( )",
+        "guard": "c82_measure_age == u0_phy_D_sense && c82_active && c82_job_id == c82_request_id && ! c82_sampled && u0_phy_highest_priority_SQ ( ) != u0_phy_SENSINGSTATE_SENSINGFAILURE && u0_phy_PdClass != u0_phy_PDCLASS_FAILED && ! ( u0_phy_PdClass == 0 && u0_bus_missed_detection == 2 )",
+        "index": 25,
+        "source": "JobMeasuring",
+        "synchronisation": "c82_measurement !",
+        "target": "SensingQoSOk",
+        "template": "u0_phy_Template_A_SQ"
+      },
+      {
+        "assignment": "c82_sensing_failed = true",
+        "guard": "c82_measure_age == u0_phy_D_sense && c82_active",
+        "index": 26,
+        "source": "JobMeasuring",
+        "synchronisation": "c82_sense_failure !",
+        "target": "SensingQoSOk",
+        "template": "u0_phy_Template_A_SQ"
+      },
+      {
+        "guard": "! c82_active",
+        "index": 27,
+        "source": "JobMeasuring",
+        "target": "SensingQoSOk",
+        "template": "u0_phy_Template_A_SQ"
+      },
+      {
+        "assignment": "u0_app_c_req = 0 , u0_app_build_uav_service_request ( ) , u0_app_service_request_pending = false , u0_app_sla_warning_report_sent = false , u0_app_sla_violation_report_sent = false , u0_app_violation_report_sent = false , u0_app_service_reconfigure_sent = false , u0_app_service_terminate_sent = false , u0_bus_demand_delivered = true",
+        "index": 0,
+        "source": "ServiceIdle",
+        "synchronisation": "u0_app_new_demand ?",
+        "target": "RequestBuild",
+        "template": "u0_app_A_REQ"
+      },
+      {
+        "assignment": "u0_app_admissionClass = u0_app_ADM_PENDING , u0_app_c_req = 0",
+        "guard": "u0_app_gAdmissionRequest ( )",
+        "index": 1,
+        "source": "RequestBuild",
+        "target": "RequestReady",
+        "template": "u0_app_A_REQ"
+      },
+      {
+        "assignment": "u0_app_service_request_pending = true , u0_raise_app_service_request_seq ( ) , u0_app_c_admission = 0 , c82_emit_request ( )",
+        "index": 2,
+        "source": "RequestReady",
+        "synchronisation": "u0_app_service_request !",
+        "target": "RequestPending",
+        "template": "u0_app_A_REQ"
+      },
+      {
+        "assignment": "u0_app_service_request_pending = false , c82_admitted = true , c82_admitted_id = c82_request_id",
+        "guard": "( u0_app_admissionClass == u0_app_ADM_ACCEPTED ) && c82_active",
+        "index": 3,
+        "source": "RequestPending",
+        "synchronisation": "u0_app_service_accept ?",
+        "target": "Accepted",
+        "template": "u0_app_A_REQ"
+      },
+      {
+        "assignment": "u0_app_service_request_pending = false , u0_app_degraded_accept_pending = true , c82_admitted = true , c82_admitted_id = c82_request_id",
+        "guard": "( u0_app_gAcceptDegraded ( ) ) && c82_active",
+        "index": 4,
+        "source": "RequestPending",
+        "synchronisation": "u0_app_service_degraded ?",
+        "target": "AcceptedDegraded",
+        "template": "u0_app_A_REQ"
+      },
+      {
+        "assignment": "u0_app_service_request_pending = false , c82_active = false , c82_outcome = 2",
+        "guard": "( u0_app_admissionClass == u0_app_ADM_REJECTED || u0_app_gRejectDegraded ( ) ) && c82_active",
+        "index": 5,
+        "source": "RequestPending",
+        "synchronisation": "u0_app_service_reject ?",
+        "target": "Rejected",
+        "template": "u0_app_A_REQ"
+      },
+      {
+        "assignment": "u0_app_note_kpi_update_event ( )",
+        "index": 6,
+        "source": "Accepted",
+        "synchronisation": "u0_app_service_kpi_update ?",
+        "target": "Accepted",
+        "template": "u0_app_A_REQ"
+      },
+      {
+        "assignment": "u0_app_note_kpi_update_event ( )",
+        "index": 7,
+        "source": "AcceptedDegraded",
+        "synchronisation": "u0_app_service_kpi_update ?",
+        "target": "AcceptedDegraded",
+        "template": "u0_app_A_REQ"
+      },
+      {
+        "assignment": "u0_app_degraded_accept_pending = true",
+        "guard": "u0_app_degraded_allowed && u0_app_degradedReason != u0_app_DEG_NONE && u0_app_gSafetyAllowsDegraded ( )",
+        "index": 8,
+        "source": "Accepted",
+        "synchronisation": "u0_app_degraded_notice ?",
+        "target": "AcceptedDegraded",
+        "template": "u0_app_A_REQ"
+      },
+      {
+        "assignment": "u0_app_note_kpi_update_event ( )",
+        "guard": "u0_app_sla_sens_ok ( )",
+        "index": 9,
+        "source": "AcceptedDegraded",
+        "synchronisation": "u0_app_service_kpi_update ?",
+        "target": "Accepted",
+        "template": "u0_app_A_REQ"
+      },
+      {
+        "assignment": "u0_app_degraded_accept_pending = false , u0_app_violation_report_sent = false",
+        "guard": "u0_app_degraded_accept_pending",
+        "index": 10,
+        "source": "AcceptedDegraded",
+        "synchronisation": "u0_app_degraded_accept_report !",
+        "target": "AcceptedDegraded",
+        "template": "u0_app_A_REQ"
+      },
+      {
+        "assignment": "u0_app_admissionClass = u0_app_ADM_REJECTED , u0_app_service_request_pending = false , u0_bus_admission_timeout = true , c82_active = false , c82_outcome = 2",
+        "guard": "( u0_app_c_admission == u0_app_D_admission ) && c82_active",
+        "index": 11,
+        "source": "RequestPending",
+        "target": "Rejected",
+        "template": "u0_app_A_REQ"
+      },
+      {
+        "assignment": "c82_received = true , c82_received_request_id = c82_tx_request_id , c82_received_sample_id = c82_tx_sample_id , c82_receipt_timely = true , c82_receipt_quality = true , c82_receipt_sample_band = 0 , c82_success = true , c82_active = false , c82_outcome = 1 , u0_bus_complete_delivered = true , c82_receipt_service_band = 1",
+        "guard": "( ( c82_active && c82_admitted && c82_request_id == 1 && c82_admitted_id == c82_request_id && c82_job_id == c82_request_id && c82_sampled && c82_sample_id == 1 && c82_sample_request_id == c82_request_id && c82_enqueued && c82_dispatched && c82_attempted && c82_tx_request_id == c82_request_id && c82_tx_sample_id == c82_sample_id && ! c82_received && ! c82_cancelled && ! c82_sensing_failed && ! c82_tx_lost && ! c82_queue_failed && c82_outcome == 0 && c82_req_fresh == 2 && c82_req_update == 2 ) && c82_payload_quality ( ) && c82_sample_age < 5 && c82_service_age <= c82_D_service ) && c82_service_age < c82_D_service",
+        "index": 12,
+        "source": "Accepted",
+        "synchronisation": "c82_result_delivery ?",
+        "target": "Completed",
+        "template": "u0_app_A_REQ"
+      },
+      {
+        "assignment": "c82_received = true , c82_received_request_id = c82_tx_request_id , c82_received_sample_id = c82_tx_sample_id , c82_receipt_timely = true , c82_receipt_quality = true , c82_receipt_sample_band = 0 , c82_success = true , c82_active = false , c82_outcome = 1 , u0_bus_complete_delivered = true , c82_receipt_service_band = 2",
+        "guard": "( ( c82_active && c82_admitted && c82_request_id == 1 && c82_admitted_id == c82_request_id && c82_job_id == c82_request_id && c82_sampled && c82_sample_id == 1 && c82_sample_request_id == c82_request_id && c82_enqueued && c82_dispatched && c82_attempted && c82_tx_request_id == c82_request_id && c82_tx_sample_id == c82_sample_id && ! c82_received && ! c82_cancelled && ! c82_sensing_failed && ! c82_tx_lost && ! c82_queue_failed && c82_outcome == 0 && c82_req_fresh == 2 && c82_req_update == 2 ) && c82_payload_quality ( ) && c82_sample_age < 5 && c82_service_age <= c82_D_service ) && c82_service_age == c82_D_service",
+        "index": 13,
+        "source": "Accepted",
+        "synchronisation": "c82_result_delivery ?",
+        "target": "Completed",
+        "template": "u0_app_A_REQ"
+      },
+      {
+        "assignment": "c82_received = true , c82_received_request_id = c82_tx_request_id , c82_received_sample_id = c82_tx_sample_id , c82_active = false , c82_outcome = 3",
+        "guard": "c82_active && ( ! ( c82_active && c82_admitted && c82_request_id == 1 && c82_admitted_id == c82_request_id && c82_job_id == c82_request_id && c82_sampled && c82_sample_id == 1 && c82_sample_request_id == c82_request_id && c82_enqueued && c82_dispatched && c82_attempted && c82_tx_request_id == c82_request_id && c82_tx_sample_id == c82_sample_id && ! c82_received && ! c82_cancelled && ! c82_sensing_failed && ! c82_tx_lost && ! c82_queue_failed && c82_outcome == 0 && c82_req_fresh == 2 && c82_req_update == 2 ) || ! c82_payload_quality ( ) )",
+        "index": 14,
+        "source": "Accepted",
+        "synchronisation": "c82_result_delivery ?",
+        "target": "ServiceFailed",
+        "template": "u0_app_A_REQ"
+      },
+      {
+        "assignment": "c82_received = true , c82_received_request_id = c82_tx_request_id , c82_received_sample_id = c82_tx_sample_id , c82_active = false , c82_outcome = 3",
+        "guard": "( c82_active && c82_admitted && c82_request_id == 1 && c82_admitted_id == c82_request_id && c82_job_id == c82_request_id && c82_sampled && c82_sample_id == 1 && c82_sample_request_id == c82_request_id && c82_enqueued && c82_dispatched && c82_attempted && c82_tx_request_id == c82_request_id && c82_tx_sample_id == c82_sample_id && ! c82_received && ! c82_cancelled && ! c82_sensing_failed && ! c82_tx_lost && ! c82_queue_failed && c82_outcome == 0 && c82_req_fresh == 2 && c82_req_update == 2 ) && c82_payload_quality ( ) && c82_sample_age >= 5",
+        "index": 15,
+        "source": "Accepted",
+        "synchronisation": "c82_result_delivery ?",
+        "target": "ServiceFailed",
+        "template": "u0_app_A_REQ"
+      },
+      {
+        "assignment": "c82_active = false , c82_outcome = 3",
+        "guard": "c82_active && ( c82_sensing_failed || c82_tx_lost || c82_queue_failed )",
+        "index": 16,
+        "source": "Accepted",
+        "target": "ServiceFailed",
+        "template": "u0_app_A_REQ"
+      },
+      {
+        "assignment": "c82_active = false , c82_outcome = 4",
+        "guard": "c82_active && c82_service_age == c82_D_service",
+        "index": 17,
+        "source": "Accepted",
+        "target": "ServiceTimeout",
+        "template": "u0_app_A_REQ"
+      },
+      {
+        "assignment": "c82_received = true , c82_received_request_id = c82_tx_request_id , c82_received_sample_id = c82_tx_sample_id , c82_receipt_timely = true , c82_receipt_quality = true , c82_receipt_sample_band = 0 , c82_success = true , c82_active = false , c82_outcome = 1 , u0_bus_complete_delivered = true , c82_receipt_service_band = 1",
+        "guard": "( ( c82_active && c82_admitted && c82_request_id == 1 && c82_admitted_id == c82_request_id && c82_job_id == c82_request_id && c82_sampled && c82_sample_id == 1 && c82_sample_request_id == c82_request_id && c82_enqueued && c82_dispatched && c82_attempted && c82_tx_request_id == c82_request_id && c82_tx_sample_id == c82_sample_id && ! c82_received && ! c82_cancelled && ! c82_sensing_failed && ! c82_tx_lost && ! c82_queue_failed && c82_outcome == 0 && c82_req_fresh == 2 && c82_req_update == 2 ) && c82_payload_quality ( ) && c82_sample_age < 5 && c82_service_age <= c82_D_service ) && c82_service_age < c82_D_service",
+        "index": 18,
+        "source": "AcceptedDegraded",
+        "synchronisation": "c82_result_delivery ?",
+        "target": "Completed",
+        "template": "u0_app_A_REQ"
+      },
+      {
+        "assignment": "c82_received = true , c82_received_request_id = c82_tx_request_id , c82_received_sample_id = c82_tx_sample_id , c82_receipt_timely = true , c82_receipt_quality = true , c82_receipt_sample_band = 0 , c82_success = true , c82_active = false , c82_outcome = 1 , u0_bus_complete_delivered = true , c82_receipt_service_band = 2",
+        "guard": "( ( c82_active && c82_admitted && c82_request_id == 1 && c82_admitted_id == c82_request_id && c82_job_id == c82_request_id && c82_sampled && c82_sample_id == 1 && c82_sample_request_id == c82_request_id && c82_enqueued && c82_dispatched && c82_attempted && c82_tx_request_id == c82_request_id && c82_tx_sample_id == c82_sample_id && ! c82_received && ! c82_cancelled && ! c82_sensing_failed && ! c82_tx_lost && ! c82_queue_failed && c82_outcome == 0 && c82_req_fresh == 2 && c82_req_update == 2 ) && c82_payload_quality ( ) && c82_sample_age < 5 && c82_service_age <= c82_D_service ) && c82_service_age == c82_D_service",
+        "index": 19,
+        "source": "AcceptedDegraded",
+        "synchronisation": "c82_result_delivery ?",
+        "target": "Completed",
+        "template": "u0_app_A_REQ"
+      },
+      {
+        "assignment": "c82_received = true , c82_received_request_id = c82_tx_request_id , c82_received_sample_id = c82_tx_sample_id , c82_active = false , c82_outcome = 3",
+        "guard": "c82_active && ( ! ( c82_active && c82_admitted && c82_request_id == 1 && c82_admitted_id == c82_request_id && c82_job_id == c82_request_id && c82_sampled && c82_sample_id == 1 && c82_sample_request_id == c82_request_id && c82_enqueued && c82_dispatched && c82_attempted && c82_tx_request_id == c82_request_id && c82_tx_sample_id == c82_sample_id && ! c82_received && ! c82_cancelled && ! c82_sensing_failed && ! c82_tx_lost && ! c82_queue_failed && c82_outcome == 0 && c82_req_fresh == 2 && c82_req_update == 2 ) || ! c82_payload_quality ( ) )",
+        "index": 20,
+        "source": "AcceptedDegraded",
+        "synchronisation": "c82_result_delivery ?",
+        "target": "ServiceFailed",
+        "template": "u0_app_A_REQ"
+      },
+      {
+        "assignment": "c82_received = true , c82_received_request_id = c82_tx_request_id , c82_received_sample_id = c82_tx_sample_id , c82_active = false , c82_outcome = 3",
+        "guard": "( c82_active && c82_admitted && c82_request_id == 1 && c82_admitted_id == c82_request_id && c82_job_id == c82_request_id && c82_sampled && c82_sample_id == 1 && c82_sample_request_id == c82_request_id && c82_enqueued && c82_dispatched && c82_attempted && c82_tx_request_id == c82_request_id && c82_tx_sample_id == c82_sample_id && ! c82_received && ! c82_cancelled && ! c82_sensing_failed && ! c82_tx_lost && ! c82_queue_failed && c82_outcome == 0 && c82_req_fresh == 2 && c82_req_update == 2 ) && c82_payload_quality ( ) && c82_sample_age >= 5",
+        "index": 21,
+        "source": "AcceptedDegraded",
+        "synchronisation": "c82_result_delivery ?",
+        "target": "ServiceFailed",
+        "template": "u0_app_A_REQ"
+      },
+      {
+        "assignment": "c82_active = false , c82_outcome = 3",
+        "guard": "c82_active && ( c82_sensing_failed || c82_tx_lost || c82_queue_failed )",
+        "index": 22,
+        "source": "AcceptedDegraded",
+        "target": "ServiceFailed",
+        "template": "u0_app_A_REQ"
+      },
+      {
+        "assignment": "c82_active = false , c82_outcome = 4",
+        "guard": "c82_active && c82_service_age == c82_D_service",
+        "index": 23,
+        "source": "AcceptedDegraded",
+        "target": "ServiceTimeout",
+        "template": "u0_app_A_REQ"
+      },
+      {
+        "guard": "c82_cancelled",
+        "index": 24,
+        "source": "RequestPending",
+        "target": "Cancelled",
+        "template": "u0_app_A_REQ"
+      },
+      {
+        "guard": "c82_cancelled",
+        "index": 25,
+        "source": "Accepted",
+        "target": "Cancelled",
+        "template": "u0_app_A_REQ"
+      },
+      {
+        "guard": "c82_cancelled",
+        "index": 26,
+        "source": "AcceptedDegraded",
+        "target": "Cancelled",
+        "template": "u0_app_A_REQ"
+      },
+      {
+        "assignment": "u0_bus_terminate_recorded = true , u0_bus_termination_pending = true , c82_cancelled = ( c82_active || c82_cancelled ) , c82_outcome = ( c82_active ? 5 : c82_outcome ) , c82_active = false",
+        "index": 6,
+        "source": "Demand",
+        "synchronisation": "u0_app_service_terminate ?",
+        "target": "Demand",
+        "template": "u0_Boundary_E_SERVICE"
+      },
+      {
+        "assignment": "u0_bus_terminate_recorded = true , u0_bus_termination_pending = true , c82_cancelled = ( c82_active || c82_cancelled ) , c82_outcome = ( c82_active ? 5 : c82_outcome ) , c82_active = false",
+        "index": 12,
+        "source": "Run",
+        "synchronisation": "u0_app_service_terminate ?",
+        "target": "Run",
+        "template": "u0_Boundary_E_SERVICE"
+      },
+      {
+        "assignment": "u0_bus_terminate_recorded = true , u0_bus_termination_pending = true , c82_cancelled = ( c82_active || c82_cancelled ) , c82_outcome = ( c82_active ? 5 : c82_outcome ) , c82_active = false",
+        "index": 18,
+        "source": "Done",
+        "synchronisation": "u0_app_service_terminate ?",
+        "target": "Done",
+        "template": "u0_Boundary_E_SERVICE"
+      },
+      {
+        "assignment": "c82_mac_service ( server ) , u0_mac_queue_q = ( u0_mac_queue_q > u0_mac_queue_K ? u0_mac_queue_q : u0_mac_queue_q - ( server == 0 ? 1 : 0 ) + arrival_0 ) , u0_mac_queue_overflow_seen = ( u0_mac_queue_overflow_seen || u0_mac_queue_q > u0_mac_queue_K ) , u0_mac_queueClass = ( u0_mac_queue_q == 0 ? u0_mac_Q_EMPTY : ( u0_mac_queue_q <= u0_mac_queue_L ? u0_mac_Q_LOW : ( u0_mac_queue_q <= u0_mac_queue_M ? u0_mac_Q_MED : ( u0_mac_queue_q < u0_mac_queue_H ? u0_mac_Q_HIGH : u0_mac_Q_CRIT ) ) ) ) , u0_mac_bufferClass = m1_0 , u0_mac_delayClass = m2_0 , u0_mac_dropClass = m3_0 , u0_mac_resourceClass = m4_0 , u0_mac_sensingDemand = m5_0 , u0_mac_commDemand = m6_0 , u0_bus_mac_age = 0 , u0_bus_mac_valid = true , family_grant_0 = ( server == 0 ) , family_last_server = server , tick = 0",
+        "guard": "tick == u0_bus_T_mac_tick && ( server != 0 || ( u0_mac_queue_q > 0 && ( u0_mac_scheduleMode == u0_mac_SCH_COMM || u0_mac_scheduleMode == u0_mac_SCH_JOINT ) ) )",
+        "index": 1,
+        "select": "server : int [ - 1 , 0 ]",
+        "source": "Sample_1",
+        "target": "Publish_0",
+        "template": "SharedLoad"
+      },
+      {
+        "assignment": "c82_insert_result ( )",
+        "guard": "c82_active && c82_sampled && ! c82_enqueued && u0_mac_queue_q < u0_mac_queue_K",
+        "index": 5,
+        "source": "Wait",
+        "synchronisation": "c82_enqueue ?",
+        "target": "Wait",
+        "template": "SharedLoad"
+      },
+      {
+        "assignment": "c82_queue_overflow ( )",
+        "guard": "c82_active && c82_sampled && ! c82_enqueued && u0_mac_queue_q >= u0_mac_queue_K",
+        "index": 6,
+        "source": "Wait",
+        "synchronisation": "c82_enqueue_loss !",
+        "target": "Wait",
+        "template": "SharedLoad"
+      },
+      {
+        "assignment": "c82_job_id = c82_admitted_id",
+        "guard": "c82_active && c82_admitted",
+        "index": 0,
+        "source": "Idle",
+        "target": "Ready",
+        "template": "C82_ResultJob"
+      },
+      {
+        "guard": "c82_active",
+        "index": 1,
+        "source": "Ready",
+        "synchronisation": "c82_sense_start !",
+        "target": "Measuring",
+        "template": "C82_ResultJob"
+      },
+      {
+        "guard": "c82_active",
+        "index": 2,
+        "source": "Measuring",
+        "synchronisation": "c82_measurement ?",
+        "target": "ResultReady",
+        "template": "C82_ResultJob"
+      },
+      {
+        "index": 3,
+        "source": "Measuring",
+        "synchronisation": "c82_sense_failure ?",
+        "target": "Done",
+        "template": "C82_ResultJob"
+      },
+      {
+        "guard": "c82_active",
+        "index": 4,
+        "source": "ResultReady",
+        "synchronisation": "c82_enqueue !",
+        "target": "Queued",
+        "template": "C82_ResultJob"
+      },
+      {
+        "index": 5,
+        "source": "ResultReady",
+        "synchronisation": "c82_enqueue_loss ?",
+        "target": "Done",
+        "template": "C82_ResultJob"
+      },
+      {
+        "assignment": "c82_attempted = true , c82_tx_age = 0",
+        "guard": "c82_active && c82_dispatched",
+        "index": 6,
+        "source": "Queued",
+        "target": "Transmitting",
+        "template": "C82_ResultJob"
+      },
+      {
+        "guard": "c82_active && c82_tx_age <= u0_bus_D_bus",
+        "index": 7,
+        "source": "Transmitting",
+        "synchronisation": "c82_result_delivery !",
+        "target": "Done",
+        "template": "C82_ResultJob"
+      },
+      {
+        "assignment": "c82_tx_lost = true",
+        "guard": "c82_active && c82_tx_age <= u0_bus_D_bus",
+        "index": 8,
+        "source": "Transmitting",
+        "target": "Done",
+        "template": "C82_ResultJob"
+      },
+      {
+        "guard": "c82_request_id == 1 && ! c82_active",
+        "index": 9,
+        "source": "Idle",
+        "target": "Done",
+        "template": "C82_ResultJob"
+      },
+      {
+        "guard": "c82_request_id == 1 && ! c82_active",
+        "index": 10,
+        "source": "Ready",
+        "target": "Done",
+        "template": "C82_ResultJob"
+      },
+      {
+        "guard": "c82_request_id == 1 && ! c82_active",
+        "index": 11,
+        "source": "Measuring",
+        "target": "Done",
+        "template": "C82_ResultJob"
+      },
+      {
+        "guard": "c82_request_id == 1 && ! c82_active",
+        "index": 12,
+        "source": "ResultReady",
+        "target": "Done",
+        "template": "C82_ResultJob"
+      },
+      {
+        "guard": "c82_request_id == 1 && ! c82_active",
+        "index": 13,
+        "source": "Queued",
+        "target": "Done",
+        "template": "C82_ResultJob"
+      },
+      {
+        "guard": "c82_request_id == 1 && ! c82_active",
+        "index": 14,
+        "source": "Transmitting",
+        "target": "Done",
+        "template": "C82_ResultJob"
+      }
+    ],
+    "system": "u0_phy_A_CH_0 = u0_phy_Template_A_CH ( ) ; u0_phy_A_SIG_0 = u0_phy_Template_A_SIG ( ) ; u0_phy_A_BM_0 = u0_phy_Template_A_BM ( ) ; u0_phy_A_SQ_0 = u0_phy_Template_A_SQ ( ) ; u0_phy_A_PH_0 = u0_phy_Template_A_PH ( ) ; u0_mac_A_SCH_0 = u0_mac_Template_A_SCH ( ) ; u0_mac_A_Q_0 = u0_mac_Template_A_Q ( ) ; u0_mac_A_BUF_0 = u0_mac_Template_A_BUF ( ) ; u0_mac_A_RSRC_0 = u0_mac_Template_A_RSRC ( ) ; u0_mac_A_MAC_AGG_0 = u0_mac_Template_A_MAC_AGG ( ) ; u0_sdn_A_MON_0 = u0_sdn_Template_A_MON ( ) ; u0_sdn_A_RISK_0 = u0_sdn_Template_A_RISK ( ) ; u0_sdn_A_POLICY_0 = u0_sdn_Template_A_POLICY ( ) ; u0_sdn_A_RULE_0 = u0_sdn_Template_A_RULE ( ) ; u0_sdn_A_REC_0 = u0_sdn_Template_A_REC ( ) ; u0_sdn_A_SDN_AGG_0 = u0_sdn_Template_A_SDN_AGG ( ) ; u0_app_Req_0 = u0_app_A_REQ ( ) ; u0_app_Sla_0 = u0_app_A_SLA ( ) ; u0_app_Crit_0 = u0_app_A_CRIT ( ) ; u0_app_Agg_0 = u0_app_A_SVC_AGG ( ) ; u0_boundary_E_PHY_INPUT_0 = u0_Boundary_E_PHY_INPUT ( ) ; u0_boundary_E_FAULT_0 = u0_Boundary_E_FAULT ( ) ; u0_boundary_E_SERVICE_0 = u0_Boundary_E_SERVICE ( ) ; u0_boundary_B_PHY_MAC_0 = u0_Boundary_B_PHY_MAC ( ) ; u0_boundary_B_POLICY_0 = u0_Boundary_B_POLICY ( ) ; u0_boundary_B_ADMISSION_0 = u0_Boundary_B_ADMISSION ( ) ; u0_boundary_B_KPI_0 = u0_Boundary_B_KPI ( ) ; u0_obs_phy_ObsSenseReport_0 = u0_phy_Template_ObsSenseReport ( ) ; u0_obs_phy_ObsFreshness_0 = u0_phy_Template_ObsFreshness ( ) ; u0_obs_phy_ObsBeamRecovery_0 = u0_phy_Template_ObsBeamRecovery ( ) ; u0_obs_mac_ObsPhyAck_0 = u0_mac_Template_ObsPhyAck ( ) ; u0_obs_mac_ObsQueueCritical_0 = u0_mac_Template_ObsQueueCritical ( ) ; u0_obs_mac_ObsSensingCritical_0 = u0_mac_Template_ObsSensingCritical ( ) ; u0_obs_mac_ObsBufferOverflow_0 = u0_mac_Template_ObsBufferOverflow ( ) ; u0_obs_mac_ObsMacReportFreshness_0 = u0_mac_Template_ObsMacReportFreshness ( ) ; u0_obs_sdn_ObsRuleMiss_0 = u0_sdn_Template_ObsRuleMiss ( ) ; u0_obs_sdn_ObsRecovery_0 = u0_sdn_Template_ObsRecovery ( ) ; u0_obs_sdn_ObsAdmission_0 = u0_sdn_Template_ObsAdmission ( ) ; u0_obs_sdn_ObsStaleTelemetry_0 = u0_sdn_Template_ObsStaleTelemetry ( ) ; u0_obs_sdn_ObsCommandAck_0 = u0_sdn_Template_ObsCommandAck ( ) ; u0_obs_sdn_ObsSensingDecision_0 = u0_sdn_Template_ObsSensingDecision ( ) ; u0_obs_app_ObsAdmission_0 = u0_app_ObsServiceAdmission ( ) ; u0_obs_app_ObsWarn_0 = u0_app_ObsSlaWarningDeadline ( ) ; u0_obs_app_ObsViolation_0 = u0_app_ObsSlaViolationDeadline ( ) ; u0_obs_app_ObsFresh_0 = u0_app_ObsDetectionFreshness ( ) ; u0_obs_app_ObsUpdate_0 = u0_app_ObsUpdatePeriodViolation ( ) ; u0_obs_app_ObsFa_0 = u0_app_ObsFalseAlarmCritical ( ) ; u0_obs_app_ObsMiss_0 = u0_app_ObsMissedDetectionCritical ( ) ; u0_obs_app_ObsSafety_0 = u0_app_ObsSafetyCriticalViolation ( ) ; shared_load = SharedLoad ( ) ; c82_job = C82_ResultJob ( ) ; system u0_phy_A_CH_0 , u0_phy_A_SIG_0 , u0_phy_A_BM_0 , u0_phy_A_SQ_0 , u0_phy_A_PH_0 , u0_mac_A_SCH_0 , u0_mac_A_Q_0 , u0_mac_A_BUF_0 , u0_mac_A_RSRC_0 , u0_mac_A_MAC_AGG_0 , u0_sdn_A_MON_0 , u0_sdn_A_RISK_0 , u0_sdn_A_POLICY_0 , u0_sdn_A_RULE_0 , u0_sdn_A_REC_0 , u0_sdn_A_SDN_AGG_0 , u0_app_Req_0 , u0_app_Sla_0 , u0_app_Crit_0 , u0_app_Agg_0 , u0_boundary_E_PHY_INPUT_0 , shared_load , u0_boundary_E_FAULT_0 , u0_boundary_E_SERVICE_0 , u0_boundary_B_PHY_MAC_0 , u0_boundary_B_POLICY_0 , u0_boundary_B_ADMISSION_0 , u0_boundary_B_KPI_0 , u0_obs_phy_ObsSenseReport_0 , u0_obs_phy_ObsFreshness_0 , u0_obs_phy_ObsBeamRecovery_0 , u0_obs_mac_ObsPhyAck_0 , u0_obs_mac_ObsQueueCritical_0 , u0_obs_mac_ObsSensingCritical_0 , u0_obs_mac_ObsBufferOverflow_0 , u0_obs_mac_ObsMacReportFreshness_0 , u0_obs_sdn_ObsRuleMiss_0 , u0_obs_sdn_ObsRecovery_0 , u0_obs_sdn_ObsAdmission_0 , u0_obs_sdn_ObsStaleTelemetry_0 , u0_obs_sdn_ObsCommandAck_0 , u0_obs_sdn_ObsSensingDecision_0 , u0_obs_app_ObsAdmission_0 , u0_obs_app_ObsWarn_0 , u0_obs_app_ObsViolation_0 , u0_obs_app_ObsFresh_0 , u0_obs_app_ObsUpdate_0 , u0_obs_app_ObsFa_0 , u0_obs_app_ObsMiss_0 , u0_obs_app_ObsSafety_0 , c82_job ;"
+  }
+}

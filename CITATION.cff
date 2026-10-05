@@ -1,0 +1,15 @@
+cff-version: 1.2.0
+message: "If you use these research artifacts, please cite this repository."
+type: software
+title: "UPPAAL artifacts for SDN-managed resource orchestration in 6G ISAC networks"
+authors:
+  - family-names: Mustafin
+    given-names: Artur
+    orcid: "https://orcid.org/0009-0008-8322-0864"
+  - family-names: Tinishov
+    given-names: Vadim
+    orcid: "https://orcid.org/0009-0003-7319-1944"
+version: 1.0.0
+date-released: 2026-10-05
+url: "https://github.com/artmus208/uppaal-isac-model-repository"
+repository-code: "https://github.com/artmus208/uppaal-isac-model-repository"

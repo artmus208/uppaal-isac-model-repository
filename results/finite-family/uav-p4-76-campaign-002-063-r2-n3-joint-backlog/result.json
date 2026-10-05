@@ -1,0 +1,73 @@
+{
+  "N": 3,
+  "cell_id": "063-r2-n3-joint-backlog",
+  "cpu_seconds": 37.828125,
+  "enforcement": "sampled stop threshold, not a hard allocation cap; target process only",
+  "error": null,
+  "evidence_kind": "direct_model_checking",
+  "exit_code": 0,
+  "finished_at_utc": "2026-09-29T14:44:44.1355158Z",
+  "formula": "E<> u0_mac_queue_q > 0 && u1_mac_queue_q > 0 && u2_mac_queue_q > 0",
+  "maximum_sample_gap_seconds": 0.2664960999999977,
+  "memory_limit_bytes": 2147483648,
+  "memory_measure": "max(PrivateMemorySize64, WorkingSet64, PeakWorkingSet64)",
+  "memory_samples_path": "results/finite-family/uav-p4-76-campaign-002-063-r2-n3-joint-backlog/memory.csv",
+  "memory_stop_bytes": 2147483648,
+  "model_hash": "aa1c0ecf1a0e8846421ebff91ac19ffc1645724d4309a38c568edbf23273ce90",
+  "model_path": "models/F/n3/model.xml",
+  "operating_environment": {
+    "driver": "Linux-6.6.114.1-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+    "target": "native Windows via WSL"
+  },
+  "peak_private_bytes": 165580800,
+  "peak_working_set_bytes": 135467008,
+  "phase": "model-checking",
+  "property_verdict": "satisfied",
+  "query": "generated/n3/p4/joint-backlog.q",
+  "query_hash": "08c11b52543f7ce4217ecdddaa73b5a7b30bee3c702aaf9977f976c81781704d",
+  "query_path": "queries/F/n3/p4/joint-backlog.q",
+  "reason": null,
+  "record_kind": "public_scientific_projection",
+  "repeat": 2,
+  "result_per_query": [
+    {
+      "formula": "E<> u0_mac_queue_q > 0 && u1_mac_queue_q > 0 && u2_mac_queue_q > 0",
+      "verdict": "satisfied"
+    }
+  ],
+  "run_id": "uav-p4-76-campaign-002-063-r2-n3-joint-backlog",
+  "runtime_seconds": 58.9681631,
+  "started_at_utc": "2026-09-29T14:43:45.1511626Z",
+  "states_explored": "not_available",
+  "status": "success",
+  "stderr_path": "results/finite-family/uav-p4-76-campaign-002-063-r2-n3-joint-backlog/stderr.txt",
+  "stdout_path": "results/finite-family/uav-p4-76-campaign-002-063-r2-n3-joint-backlog/stdout.txt",
+  "timeout_seconds": 60,
+  "tool_version": "UPPAAL 5.0.0 (rev. 714BA9DB36F49691), June 2023",
+  "trace_paths": [
+    "results/finite-family/uav-p4-76-campaign-002-063-r2-n3-joint-backlog/trace-1.gz"
+  ],
+  "verifier_arguments": [
+    "-q",
+    "-s",
+    "-u",
+    "-o",
+    "1",
+    "--exploration",
+    "0",
+    "--state-representation",
+    "1",
+    "-S",
+    "1",
+    "-n",
+    "0",
+    "-r",
+    "68",
+    "-t",
+    "0",
+    "-f",
+    "<run-directory>/r2-n3-joint-backlog-trace",
+    "models/F/n3/model.xml",
+    "queries/F/n3/p4/joint-backlog.q"
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "F/n1": {
+    "N": 1,
+    "path": "models/F/n1/model.xml",
+    "sha256": "5234cb087e5274798926d516dedc77d1f9542ea7df59cec39f83859771ce1385"
+  },
+  "F/n2": {
+    "N": 2,
+    "path": "models/F/n2/model.xml",
+    "sha256": "e7ac599140b7beeb94acdf0e3535a727c2eccc40aa15314afa3371eb09700208"
+  },
+  "F/n3": {
+    "N": 3,
+    "path": "models/F/n3/model.xml",
+    "sha256": "aa1c0ecf1a0e8846421ebff91ac19ffc1645724d4309a38c568edbf23273ce90"
+  },
+  "F/n4": {
+    "N": 4,
+    "path": "models/F/n4/model.xml",
+    "sha256": "e8a4cdb0a4ea795ca2c90a0dfdee8cff7b9fbc3093369fa8141d61750a28033a"
+  },
+  "H": {
+    "N": 1,
+    "path": "models/H/model.xml",
+    "sha256": "592678ed678ce8f70cf278f542e48bd2bb739969b53a962423d3e63f91e3e1e2"
+  },
+  "Hnom": {
+    "N": 1,
+    "path": "models/Hnom/model.xml",
+    "sha256": "3d29abc8a19aa743fa5e83bde7c83e3c45de36f166ea2b74315443156b073e03"
+  },
+  "R": {
+    "N": 1,
+    "path": "models/R/model.xml",
+    "sha256": "b80db319ff7cdb511cb97aa155be01f1d68707358399fbe02fa39c1c6c32be6c"
+  },
+  "S": {
+    "N": 1,
+    "path": "models/S/model.xml",
+    "sha256": "b8ab50e112b71491f8242789cc7906497baf8440c473d7a5a4d5214840187e02"
+  }
+}

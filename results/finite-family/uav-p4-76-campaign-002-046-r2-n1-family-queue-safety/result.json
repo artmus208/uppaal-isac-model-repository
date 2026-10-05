@@ -1,0 +1,73 @@
+{
+  "N": 1,
+  "cell_id": "046-r2-n1-family-queue-safety",
+  "cpu_seconds": 9.296875,
+  "enforcement": "sampled stop threshold, not a hard allocation cap; target process only",
+  "error": null,
+  "evidence_kind": "direct_model_checking",
+  "exit_code": 0,
+  "finished_at_utc": "2026-09-29T14:29:57.7817851Z",
+  "formula": "A[] !(u0_mac_queue_overflow_seen)",
+  "maximum_sample_gap_seconds": 0.1424133,
+  "memory_limit_bytes": 2147483648,
+  "memory_measure": "max(PrivateMemorySize64, WorkingSet64, PeakWorkingSet64)",
+  "memory_samples_path": "results/finite-family/uav-p4-76-campaign-002-046-r2-n1-family-queue-safety/memory.csv",
+  "memory_stop_bytes": 2147483648,
+  "model_hash": "5234cb087e5274798926d516dedc77d1f9542ea7df59cec39f83859771ce1385",
+  "model_path": "models/F/n1/model.xml",
+  "operating_environment": {
+    "driver": "Linux-6.6.114.1-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+    "target": "native Windows via WSL"
+  },
+  "peak_private_bytes": 112861184,
+  "peak_working_set_bytes": 84996096,
+  "phase": "model-checking",
+  "property_verdict": "violated",
+  "query": "generated/n1/p4/family-queue-safety.q",
+  "query_hash": "c820090fc19ffc80284d62194b40f62396cdeedc10fc1db0d853f4293b64656e",
+  "query_path": "queries/F/n1/p4/family-queue-safety.q",
+  "reason": null,
+  "record_kind": "public_scientific_projection",
+  "repeat": 2,
+  "result_per_query": [
+    {
+      "formula": "A[] !(u0_mac_queue_overflow_seen)",
+      "verdict": "violated"
+    }
+  ],
+  "run_id": "uav-p4-76-campaign-002-046-r2-n1-family-queue-safety",
+  "runtime_seconds": 14.4998189,
+  "started_at_utc": "2026-09-29T14:29:43.2738642Z",
+  "states_explored": "not_available",
+  "status": "success",
+  "stderr_path": "results/finite-family/uav-p4-76-campaign-002-046-r2-n1-family-queue-safety/stderr.txt",
+  "stdout_path": "results/finite-family/uav-p4-76-campaign-002-046-r2-n1-family-queue-safety/stdout.txt",
+  "timeout_seconds": 60,
+  "tool_version": "UPPAAL 5.0.0 (rev. 714BA9DB36F49691), June 2023",
+  "trace_paths": [
+    "results/finite-family/uav-p4-76-campaign-002-046-r2-n1-family-queue-safety/trace-1.gz"
+  ],
+  "verifier_arguments": [
+    "-q",
+    "-s",
+    "-u",
+    "-o",
+    "1",
+    "--exploration",
+    "0",
+    "--state-representation",
+    "1",
+    "-S",
+    "1",
+    "-n",
+    "0",
+    "-r",
+    "68",
+    "-t",
+    "0",
+    "-f",
+    "<run-directory>/r2-n1-family-queue-safety-trace",
+    "models/F/n1/model.xml",
+    "queries/F/n1/p4/family-queue-safety.q"
+  ]
+}

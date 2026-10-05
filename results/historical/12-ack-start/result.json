@@ -1,0 +1,30 @@
+{
+  "evidence_kind": "native_model_checking",
+  "exit_code": 0,
+  "finished_at_utc": "2026-09-23T13:25:28.4184477Z",
+  "memory_measurement": "Windows Process.PeakWorkingSet64, observed every 50ms; private bytes sampled. Stop threshold is not a hard allocation cap.",
+  "memory_stop_bytes": 2147483648,
+  "model_hash": "592678ed678ce8f70cf278f542e48bd2bb739969b53a962423d3e63f91e3e1e2",
+  "model_path": "models/H/model.xml",
+  "peak_working_set_bytes": 133681152,
+  "query_hash": "3d5b58517dd881b78d198f47d517e391ca4234b2cec59701834a6ad2cd6d29e6",
+  "query_path": "queries/H/12-ack-start.q",
+  "record_kind": "public_scientific_projection",
+  "result_per_query": [
+    true
+  ],
+  "run_id": "12-ack-start",
+  "runtime_seconds": 11.2588259,
+  "sampled_peak_private_bytes": 170000384,
+  "started_at_utc": "2026-09-23T13:25:17.0839966Z",
+  "status": "success",
+  "stderr_path": "results/historical/12-ack-start/stderr.txt",
+  "stdout_path": "results/historical/12-ack-start/stdout.txt",
+  "termination": "completed",
+  "timeout_seconds": 60,
+  "tool_version": "UPPAAL 5.0.0 (rev. 714BA9DB36F49691), June 2023",
+  "trace_paths": [
+    "results/historical/12-ack-start/12-ack-start-trace1.xml.gz"
+  ],
+  "verdict": true
+}

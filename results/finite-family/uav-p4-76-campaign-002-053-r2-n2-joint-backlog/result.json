@@ -1,0 +1,73 @@
+{
+  "N": 2,
+  "cell_id": "053-r2-n2-joint-backlog",
+  "cpu_seconds": 10.484375,
+  "enforcement": "sampled stop threshold, not a hard allocation cap; target process only",
+  "error": null,
+  "evidence_kind": "direct_model_checking",
+  "exit_code": 0,
+  "finished_at_utc": "2026-09-29T14:34:41.2850337Z",
+  "formula": "E<> u0_mac_queue_q > 0 && u1_mac_queue_q > 0",
+  "maximum_sample_gap_seconds": 0.1660732,
+  "memory_limit_bytes": 2147483648,
+  "memory_measure": "max(PrivateMemorySize64, WorkingSet64, PeakWorkingSet64)",
+  "memory_samples_path": "results/finite-family/uav-p4-76-campaign-002-053-r2-n2-joint-backlog/memory.csv",
+  "memory_stop_bytes": 2147483648,
+  "model_hash": "e7ac599140b7beeb94acdf0e3535a727c2eccc40aa15314afa3371eb09700208",
+  "model_path": "models/F/n2/model.xml",
+  "operating_environment": {
+    "driver": "Linux-6.6.114.1-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+    "target": "native Windows via WSL"
+  },
+  "peak_private_bytes": 111136768,
+  "peak_working_set_bytes": 80850944,
+  "phase": "model-checking",
+  "property_verdict": "satisfied",
+  "query": "generated/n2/p4/joint-backlog.q",
+  "query_hash": "eef1fd0aa322d66e7142f4a04573aadb213b02b62eb0a5d3630572a0b98d5cfc",
+  "query_path": "queries/F/n2/p4/joint-backlog.q",
+  "reason": null,
+  "record_kind": "public_scientific_projection",
+  "repeat": 2,
+  "result_per_query": [
+    {
+      "formula": "E<> u0_mac_queue_q > 0 && u1_mac_queue_q > 0",
+      "verdict": "satisfied"
+    }
+  ],
+  "run_id": "uav-p4-76-campaign-002-053-r2-n2-joint-backlog",
+  "runtime_seconds": 15.3348126,
+  "started_at_utc": "2026-09-29T14:34:25.9354065Z",
+  "states_explored": "not_available",
+  "status": "success",
+  "stderr_path": "results/finite-family/uav-p4-76-campaign-002-053-r2-n2-joint-backlog/stderr.txt",
+  "stdout_path": "results/finite-family/uav-p4-76-campaign-002-053-r2-n2-joint-backlog/stdout.txt",
+  "timeout_seconds": 60,
+  "tool_version": "UPPAAL 5.0.0 (rev. 714BA9DB36F49691), June 2023",
+  "trace_paths": [
+    "results/finite-family/uav-p4-76-campaign-002-053-r2-n2-joint-backlog/trace-1.gz"
+  ],
+  "verifier_arguments": [
+    "-q",
+    "-s",
+    "-u",
+    "-o",
+    "1",
+    "--exploration",
+    "0",
+    "--state-representation",
+    "1",
+    "-S",
+    "1",
+    "-n",
+    "0",
+    "-r",
+    "68",
+    "-t",
+    "0",
+    "-f",
+    "<run-directory>/r2-n2-joint-backlog-trace",
+    "models/F/n2/model.xml",
+    "queries/F/n2/p4/joint-backlog.q"
+  ]
+}

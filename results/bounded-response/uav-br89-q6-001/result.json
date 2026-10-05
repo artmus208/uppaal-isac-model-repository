@@ -1,0 +1,31 @@
+{
+  "cap_seconds": 180,
+  "cpu_seconds": 0.71875,
+  "executable_sha256": "4c8af2716ff61f3cf35c6d1dc408ccf306d44bb22478e104548a8f0f7a3febe5",
+  "exit_code": 0,
+  "finished_at_utc": "2026-10-04T00:39:56.643252+00:00",
+  "formula": "(c82_request_id==1 && c82_active) --> ((u0_app_Req_0.Completed || u0_app_Req_0.Rejected || u0_app_Req_0.ServiceFailed || u0_app_Req_0.ServiceTimeout || u0_app_Req_0.Cancelled) && !c82_active && c82_outcome>=1 && c82_outcome<=5 && c82_service_age<=c82_D_service)",
+  "memory_limit_bytes": 8515485696,
+  "model_hash": "b8ab50e112b71491f8242789cc7906497baf8440c473d7a5a4d5214840187e02",
+  "model_path": "models/S/model.xml",
+  "peak_rss_bytes": 68505600,
+  "query_hash": "16b39342f932f42136802ec92947eaf2b2f102ce34e0013b7727e76fb11f7871",
+  "query_path": "queries/bounded-response/Q6.q",
+  "reason": null,
+  "record_kind": "public_scientific_projection",
+  "run_id": "uav-br89-q6-001",
+  "started_at_utc": "2026-10-04T00:39:55.868217+00:00",
+  "states_explored": null,
+  "status": "success",
+  "stderr_path": "results/bounded-response/uav-br89-q6-001/stderr.txt",
+  "stdout_path": "results/bounded-response/uav-br89-q6-001/stdout.txt",
+  "telemetry_paths": [
+    "results/bounded-response/uav-br89-q6-001/telemetry.jsonl"
+  ],
+  "tool_version": "UPPAAL 5.0.0 (rev. 714BA9DB36F49691), June 2023\nCopyright (c) 2011 - 2023, Aalborg University.\nCopyright (c) 1995 - 2011, Uppsala University and Aalborg University.\nAll rights reserved.\nCompiled using -DENABLE_TIGA -DMULTI_TERMINAL -DENABLE_TIGA_SMC -DENABLE_STORE_MINGRAPH -DTIGA_OTF_BUCHI -DENABLE_LSC \nBuilt with Boost-1.79.0, LibXml2-2.9.14, xxHash-0.8.1, UTAP-1.1.6, UUtils-1.2.0, UDBM-2.0.11, and UCDD-0.2.1",
+  "trace_paths": [
+    "results/bounded-response/uav-br89-q6-001/trace1.xml.gz"
+  ],
+  "verdict": false,
+  "wall_seconds": 0.7659999999959837
+}

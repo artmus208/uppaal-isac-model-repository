@@ -1,0 +1,31 @@
+{
+  "cap_seconds": 180,
+  "cpu_seconds": 0.328125,
+  "executable_sha256": "4c8af2716ff61f3cf35c6d1dc408ccf306d44bb22478e104548a8f0f7a3febe5",
+  "exit_code": 0,
+  "finished_at_utc": "2026-10-04T00:04:27.815002+00:00",
+  "formula": "E<> (c82_request_id==1 && c82_active)",
+  "memory_limit_bytes": 8515485696,
+  "model_hash": "3d29abc8a19aa743fa5e83bde7c83e3c45de36f166ea2b74315443156b073e03",
+  "model_path": "models/Hnom/model.xml",
+  "peak_rss_bytes": 43433984,
+  "query_hash": "c599715a482970ae4b72e6fc1384cb1d05cd1631b166f4a9beb4f2a9507413d2",
+  "query_path": "queries/bounded-response/Q1.q",
+  "reason": null,
+  "record_kind": "public_scientific_projection",
+  "run_id": "uav-br89-q1-001",
+  "started_at_utc": "2026-10-04T00:04:27.443695+00:00",
+  "states_explored": null,
+  "status": "error",
+  "stderr_path": "results/bounded-response/uav-br89-q1-001/stderr.txt",
+  "stdout_path": "results/bounded-response/uav-br89-q1-001/stdout.txt",
+  "telemetry_paths": [
+    "results/bounded-response/uav-br89-q1-001/telemetry.jsonl"
+  ],
+  "tool_version": "UPPAAL 5.0.0 (rev. 714BA9DB36F49691), June 2023\nCopyright (c) 2011 - 2023, Aalborg University.\nCopyright (c) 1995 - 2011, Uppsala University and Aalborg University.\nAll rights reserved.\nCompiled using -DENABLE_TIGA -DMULTI_TERMINAL -DENABLE_TIGA_SMC -DENABLE_STORE_MINGRAPH -DTIGA_OTF_BUCHI -DENABLE_LSC \nBuilt with Boost-1.79.0, LibXml2-2.9.14, xxHash-0.8.1, UTAP-1.1.6, UUtils-1.2.0, UDBM-2.0.11, and UCDD-0.2.1",
+  "trace_paths": [
+    "results/bounded-response/uav-br89-q1-001/trace1.xml.gz"
+  ],
+  "verdict": null,
+  "wall_seconds": 0.35899999999674037
+}

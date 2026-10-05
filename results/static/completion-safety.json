@@ -1,0 +1,496 @@
+{
+  "entry_obligations": [
+    {
+      "age_bounds": "sample < 5; service <= 40",
+      "edge": 12,
+      "query_atoms": 26,
+      "service_band": 1,
+      "source": "Accepted"
+    },
+    {
+      "age_bounds": "sample < 5; service <= 40",
+      "edge": 13,
+      "query_atoms": 26,
+      "service_band": 2,
+      "source": "Accepted"
+    },
+    {
+      "age_bounds": "sample < 5; service <= 40",
+      "edge": 18,
+      "query_atoms": 26,
+      "service_band": 1,
+      "source": "AcceptedDegraded"
+    },
+    {
+      "age_bounds": "sample < 5; service <= 40",
+      "edge": 19,
+      "query_atoms": 26,
+      "service_band": 2,
+      "source": "AcceptedDegraded"
+    }
+  ],
+  "evidence_kind": "static_validation",
+  "helpers_scanned": 77,
+  "native_execution": false,
+  "premises_supported": true,
+  "property_verdict": null,
+  "query_atoms": 26,
+  "scope": "exact N=1/51-process one-shot XML; mathematical argument pending review",
+  "templates": 51,
+  "transitions_scanned": 884,
+  "writer_sites": [
+    {
+      "assignment": "c82_measure_age=0",
+      "guard": "c82_active && c82_admitted && !c82_sampled",
+      "index": 24,
+      "preservation": "disabled by strengthened invariant !c82_active",
+      "source": "SensingQoSOk",
+      "synchronisation": "c82_sense_start?",
+      "target": "JobMeasuring",
+      "template": "u0_phy_Template_A_SQ",
+      "writes": [
+        "c82_measure_age"
+      ]
+    },
+    {
+      "assignment": "c82_store_measurement()",
+      "guard": "c82_measure_age==u0_phy_D_sense && c82_active && c82_job_id==c82_request_id && !c82_sampled && u0_phy_highest_priority_SQ()!=u0_phy_SENSINGSTATE_SENSINGFAILURE && u0_phy_PdClass!=u0_phy_PDCLASS_FAILED && !(u0_phy_PdClass==0 && u0_bus_missed_detection==2)",
+      "index": 25,
+      "preservation": "disabled by strengthened invariant !c82_active",
+      "source": "JobMeasuring",
+      "synchronisation": "c82_measurement!",
+      "target": "SensingQoSOk",
+      "template": "u0_phy_Template_A_SQ",
+      "writes": [
+        "c82_acc",
+        "c82_cov",
+        "c82_fa",
+        "c82_miss",
+        "c82_pd",
+        "c82_sample_age",
+        "c82_sample_id",
+        "c82_sample_request_id",
+        "c82_sampled"
+      ]
+    },
+    {
+      "assignment": "c82_sensing_failed=true",
+      "guard": "c82_measure_age==u0_phy_D_sense && c82_active",
+      "index": 26,
+      "preservation": "disabled by strengthened invariant !c82_active",
+      "source": "JobMeasuring",
+      "synchronisation": "c82_sense_failure!",
+      "target": "SensingQoSOk",
+      "template": "u0_phy_Template_A_SQ",
+      "writes": [
+        "c82_sensing_failed"
+      ]
+    },
+    {
+      "assignment": "u0_app_service_request_pending = true, u0_raise_app_service_request_seq(), u0_app_c_admission = 0, c82_emit_request()",
+      "index": 2,
+      "preservation": "APP source excluded once Completed (single absorbing instance)",
+      "source": "RequestReady",
+      "synchronisation": "u0_app_service_request!",
+      "target": "RequestPending",
+      "template": "u0_app_A_REQ",
+      "writes": [
+        "c82_active",
+        "c82_req_acc",
+        "c82_req_cov",
+        "c82_req_fa",
+        "c82_req_fresh",
+        "c82_req_miss",
+        "c82_req_pd",
+        "c82_req_update",
+        "c82_request_id",
+        "c82_service_age"
+      ]
+    },
+    {
+      "assignment": "u0_app_service_request_pending = false, c82_admitted=true, c82_admitted_id=c82_request_id",
+      "guard": "(u0_app_admissionClass == u0_app_ADM_ACCEPTED) && c82_active",
+      "index": 3,
+      "preservation": "APP source excluded once Completed (single absorbing instance)",
+      "source": "RequestPending",
+      "synchronisation": "u0_app_service_accept?",
+      "target": "Accepted",
+      "template": "u0_app_A_REQ",
+      "writes": [
+        "c82_admitted",
+        "c82_admitted_id"
+      ]
+    },
+    {
+      "assignment": "u0_app_service_request_pending = false, u0_app_degraded_accept_pending = true, c82_admitted=true, c82_admitted_id=c82_request_id",
+      "guard": "(u0_app_gAcceptDegraded()) && c82_active",
+      "index": 4,
+      "preservation": "APP source excluded once Completed (single absorbing instance)",
+      "source": "RequestPending",
+      "synchronisation": "u0_app_service_degraded?",
+      "target": "AcceptedDegraded",
+      "template": "u0_app_A_REQ",
+      "writes": [
+        "c82_admitted",
+        "c82_admitted_id"
+      ]
+    },
+    {
+      "assignment": "u0_app_service_request_pending = false, c82_active=false, c82_outcome=2",
+      "guard": "(u0_app_admissionClass == u0_app_ADM_REJECTED || u0_app_gRejectDegraded()) && c82_active",
+      "index": 5,
+      "preservation": "APP source excluded once Completed (single absorbing instance)",
+      "source": "RequestPending",
+      "synchronisation": "u0_app_service_reject?",
+      "target": "Rejected",
+      "template": "u0_app_A_REQ",
+      "writes": [
+        "c82_active",
+        "c82_outcome"
+      ]
+    },
+    {
+      "assignment": "u0_app_admissionClass = u0_app_ADM_REJECTED, u0_app_service_request_pending = false, u0_bus_admission_timeout = true, c82_active=false, c82_outcome=2",
+      "guard": "(u0_app_c_admission == u0_app_D_admission) && c82_active",
+      "index": 11,
+      "preservation": "APP source excluded once Completed (single absorbing instance)",
+      "source": "RequestPending",
+      "target": "Rejected",
+      "template": "u0_app_A_REQ",
+      "writes": [
+        "c82_active",
+        "c82_outcome"
+      ]
+    },
+    {
+      "assignment": "c82_received=true, c82_received_request_id=c82_tx_request_id, c82_received_sample_id=c82_tx_sample_id, c82_receipt_timely=true, c82_receipt_quality=true, c82_receipt_sample_band=0, c82_success=true, c82_active=false, c82_outcome=1, u0_bus_complete_delivered=true, c82_receipt_service_band=1",
+      "guard": "((c82_active && c82_admitted && c82_request_id==1 && c82_admitted_id==c82_request_id && c82_job_id==c82_request_id && c82_sampled && c82_sample_id==1 && c82_sample_request_id==c82_request_id && c82_enqueued && c82_dispatched && c82_attempted && c82_tx_request_id==c82_request_id && c82_tx_sample_id==c82_sample_id && !c82_received && !c82_cancelled && !c82_sensing_failed && !c82_tx_lost && !c82_queue_failed && c82_outcome==0 && c82_req_fresh==2 && c82_req_update==2) && c82_payload_quality() && c82_sample_age<5 && c82_service_age<=c82_D_service) && c82_service_age<c82_D_service",
+      "index": 12,
+      "preservation": "APP source excluded once Completed (single absorbing instance)",
+      "source": "Accepted",
+      "synchronisation": "c82_result_delivery?",
+      "target": "Completed",
+      "template": "u0_app_A_REQ",
+      "writes": [
+        "c82_active",
+        "c82_outcome",
+        "c82_receipt_quality",
+        "c82_receipt_sample_band",
+        "c82_receipt_service_band",
+        "c82_receipt_timely",
+        "c82_received",
+        "c82_received_request_id",
+        "c82_received_sample_id",
+        "c82_success"
+      ]
+    },
+    {
+      "assignment": "c82_received=true, c82_received_request_id=c82_tx_request_id, c82_received_sample_id=c82_tx_sample_id, c82_receipt_timely=true, c82_receipt_quality=true, c82_receipt_sample_band=0, c82_success=true, c82_active=false, c82_outcome=1, u0_bus_complete_delivered=true, c82_receipt_service_band=2",
+      "guard": "((c82_active && c82_admitted && c82_request_id==1 && c82_admitted_id==c82_request_id && c82_job_id==c82_request_id && c82_sampled && c82_sample_id==1 && c82_sample_request_id==c82_request_id && c82_enqueued && c82_dispatched && c82_attempted && c82_tx_request_id==c82_request_id && c82_tx_sample_id==c82_sample_id && !c82_received && !c82_cancelled && !c82_sensing_failed && !c82_tx_lost && !c82_queue_failed && c82_outcome==0 && c82_req_fresh==2 && c82_req_update==2) && c82_payload_quality() && c82_sample_age<5 && c82_service_age<=c82_D_service) && c82_service_age==c82_D_service",
+      "index": 13,
+      "preservation": "APP source excluded once Completed (single absorbing instance)",
+      "source": "Accepted",
+      "synchronisation": "c82_result_delivery?",
+      "target": "Completed",
+      "template": "u0_app_A_REQ",
+      "writes": [
+        "c82_active",
+        "c82_outcome",
+        "c82_receipt_quality",
+        "c82_receipt_sample_band",
+        "c82_receipt_service_band",
+        "c82_receipt_timely",
+        "c82_received",
+        "c82_received_request_id",
+        "c82_received_sample_id",
+        "c82_success"
+      ]
+    },
+    {
+      "assignment": "c82_received=true, c82_received_request_id=c82_tx_request_id, c82_received_sample_id=c82_tx_sample_id, c82_active=false, c82_outcome=3",
+      "guard": "c82_active && (!(c82_active && c82_admitted && c82_request_id==1 && c82_admitted_id==c82_request_id && c82_job_id==c82_request_id && c82_sampled && c82_sample_id==1 && c82_sample_request_id==c82_request_id && c82_enqueued && c82_dispatched && c82_attempted && c82_tx_request_id==c82_request_id && c82_tx_sample_id==c82_sample_id && !c82_received && !c82_cancelled && !c82_sensing_failed && !c82_tx_lost && !c82_queue_failed && c82_outcome==0 && c82_req_fresh==2 && c82_req_update==2) || !c82_payload_quality())",
+      "index": 14,
+      "preservation": "APP source excluded once Completed (single absorbing instance)",
+      "source": "Accepted",
+      "synchronisation": "c82_result_delivery?",
+      "target": "ServiceFailed",
+      "template": "u0_app_A_REQ",
+      "writes": [
+        "c82_active",
+        "c82_outcome",
+        "c82_received",
+        "c82_received_request_id",
+        "c82_received_sample_id"
+      ]
+    },
+    {
+      "assignment": "c82_received=true, c82_received_request_id=c82_tx_request_id, c82_received_sample_id=c82_tx_sample_id, c82_active=false, c82_outcome=3",
+      "guard": "(c82_active && c82_admitted && c82_request_id==1 && c82_admitted_id==c82_request_id && c82_job_id==c82_request_id && c82_sampled && c82_sample_id==1 && c82_sample_request_id==c82_request_id && c82_enqueued && c82_dispatched && c82_attempted && c82_tx_request_id==c82_request_id && c82_tx_sample_id==c82_sample_id && !c82_received && !c82_cancelled && !c82_sensing_failed && !c82_tx_lost && !c82_queue_failed && c82_outcome==0 && c82_req_fresh==2 && c82_req_update==2) && c82_payload_quality() && c82_sample_age>=5",
+      "index": 15,
+      "preservation": "APP source excluded once Completed (single absorbing instance)",
+      "source": "Accepted",
+      "synchronisation": "c82_result_delivery?",
+      "target": "ServiceFailed",
+      "template": "u0_app_A_REQ",
+      "writes": [
+        "c82_active",
+        "c82_outcome",
+        "c82_received",
+        "c82_received_request_id",
+        "c82_received_sample_id"
+      ]
+    },
+    {
+      "assignment": "c82_active=false, c82_outcome=3",
+      "guard": "c82_active && (c82_sensing_failed || c82_tx_lost || c82_queue_failed)",
+      "index": 16,
+      "preservation": "APP source excluded once Completed (single absorbing instance)",
+      "source": "Accepted",
+      "target": "ServiceFailed",
+      "template": "u0_app_A_REQ",
+      "writes": [
+        "c82_active",
+        "c82_outcome"
+      ]
+    },
+    {
+      "assignment": "c82_active=false, c82_outcome=4",
+      "guard": "c82_active && c82_service_age==c82_D_service",
+      "index": 17,
+      "preservation": "APP source excluded once Completed (single absorbing instance)",
+      "source": "Accepted",
+      "target": "ServiceTimeout",
+      "template": "u0_app_A_REQ",
+      "writes": [
+        "c82_active",
+        "c82_outcome"
+      ]
+    },
+    {
+      "assignment": "c82_received=true, c82_received_request_id=c82_tx_request_id, c82_received_sample_id=c82_tx_sample_id, c82_receipt_timely=true, c82_receipt_quality=true, c82_receipt_sample_band=0, c82_success=true, c82_active=false, c82_outcome=1, u0_bus_complete_delivered=true, c82_receipt_service_band=1",
+      "guard": "((c82_active && c82_admitted && c82_request_id==1 && c82_admitted_id==c82_request_id && c82_job_id==c82_request_id && c82_sampled && c82_sample_id==1 && c82_sample_request_id==c82_request_id && c82_enqueued && c82_dispatched && c82_attempted && c82_tx_request_id==c82_request_id && c82_tx_sample_id==c82_sample_id && !c82_received && !c82_cancelled && !c82_sensing_failed && !c82_tx_lost && !c82_queue_failed && c82_outcome==0 && c82_req_fresh==2 && c82_req_update==2) && c82_payload_quality() && c82_sample_age<5 && c82_service_age<=c82_D_service) && c82_service_age<c82_D_service",
+      "index": 18,
+      "preservation": "APP source excluded once Completed (single absorbing instance)",
+      "source": "AcceptedDegraded",
+      "synchronisation": "c82_result_delivery?",
+      "target": "Completed",
+      "template": "u0_app_A_REQ",
+      "writes": [
+        "c82_active",
+        "c82_outcome",
+        "c82_receipt_quality",
+        "c82_receipt_sample_band",
+        "c82_receipt_service_band",
+        "c82_receipt_timely",
+        "c82_received",
+        "c82_received_request_id",
+        "c82_received_sample_id",
+        "c82_success"
+      ]
+    },
+    {
+      "assignment": "c82_received=true, c82_received_request_id=c82_tx_request_id, c82_received_sample_id=c82_tx_sample_id, c82_receipt_timely=true, c82_receipt_quality=true, c82_receipt_sample_band=0, c82_success=true, c82_active=false, c82_outcome=1, u0_bus_complete_delivered=true, c82_receipt_service_band=2",
+      "guard": "((c82_active && c82_admitted && c82_request_id==1 && c82_admitted_id==c82_request_id && c82_job_id==c82_request_id && c82_sampled && c82_sample_id==1 && c82_sample_request_id==c82_request_id && c82_enqueued && c82_dispatched && c82_attempted && c82_tx_request_id==c82_request_id && c82_tx_sample_id==c82_sample_id && !c82_received && !c82_cancelled && !c82_sensing_failed && !c82_tx_lost && !c82_queue_failed && c82_outcome==0 && c82_req_fresh==2 && c82_req_update==2) && c82_payload_quality() && c82_sample_age<5 && c82_service_age<=c82_D_service) && c82_service_age==c82_D_service",
+      "index": 19,
+      "preservation": "APP source excluded once Completed (single absorbing instance)",
+      "source": "AcceptedDegraded",
+      "synchronisation": "c82_result_delivery?",
+      "target": "Completed",
+      "template": "u0_app_A_REQ",
+      "writes": [
+        "c82_active",
+        "c82_outcome",
+        "c82_receipt_quality",
+        "c82_receipt_sample_band",
+        "c82_receipt_service_band",
+        "c82_receipt_timely",
+        "c82_received",
+        "c82_received_request_id",
+        "c82_received_sample_id",
+        "c82_success"
+      ]
+    },
+    {
+      "assignment": "c82_received=true, c82_received_request_id=c82_tx_request_id, c82_received_sample_id=c82_tx_sample_id, c82_active=false, c82_outcome=3",
+      "guard": "c82_active && (!(c82_active && c82_admitted && c82_request_id==1 && c82_admitted_id==c82_request_id && c82_job_id==c82_request_id && c82_sampled && c82_sample_id==1 && c82_sample_request_id==c82_request_id && c82_enqueued && c82_dispatched && c82_attempted && c82_tx_request_id==c82_request_id && c82_tx_sample_id==c82_sample_id && !c82_received && !c82_cancelled && !c82_sensing_failed && !c82_tx_lost && !c82_queue_failed && c82_outcome==0 && c82_req_fresh==2 && c82_req_update==2) || !c82_payload_quality())",
+      "index": 20,
+      "preservation": "APP source excluded once Completed (single absorbing instance)",
+      "source": "AcceptedDegraded",
+      "synchronisation": "c82_result_delivery?",
+      "target": "ServiceFailed",
+      "template": "u0_app_A_REQ",
+      "writes": [
+        "c82_active",
+        "c82_outcome",
+        "c82_received",
+        "c82_received_request_id",
+        "c82_received_sample_id"
+      ]
+    },
+    {
+      "assignment": "c82_received=true, c82_received_request_id=c82_tx_request_id, c82_received_sample_id=c82_tx_sample_id, c82_active=false, c82_outcome=3",
+      "guard": "(c82_active && c82_admitted && c82_request_id==1 && c82_admitted_id==c82_request_id && c82_job_id==c82_request_id && c82_sampled && c82_sample_id==1 && c82_sample_request_id==c82_request_id && c82_enqueued && c82_dispatched && c82_attempted && c82_tx_request_id==c82_request_id && c82_tx_sample_id==c82_sample_id && !c82_received && !c82_cancelled && !c82_sensing_failed && !c82_tx_lost && !c82_queue_failed && c82_outcome==0 && c82_req_fresh==2 && c82_req_update==2) && c82_payload_quality() && c82_sample_age>=5",
+      "index": 21,
+      "preservation": "APP source excluded once Completed (single absorbing instance)",
+      "source": "AcceptedDegraded",
+      "synchronisation": "c82_result_delivery?",
+      "target": "ServiceFailed",
+      "template": "u0_app_A_REQ",
+      "writes": [
+        "c82_active",
+        "c82_outcome",
+        "c82_received",
+        "c82_received_request_id",
+        "c82_received_sample_id"
+      ]
+    },
+    {
+      "assignment": "c82_active=false, c82_outcome=3",
+      "guard": "c82_active && (c82_sensing_failed || c82_tx_lost || c82_queue_failed)",
+      "index": 22,
+      "preservation": "APP source excluded once Completed (single absorbing instance)",
+      "source": "AcceptedDegraded",
+      "target": "ServiceFailed",
+      "template": "u0_app_A_REQ",
+      "writes": [
+        "c82_active",
+        "c82_outcome"
+      ]
+    },
+    {
+      "assignment": "c82_active=false, c82_outcome=4",
+      "guard": "c82_active && c82_service_age==c82_D_service",
+      "index": 23,
+      "preservation": "APP source excluded once Completed (single absorbing instance)",
+      "source": "AcceptedDegraded",
+      "target": "ServiceTimeout",
+      "template": "u0_app_A_REQ",
+      "writes": [
+        "c82_active",
+        "c82_outcome"
+      ]
+    },
+    {
+      "assignment": "u0_bus_terminate_recorded=true, u0_bus_termination_pending=true, c82_cancelled=(c82_active || c82_cancelled), c82_outcome=(c82_active ? 5 : c82_outcome), c82_active=false",
+      "index": 6,
+      "preservation": "inactive termination preserves cancelled/outcome and active=false",
+      "source": "Demand",
+      "synchronisation": "u0_app_service_terminate?",
+      "target": "Demand",
+      "template": "u0_Boundary_E_SERVICE",
+      "writes": [
+        "c82_active",
+        "c82_cancelled",
+        "c82_outcome"
+      ]
+    },
+    {
+      "assignment": "u0_bus_terminate_recorded=true, u0_bus_termination_pending=true, c82_cancelled=(c82_active || c82_cancelled), c82_outcome=(c82_active ? 5 : c82_outcome), c82_active=false",
+      "index": 12,
+      "preservation": "inactive termination preserves cancelled/outcome and active=false",
+      "source": "Run",
+      "synchronisation": "u0_app_service_terminate?",
+      "target": "Run",
+      "template": "u0_Boundary_E_SERVICE",
+      "writes": [
+        "c82_active",
+        "c82_cancelled",
+        "c82_outcome"
+      ]
+    },
+    {
+      "assignment": "u0_bus_terminate_recorded=true, u0_bus_termination_pending=true, c82_cancelled=(c82_active || c82_cancelled), c82_outcome=(c82_active ? 5 : c82_outcome), c82_active=false",
+      "index": 18,
+      "preservation": "inactive termination preserves cancelled/outcome and active=false",
+      "source": "Done",
+      "synchronisation": "u0_app_service_terminate?",
+      "target": "Done",
+      "template": "u0_Boundary_E_SERVICE",
+      "writes": [
+        "c82_active",
+        "c82_cancelled",
+        "c82_outcome"
+      ]
+    },
+    {
+      "assignment": "c82_mac_service(server), u0_mac_queue_q=(u0_mac_queue_q > u0_mac_queue_K ? u0_mac_queue_q : u0_mac_queue_q-(server == 0 ? 1 : 0)+arrival_0), u0_mac_queue_overflow_seen=(u0_mac_queue_overflow_seen || u0_mac_queue_q > u0_mac_queue_K), u0_mac_queueClass=(u0_mac_queue_q == 0 ? u0_mac_Q_EMPTY : (u0_mac_queue_q <= u0_mac_queue_L ? u0_mac_Q_LOW : (u0_mac_queue_q <= u0_mac_queue_M ? u0_mac_Q_MED : (u0_mac_queue_q < u0_mac_queue_H ? u0_mac_Q_HIGH : u0_mac_Q_CRIT)))), u0_mac_bufferClass=m1_0, u0_mac_delayClass=m2_0, u0_mac_dropClass=m3_0, u0_mac_resourceClass=m4_0, u0_mac_sensingDemand=m5_0, u0_mac_commDemand=m6_0, u0_bus_mac_age=0, u0_bus_mac_valid=true, family_grant_0=(server == 0), family_last_server=server, tick=0",
+      "guard": "tick == u0_bus_T_mac_tick && (server != 0 || (u0_mac_queue_q > 0 && (u0_mac_scheduleMode == u0_mac_SCH_COMM || u0_mac_scheduleMode == u0_mac_SCH_JOINT)))",
+      "index": 1,
+      "preservation": "reviewed helper writes only inside its c82_active conjunction",
+      "select": "server:int[-1,0]",
+      "source": "Sample_1",
+      "target": "Publish_0",
+      "template": "SharedLoad",
+      "writes": [
+        "c82_dispatched",
+        "c82_fifo_rank",
+        "c82_tx_request_id",
+        "c82_tx_sample_id"
+      ]
+    },
+    {
+      "assignment": "c82_insert_result()",
+      "guard": "c82_active && c82_sampled && !c82_enqueued && u0_mac_queue_q<u0_mac_queue_K",
+      "index": 5,
+      "preservation": "disabled by strengthened invariant !c82_active",
+      "source": "Wait",
+      "synchronisation": "c82_enqueue?",
+      "target": "Wait",
+      "template": "SharedLoad",
+      "writes": [
+        "c82_enqueued",
+        "c82_fifo_rank"
+      ]
+    },
+    {
+      "assignment": "c82_queue_overflow()",
+      "guard": "c82_active && c82_sampled && !c82_enqueued && u0_mac_queue_q>=u0_mac_queue_K",
+      "index": 6,
+      "preservation": "disabled by strengthened invariant !c82_active",
+      "source": "Wait",
+      "synchronisation": "c82_enqueue_loss!",
+      "target": "Wait",
+      "template": "SharedLoad",
+      "writes": [
+        "c82_queue_failed"
+      ]
+    },
+    {
+      "assignment": "c82_job_id=c82_admitted_id",
+      "guard": "c82_active && c82_admitted",
+      "index": 0,
+      "preservation": "disabled by strengthened invariant !c82_active",
+      "source": "Idle",
+      "target": "Ready",
+      "template": "C82_ResultJob",
+      "writes": [
+        "c82_job_id"
+      ]
+    },
+    {
+      "assignment": "c82_attempted=true, c82_tx_age=0",
+      "guard": "c82_active && c82_dispatched",
+      "index": 6,
+      "preservation": "disabled by strengthened invariant !c82_active",
+      "source": "Queued",
+      "target": "Transmitting",
+      "template": "C82_ResultJob",
+      "writes": [
+        "c82_attempted",
+        "c82_tx_age"
+      ]
+    },
+    {
+      "assignment": "c82_tx_lost=true",
+      "guard": "c82_active && c82_tx_age<=u0_bus_D_bus",
+      "index": 8,
+      "preservation": "disabled by strengthened invariant !c82_active",
+      "source": "Transmitting",
+      "target": "Done",
+      "template": "C82_ResultJob",
+      "writes": [
+        "c82_tx_lost"
+      ]
+    }
+  ]
+}

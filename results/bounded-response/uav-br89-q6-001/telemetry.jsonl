@@ -1,0 +1,16 @@
+{"monotonic": 65106.468, "rss_bytes": 2088960, "leader_peak_rss_bytes": 2093056, "cpu_seconds": 0.0, "live_processes": 1, "peak_job_private_commit_bytes": 557056}
+{"monotonic": 65106.531, "rss_bytes": 22528000, "leader_peak_rss_bytes": 10481664, "cpu_seconds": 0.046875, "live_processes": 2, "peak_job_private_commit_bytes": 10207232}
+{"monotonic": 65106.578, "rss_bytes": 28786688, "leader_peak_rss_bytes": 16728064, "cpu_seconds": 0.09375, "live_processes": 2, "peak_job_private_commit_bytes": 15810560}
+{"monotonic": 65106.625, "rss_bytes": 34914304, "leader_peak_rss_bytes": 22855680, "cpu_seconds": 0.140625, "live_processes": 2, "peak_job_private_commit_bytes": 22233088}
+{"monotonic": 65106.671, "rss_bytes": 41951232, "leader_peak_rss_bytes": 29892608, "cpu_seconds": 0.1875, "live_processes": 2, "peak_job_private_commit_bytes": 29347840}
+{"monotonic": 65106.734, "rss_bytes": 45985792, "leader_peak_rss_bytes": 34975744, "cpu_seconds": 0.25, "live_processes": 2, "peak_job_private_commit_bytes": 36020224}
+{"monotonic": 65106.781, "rss_bytes": 29044736, "leader_peak_rss_bytes": 35557376, "cpu_seconds": 0.296875, "live_processes": 2, "peak_job_private_commit_bytes": 36028416}
+{"monotonic": 65106.828, "rss_bytes": 35598336, "leader_peak_rss_bytes": 35557376, "cpu_seconds": 0.34375, "live_processes": 2, "peak_job_private_commit_bytes": 36028416}
+{"monotonic": 65106.875, "rss_bytes": 41926656, "leader_peak_rss_bytes": 35557376, "cpu_seconds": 0.390625, "live_processes": 2, "peak_job_private_commit_bytes": 36028416}
+{"monotonic": 65106.937, "rss_bytes": 47071232, "leader_peak_rss_bytes": 35557376, "cpu_seconds": 0.453125, "live_processes": 2, "peak_job_private_commit_bytes": 36028416}
+{"monotonic": 65106.984, "rss_bytes": 50507776, "leader_peak_rss_bytes": 38449152, "cpu_seconds": 0.5, "live_processes": 2, "peak_job_private_commit_bytes": 72257536}
+{"monotonic": 65107.031, "rss_bytes": 68505600, "leader_peak_rss_bytes": 56446976, "cpu_seconds": 0.546875, "live_processes": 2, "peak_job_private_commit_bytes": 97943552}
+{"monotonic": 65107.078, "rss_bytes": 68505600, "leader_peak_rss_bytes": 56446976, "cpu_seconds": 0.59375, "live_processes": 2, "peak_job_private_commit_bytes": 97943552}
+{"monotonic": 65107.14, "rss_bytes": 68505600, "leader_peak_rss_bytes": 56446976, "cpu_seconds": 0.65625, "live_processes": 2, "peak_job_private_commit_bytes": 97943552}
+{"monotonic": 65107.187, "rss_bytes": 46899200, "leader_peak_rss_bytes": 56463360, "cpu_seconds": 0.703125, "live_processes": 2, "peak_job_private_commit_bytes": 97943552}
+{"monotonic": 65107.234, "rss_bytes": 0, "leader_peak_rss_bytes": 56463360, "cpu_seconds": 0.71875, "live_processes": 0, "peak_job_private_commit_bytes": 97943552}
